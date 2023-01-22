@@ -1,12 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ApplicationList from '../components/ApplicationList';
 import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
-function ApplicationPage() {
+function ApplicationPage({ setApplicationToEdit }) {
   
   const [applications, setApplications] = useState([]);
+
+  const navigate = useNavigate();
 
   const onDelete = async id => {
     const response = await fetch(`/applications/${id}`, { method: 'DELETE' });
@@ -16,7 +17,12 @@ function ApplicationPage() {
     } else {
         console.error(`Failed to delete application with id = ${id}, status code = ${response.status}`)
     }
-};
+  };
+
+  const onEdit = application => {
+    setApplicationToEdit(application);
+    navigate("/edit-application");
+  };
 
   const loadApplications = async () => {
     const response = await fetch('/applications');
@@ -35,7 +41,13 @@ function ApplicationPage() {
       <div>
         <p>Hello Username!</p>
         <p>List of your applications:</p>
-        <ApplicationList applications={applications} onDelete={onDelete}></ApplicationList>
+        <ApplicationList 
+          applications={applications} 
+          onDelete={onDelete}
+          onEdit={onEdit}></ApplicationList>
+        <p>
+          <Link to="/add-application">Add a New Application</Link>
+        </p>
       </div>
     </>
   );
