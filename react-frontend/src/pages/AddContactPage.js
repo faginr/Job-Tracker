@@ -10,7 +10,8 @@ export const AddContactPage = () => {
 
   const navigate = useNavigate();
 
-  const addContact = async () => {
+  const addContact = async (e) => {
+    e.preventDefault();
 
     const newContact = { name, email, phone, notes };
 
@@ -33,35 +34,35 @@ export const AddContactPage = () => {
   
   return (
     <div>
-      <h1>Add Contact</h1>
-      <input
-        type="text"
-        placeholder="Enter name"
-        value={name}
-        onChange={e => setName(e.target.value)} />
-      <input
-        type="text"
-        value={email}
-        placeholder="Enter email"
-        onChange={e => setEmail(e.target.value)} />
-      <input
-        type="text"
-        placeholder="Enter phone"
-        value={phone}
-        onChange={e => setPhone(e.target.value)} />
-      <input
-        type="text"
-        placeholder="Enter notes"
-        value={notes}
-        onChange={e => setNotes(e.target.value)} />
+      <form onSubmit={addContact}>
+        <h1>Add Contact</h1>
+        <input
+          required
+          type="text"
+          placeholder="Enter name (required)"
+          value={name}
+          onChange={e => setName(e.target.value)} />
+        <input
+          type="text"
+          value={email}
+          placeholder="Enter email"
+          onChange={e => setEmail(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Enter phone"
+          value={phone}
+          onChange={e => setPhone(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Enter notes"
+          value={notes}
+          onChange={e => setNotes(e.target.value)} />
+        <p>
+          <button>Add</button>
+        </p>
+      </form>
       <p>
-        <button
-          onClick={() => navigate(-1)}
-        >Cancel</button>
-        <> </>
-        <button
-          onClick={addContact}
-        >Add</button>
+        <button onClick={() => navigate(-1)} >Cancel</button>
       </p>
     </div>
   );

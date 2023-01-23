@@ -10,12 +10,16 @@ function ContactPage({ setContactToEdit }) {
   const navigate = useNavigate();
 
   const onDelete = async id => {
-    const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
-    if (response.status === 204) {
-        setContacts(contacts.filter(contact => contact.id !== id));
-        alert("Successfully deleted the contact! Click Ok to update the page.");
-    } else {
-        console.error(`Failed to delete contact with id = ${id}, status code = ${response.status}`)
+    const confirmed = window.confirm("Are you sure you want to delete the contact?");
+
+    if (confirmed) {
+      const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
+      if (response.status === 204) {
+          setContacts(contacts.filter(contact => contact.id !== id));
+          alert("Successfully deleted the contact! Click Ok to update the page.");
+      } else {
+          console.error(`Failed to delete contact with id = ${id}, status code = ${response.status}`)
+      }
     }
   };
 

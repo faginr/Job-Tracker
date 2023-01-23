@@ -10,7 +10,8 @@ export const EditContactPage = ({ contactToEdit }) => {
 
   const navigate = useNavigate();
 
-  const editContact = async () => {
+  const editContact = async (e) => {
+    e.preventDefault();
 
     const editedContact = { name, email, phone, notes };
 
@@ -33,31 +34,31 @@ export const EditContactPage = ({ contactToEdit }) => {
   
   return (
     <div>
-      <h1>Edit Contact</h1>
-      <input
-        type="text"
-        value={name}
-        onChange={e => setName(e.target.value)} />
-      <input
-        type="text"
-        value={email}
-        onChange={e => setEmail(e.target.value)} />
-      <input
-        type="text"
-        value={phone}
-        onChange={e => setPhone(e.target.value)} />
-      <input
-        type="text"
-        value={notes}
-        onChange={e => setNotes(e.target.value)} />
+      <form onSubmit={editContact}>
+        <h1>Edit Contact</h1>
+        <input
+          required
+          type="text"
+          value={name}
+          onChange={e => setName(e.target.value)} />
+        <input
+          type="text"
+          value={email}
+          onChange={e => setEmail(e.target.value)} />
+        <input
+          type="text"
+          value={phone}
+          onChange={e => setPhone(e.target.value)} />
+        <input
+          type="text"
+          value={notes}
+          onChange={e => setNotes(e.target.value)} />
+        <p>
+          <button>Submit</button>
+        </p>
+      </form>
       <p>
-        <button
-          onClick={() => navigate(-1)}
-        >Cancel</button>
-        <> </>
-        <button
-          onClick={editContact}
-        >Submit</button>
+        <button onClick={() => navigate(-1)} >Cancel</button>
       </p>
     </div>
   );
