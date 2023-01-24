@@ -58,12 +58,12 @@ export const AddContactPage = () => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
         <p>
-          <button>Add</button>
+        <input type="submit" value="Add" />
+        <> </>
+        <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
       </form>
-      <p>
-        <button onClick={() => navigate(-1)} >Cancel</button>
-      </p>
+      
     </div>
   );
 }

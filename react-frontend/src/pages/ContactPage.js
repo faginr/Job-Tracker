@@ -6,6 +6,26 @@ import { useState, useEffect } from 'react';
 function ContactPage({ setContactToEdit }) {
   
   const [contacts, setContacts] = useState([]);
+  const [order, setOrder] = useState("ASC");
+  
+  // sorts the contact table by clicking on the name of the first column
+  const sorting = (col) => {
+    if (order === "ASC"){
+      const sorted = [...contacts].sort((a,b) =>
+        a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1
+      );
+      setContacts(sorted);
+      setOrder("DSC");
+    };
+
+    if (order === "DSC"){
+      const sorted = [...contacts].sort((a,b) =>
+        a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1
+      );
+      setContacts(sorted);
+      setOrder("ASC");
+    };
+  }
 
   const navigate = useNavigate();
 
@@ -48,7 +68,8 @@ function ContactPage({ setContactToEdit }) {
         <ContactList 
           contacts={contacts} 
           onDelete={onDelete}
-          onEdit={onEdit}></ContactList>
+          onEdit={onEdit}
+          sorting={sorting}></ContactList>
         <p>
           <Link to="/add-contact">Add a New Contact</Link>
         </p>

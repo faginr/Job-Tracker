@@ -1,13 +1,13 @@
 import React from 'react';
 import Contact from './Contact';
 
-function ContactList({ contacts, onDelete, onEdit }) {
+function ContactList({ contacts, onDelete, onEdit, sorting }) {
 
   return (
     <table id="contacts">
       <thead>
         <tr>
-          <th>Contact Name</th>
+          <th onClick={() => sorting("name")} >Contact Name (click to sort)</th>
           <th>Contact Email</th>
           <th>Contact Phone</th>
           <th>Notes about the contact</th>

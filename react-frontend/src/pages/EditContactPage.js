@@ -54,12 +54,11 @@ export const EditContactPage = ({ contactToEdit }) => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
         <p>
-          <button>Submit</button>
+        <input type="submit" value="Submit" />
+        <> </>
+        <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
       </form>
-      <p>
-        <button onClick={() => navigate(-1)} >Cancel</button>
-      </p>
     </div>
   );
 }
