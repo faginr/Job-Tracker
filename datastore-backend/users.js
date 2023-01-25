@@ -154,6 +154,26 @@ async function verifyResourceExists (req, res, next) {
 
 
 /**
+ * Verifies that the user that we're trying to create doesn't exist.
+ * If it does exist, a 400 status is returned. Otherwise, passes to the
+ * next middleware.
+ * @param {express.request} req 
+ * @param {express.response} res 
+ * @param {express.next} next 
+ */
+async function verifyUserDoesNotExist (req, res, next) {
+    const resourceId = req.params.username
+
+    const resource = await model.getItemByID('users', resourceId, false)
+    if (resource[0] !== null || resource[0] !== undefined) {
+        res.status(400).send(errorMessages[400].userExists)
+    } else {
+        next()
+    }
+}
+
+
+/**
  * Verifies that the user requesting action via a JWT owns the resource being requested. 
  * NOTE - this middleware must come after verifyResourceExists and verifyJWT, as they 
  * perform actions that this middleware depends on. If the user requesting action does 
@@ -183,9 +203,9 @@ function methodNotAllowed (req, res) {
 
 
 /*------------------ USERS ROUTES --------------------------- */
-router.post('/', verifyContentTypeHeader,
-                verifyAcceptHeader,
+router.post('/', verifyAcceptHeader,
                 verifyJWT,
+                verifyUserDoesNotExist,
                 verifyRequestBodyKeys,
                 verifyRequestBodyVals, async (req, res) => {
     
