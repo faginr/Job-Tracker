@@ -1,8 +1,8 @@
 const express = require('express');
-const routing = require('./index')
+const index = require('./index')
 const app = express();
 
-app.use('/', routing);
+app.use('/', index.router);
 
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8080;
