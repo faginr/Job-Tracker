@@ -4,7 +4,8 @@ import { MdDeleteForever, MdEdit } from 'react-icons/md';
 function Contact({ contact, onDelete, onEdit }) {
   return (
     <tr>
-      <td>{contact.name}</td>
+      <td>{contact.lastName}</td>
+      <td>{contact.firstName}</td>
       <td>{contact.email}</td>
       <td>{contact.phone}</td>
       <td>{contact.notes}</td>
