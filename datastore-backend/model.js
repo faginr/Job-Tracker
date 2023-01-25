@@ -1,7 +1,7 @@
 const gcds = require('./datastore')
 
 // grab the datastore instance used for this project
-const ds = gcds.Datastore
+const ds = gcds.datastore
 
 // define function to add id to entities returned from DS
 function fromStore (data) {
