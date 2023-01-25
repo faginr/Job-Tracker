@@ -1,9 +1,19 @@
+/**
+ * Date 1/25/2023
+ * Code Source for AddContactPage:
+ * The code is adapted from a code provided in CS290 Web Development:
+ * Module 9 - Full Stack MERN Apps
+ * Exploration — Implementing a Full-Stack MERN App - Part 1
+ */
+
+
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 export const AddContactPage = () => {
   
-  const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
@@ -13,7 +23,7 @@ export const AddContactPage = () => {
   const addContact = async (e) => {
     e.preventDefault();
 
-    const newContact = { name, email, phone, notes };
+    const newContact = { lastName, firstName, email, phone, notes };
 
     const response = await fetch('/contacts', {
       method: 'POST',
@@ -39,9 +49,14 @@ export const AddContactPage = () => {
         <input
           required
           type="text"
-          placeholder="Enter name (required)"
-          value={name}
-          onChange={e => setName(e.target.value)} />
+          placeholder="Enter last name (required)"
+          value={lastName}
+          onChange={e => setLastName(e.target.value)} />
+        <input
+          type="text"
+          value={firstName}
+          placeholder="Enter first name"
+          onChange={e => setFirstName(e.target.value)} />
         <input
           type="text"
           value={email}
