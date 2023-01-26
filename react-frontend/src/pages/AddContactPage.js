@@ -53,9 +53,10 @@ export const AddContactPage = () => {
           value={lastName}
           onChange={e => setLastName(e.target.value)} />
         <input
+          required
           type="text"
           value={firstName}
-          placeholder="Enter first name"
+          placeholder="Enter first name (required)"
           onChange={e => setFirstName(e.target.value)} />
         <input
           type="text"
