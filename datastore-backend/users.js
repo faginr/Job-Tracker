@@ -12,9 +12,9 @@ function newUser (decodedJWT) {
     const [month, day, year] = [date.getMonth() + 1, date.getDate(), date.getFullYear()]
 
     const newUser = {
-        "username": decodedJWT.payload.username,
+        "username": decodedJWT.username,
         "created": `${month}/${day}/${year}`,
-        "id": decodedJWT.payload.sub
+        "id": decodedJWT.sub
     }
 
     return newUser
@@ -22,7 +22,7 @@ function newUser (decodedJWT) {
 
 function fakeDecode(token, req) {
     req.body.auth.username = 'tester'
-    req.body.auth.id = 1234567890
+    req.body.auth.sub = 1234567890
 }
 
 /*--------------- Middleware Functions --------------------- */
@@ -141,7 +141,7 @@ function verifyRequestBodyVals (req, res, next) {
  * @param {express.next} next 
  */
 async function verifyResourceExists (req, res, next) {
-    const resourceId = req.params.username
+    const resourceId = req.params.user_id
 
     const resource = await model.getItemByID('users', resourceId, false)
     if (resource[0] === null || resource[0] === undefined) {
@@ -162,7 +162,7 @@ async function verifyResourceExists (req, res, next) {
  * @param {express.next} next 
  */
 async function verifyUserDoesNotExist (req, res, next) {
-    const resourceId = req.params.username
+    const resourceId = req.body.id
 
     const resource = await model.getItemByID('users', resourceId, false)
     if (resource[0] !== null || resource[0] !== undefined) {
@@ -185,7 +185,7 @@ async function verifyUserDoesNotExist (req, res, next) {
 async function verifyUserOwnsResource (req, res, next) {
     // existing resource is stored in the body of the request at this point 
     // (after verifyResourceExists)
-    if (req.body.existResource.username !== req.body.username) {
+    if (req.body.existResource.id !== req.params.user_id) {
         res.status(403).send(errorMessages[403])
     } else {
         next()
@@ -228,7 +228,7 @@ router.delete('/', methodNotAllowed)
 
 /*------------------ USERS/USERNAME ROUTES -------------------- */
 
-router.get('/users/:username', verifyAcceptHeader,
+router.get('/users/:user_id', verifyAcceptHeader,
                             verifyJWT,
                             verifyResourceExists,
                             verifyUserOwnsResource, async(req, res) => {
