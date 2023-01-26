@@ -21,8 +21,10 @@ function newUser (decodedJWT) {
 }
 
 function fakeDecode(token, req) {
-    req.body.auth.username = 'tester'
-    req.body.auth.sub = 1234567890
+    req.body = {"auth": {
+        "username": "tester",
+        "sub": 1234567890
+    }}
 }
 
 /*--------------- Middleware Functions --------------------- */
