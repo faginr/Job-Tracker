@@ -1,5 +1,5 @@
 const express = require('express')
-const model = require('./model')
+const model = require('../model')
 const messages = require('./errorMessages')
 // TODO: Import auth client
 

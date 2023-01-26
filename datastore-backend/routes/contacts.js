@@ -11,7 +11,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 
-const ds = require('./datastore');
+const ds = require('../datastore');
 const datastore = ds.datastore;
 
 const errorMessages = require('./errorMessages');
@@ -25,7 +25,7 @@ const CONTACT = "Contact";
 router.use(bodyParser.json());
 router.use((err, req, res, next) => {
   if (err) {
-    console.error(err)
+    //console.error(err)
     res.status(400).send(errorMessages[400].jsonError)
   } else {
     next()
@@ -183,6 +183,10 @@ router.get('/', checkAcceptHeader, function (req, res) {
   get_contacts()
     .then((contacts) => {
       res.status(200).json(contacts);
+    })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
     });
 });
 
@@ -190,20 +194,33 @@ router.get('/', checkAcceptHeader, function (req, res) {
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
   post_contact(req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
-    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') });
+    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
 router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Put request received!");
   put_contact(req.params.id, req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
-    .then(res.status(200).end());
+    .then(res.status(200).end())
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
 router.delete('/:id', checkIdExists, function (req, res) {
   console.log("Delete request received!");
-  delete_contact(req.params.id).then(res.status(204).end())
+  delete_contact(req.params.id)
+    .then(res.status(204).end())
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
@@ -211,6 +228,10 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
   console.log("Get request received!");
   get_contact(req.params.id)
     .then(contact => {res.status(200).json(contact[0]) })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 /* ------------- End Controller Functions ------------- */
