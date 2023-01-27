@@ -232,27 +232,26 @@ router.delete('/', methodNotAllowed)
 /*------------------ USERS/USERNAME ROUTES -------------------- */
 
 router.get('/:user_id', verifyAcceptHeader,
-                            verifyJWT,
-                            verifyResourceExists,
-                            verifyUserOwnsResource, async(req, res) => {
+                        verifyJWT,
+                        verifyResourceExists,
+                        verifyUserOwnsResource, async(req, res) => {
     res.status(200).send(req.body.existResource)
 })
 
 router.delete('/:user_id', verifyJWT,
-                                verifyResourceExists,
-                                verifyUserOwnsResource, async (req, res) => {
-    // delete user, need to delete applications and contacts as well
-    const user = req.body.existResource
-    for (application in user.applications) {
-        // delete each application
-        continue
-    }
-    for (contact in user.contacts) {
-        // delete each contact
-        continue
-    }
+                            verifyResourceExists,
+                            verifyUserOwnsResource, async (req, res) => {
+    const user_id = req.body.existResource.id
+    
     try {
-        await model.deleteItem('users', req.params.user_id)
+        // delete applications tied to user
+        const deletedApps = await model.deleteMatchingItemsFromKind('applications', 'user_id', user_id)
+        
+        // delete contacts tied to user
+        const deletedContacts = await model.deleteMatchingItemsFromKind('contacts', 'user_id', user_id)
+
+        // delete user
+        await model.deleteItem('users', user_id)
         res.status(200).end()
     } catch (error) {
         console.error(error)
