@@ -35,7 +35,7 @@ async function postItemManId(newData, id, kind) {
 
     await ds.save(entity)
 
-    newData.id = newKey.name
+    newData.id = newKey.id
     return newData
 }
 
@@ -193,21 +193,14 @@ async function getFilteredItemsPaginated(kind, filterProp, filterVal, pageCursor
 /**
  * Returns an array with a single entity from datastore whose id matches the 
  * id parameter. If no match found, array is empty.
- * NOTE - manualId = true must be used for entities whose key id's are not 
- * automatically created by datastore.
  * @param {str} kind 
  * @param {str} id 
  * @param {bool} manualId 
  * @returns Array with single entity
  */
-async function getItemByID(kind, id, manualId=false){
+async function getItemByID(kind, id){
     // manually create matching key
-    let manKey = null
-    if (manualId) {
-        manKey = ds.key([kind, id])
-    } else {
-        manKey = ds.key([kind, parseInt(id, 10)])
-    }
+    let manKey = ds.key([kind, parseInt(id, 10)])
 
     const results = await ds.get(manKey)
 
@@ -237,22 +230,15 @@ async function deleteItem(kind, id) {
  * newData object. Returns a single object (not array)
  * NOTE - newData must have an "id" field that contains the id of the datastore 
  * entity to be updated.
- * NOTE - manualId = true must be used for entities that are not assigned keys 
- * automatically by datastore.
  * @param {object} newData 
  * @param {str} kind 
- * @param {bool} manualId 
  * @returns Updated Entity
  */
-async function updateItem(newData, kind, manualId=false) {
+async function updateItem(newData, kind) {
     // manually create matching key 
     let manKey = null
     let existId = newData.id
-    if (manualId) {
-        manKey = ds.key([kind, newData.id])
-    } else {
-        manKey = ds.key([kind, parseInt(newData.id, 10)])
-    }
+    manKey = ds.key([kind, parseInt(newData.id, 10)])
 
     // prepare the entity object
     delete newData.id
