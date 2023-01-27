@@ -12,7 +12,11 @@ function HomePage() {
       </div>
 
       <img src={icon} alt="Job Search"></img>
-      <br />
+      <>Source of the image:
+        <br />https://eecs.engineering.oregonstate.edu 
+        <br />from the Job Tracker project description
+      </>
+      <br /><br />
     </>
   );  
 }
