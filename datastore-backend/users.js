@@ -252,7 +252,7 @@ router.delete('/:user_id', verifyJWT,
 
         // delete user
         await model.deleteItem('users', user_id)
-        res.status(200).end()
+        res.status(200).send({"deletedApps": deletedApps.length, "deletedContacts": deletedContacts.length})
     } catch (error) {
         console.error(error)
         res.status(500).end()
