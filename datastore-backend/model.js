@@ -226,6 +226,21 @@ async function deleteItem(kind, id) {
 }
 
 /**
+ * Deletes all items of the given kind that match the filter conditions passed.
+ * @param {str} kind 
+ * @param {str} id 
+ * @returns a list of matching keys
+ */
+async function deleteMatchingItemsFromKind(kind, filter_prop, filter_val) {
+    // get keys of items that match the user_id
+    const keys = await ds.createQuery(kind).filter(filter_prop, filter_val).select("__key__")
+
+    // perform batch delete
+    await ds.delete(keys)
+    return keys
+}
+
+/**
  * Updates an item from the "kind" entity group that matches the ID in the
  * newData object. Returns a single object (not array)
  * NOTE - newData must have an "id" field that contains the id of the datastore 
@@ -263,5 +278,6 @@ module.exports = {
     getItemsPaginate,
     getItemsNoPaginate,
     deleteItem,
+    deleteMatchingItemsFromKind,
     updateItem
 }
