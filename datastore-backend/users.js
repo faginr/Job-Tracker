@@ -1,6 +1,6 @@
 const express = require('express')
 const model = require('./model')
-const messages = require('./errorMessages')
+const errorMessages = require('./errorMessages')
 // TODO: Import auth client
 
 const router = express.Router()
@@ -167,7 +167,7 @@ async function verifyUserDoesNotExist (req, res, next) {
     const resourceId = req.body.id
 
     const resource = await model.getItemByID('users', resourceId, false)
-    if (resource[0] !== null || resource[0] !== undefined) {
+    if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
         next()
