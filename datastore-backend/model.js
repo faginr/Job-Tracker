@@ -233,7 +233,8 @@ async function deleteItem(kind, id) {
  */
 async function deleteMatchingItemsFromKind(kind, filter_prop, filter_val) {
     // get keys of items that match the user_id
-    const keys = await ds.createQuery(kind).filter(filter_prop, filter_val).select("__key__")
+    const query = ds.createQuery(kind).filter(filter_prop, filter_val).select("__key__")
+    const keys = await ds.runQuery(query)
 
     // perform batch delete
     await ds.delete(keys)
