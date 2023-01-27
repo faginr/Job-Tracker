@@ -145,7 +145,8 @@ function verifyRequestBodyVals (req, res, next) {
 async function verifyResourceExists (req, res, next) {
     const resourceId = req.params.user_id
 
-    const resource = await model.getItemByID('users', resourceId, false)
+    const resource = await model.getItemByID('users', resourceId)
+
     if (resource[0] === null || resource[0] === undefined) {
         res.status(404).send(errorMessages[404].users)
     } else {
@@ -166,7 +167,7 @@ async function verifyResourceExists (req, res, next) {
 async function verifyUserDoesNotExist (req, res, next) {
     const resourceId = req.body.id
 
-    const resource = await model.getItemByID('users', resourceId, false)
+    const resource = await model.getItemByID('users', resourceId)
     if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
@@ -230,11 +231,33 @@ router.delete('/', methodNotAllowed)
 
 /*------------------ USERS/USERNAME ROUTES -------------------- */
 
-router.get('/users/:user_id', verifyAcceptHeader,
+router.get('/:user_id', verifyAcceptHeader,
                             verifyJWT,
                             verifyResourceExists,
                             verifyUserOwnsResource, async(req, res) => {
     res.status(200).send(req.body.existResource)
+})
+
+router.delete('/:user_id', verifyJWT,
+                                verifyResourceExists,
+                                verifyUserOwnsResource, async (req, res) => {
+    // delete user, need to delete applications and contacts as well
+    const user = req.body.existResource
+    for (application in user.applications) {
+        // delete each application
+        continue
+    }
+    for (contact in user.contacts) {
+        // delete each contact
+        continue
+    }
+    try {
+        await model.deleteItem('users', req.params.user_id)
+        res.status(200).end()
+    } catch (error) {
+        console.error(error)
+        res.status(500).end()
+    }
 })
 
 module.exports = router
