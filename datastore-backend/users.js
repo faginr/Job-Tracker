@@ -259,4 +259,8 @@ router.delete('/:user_id', verifyJWT,
     }
 })
 
+router.put('/:user_id', methodNotAllowed)
+
+router.patch('/:user_id', methodNotAllowed)
+
 module.exports = router
