@@ -5,9 +5,11 @@ const ds = require("./datastore");
 
 const datastore = ds.datastore;
 
-const APPLICATION = "Application";
+const APPLICATION = "application";
 
 router.use(bodyParser.json());
+
+// gcloud auth application-default login
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              /
@@ -20,11 +22,11 @@ router.use(bodyParser.json());
 function post_application(
   title,
   description,
-  skills,
-  contacts,
-  date,
-  status,
-  link
+  skills = [],
+  contacts = [],
+  posting_date = null,
+  status = null,
+  link = null
 ) {
   var app_key = datastore.key(APPLICATION);
   const new_application = {
@@ -32,12 +34,12 @@ function post_application(
     description: description,
     skills: skills,
     contacts: contacts,
-    date: date,
+    posting_date: posting_date,
     status: status,
     link: link,
   };
   return datastore.save({ key: app_key, data: new_application }).then(() => {
-    return key;
+    return app_key;
   });
 }
 
@@ -159,7 +161,7 @@ function patch_application(id, application, new_values) {
   const modified_application = {
     // username: application[0]["username"],
     skills: application[0]["skills"],
-    contacts: applications[0]["contacts"],
+    contacts: application[0]["contacts"],
     title: title,
     description: description,
     date: date,
@@ -205,23 +207,35 @@ router.post("/", function (req, res) {
     return res.status(400).json({Error:  "The request object is missing at least one of the required attributes"});
   }
 
+  // create default object for return
+
   post_application(
     req.body.title,
     req.body.description,
     req.body.skills,
     req.body.contacts,
-    req.body.date,
+    req.body.posting_date,
     req.body.status,
     req.body.link
   ).then((key) => {
-    res.status(201).send('{ "id": ' + key.id + " }");
+    res.status(201).json({
+      'id': key.id,
+      'title': req.body.title,
+      'description': req.body.description,
+      'skills': req.body.skills,
+      'contacts': req.body.contacts,
+      'posting date': req.body.posting_date,
+      'status': req.body.status,
+      'link': req.body.link,
+      'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
+    });
   });
 });
 
 // GET all applications route
 
 router.get("/", function (req, res) {
-  console.log("Get all request received!");
+  console.log("Get all requests received!");
   get_applications(req).then((applications) => {
     res.status(200).json(applications);
   });
@@ -307,7 +321,6 @@ router.patch("/:id", function (req, res) {
       }))
     }
   })
-  patch_application(req.params.id, application)
 })
 
 // DELETE application by id route
@@ -330,21 +343,21 @@ router.delete("/:id", function (req, res) {
 
 router.delete('/', function (req, res){
   res.set('Accept', 'GET, POST');
-  res.status(405).json({'Error': 'Only GET requests allowed for all applications route'});
+  res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });
 
 // PUT 405 applications route reject
 
 router.put('/', function (req, res){
   res.set('Accept', 'GET, POST');
-  res.status(405).json({'Error': 'Only GET requests allowed for all applications route'});
+  res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });
 
 // PATCH 405 applications route reject
 
 router.patch('/', function (req, res){
   res.set('Accept', 'GET, POST');
-  res.status(405).json({'Error': 'Only GET requests allowed for all applications route'});
+  res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });
 
 module.exports = router;
