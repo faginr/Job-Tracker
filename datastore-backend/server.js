@@ -3,8 +3,6 @@ const bodyParser = require('body-parser')
 const index = require('./index')
 const app = express();
 
-
-
 // tell express to parse all incoming bodies as JSON, send custom error message if not JSON
 app.use(bodyParser.json())
 app.use((err, req, res, next) => {
