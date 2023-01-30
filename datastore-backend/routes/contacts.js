@@ -11,21 +11,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 
-const ds = require('./datastore');
+const ds = require('../datastore');
 const datastore = ds.datastore;
 
 const errorMessages = require('./errorMessages');
 
-const CONTACT = "Contact";
+const CONTACT = "contact";
 
 
 /** 
- * Check if the request body is in the json format, if not, send error.
+ * Check if the request body is in the json format, if not, send an error message.
  */
 router.use(bodyParser.json());
 router.use((err, req, res, next) => {
   if (err) {
-    console.error(err)
+    //console.error(err)
     res.status(400).send(errorMessages[400].jsonError)
   } else {
     next()
@@ -66,8 +66,8 @@ function checkAcceptHeader (req, res, next) {
  * if not, send an error message.
  */
 function checkRequestBody (req, res, next) {
-  const allKeys = {"lastName": '', "firstName": '', "email": '', "phone": '', "notes": ''};
-  const requiredKeys = ["lastName", "firstName"];
+  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at": ''};
+  const requiredKeys = ["last_name", "first_name"];
   let keyError = false;
 
   // check if received keys are valid
@@ -113,9 +113,10 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
-function post_contact(lastName, firstName, email, phone, notes) {
+function post_contact(last_name, first_name, email, phone, notes, contact_at) {
   var key = datastore.key(CONTACT);
-  const new_contact = { "lastName": lastName, "firstName": firstName, "email": email, "phone": phone, "notes": notes };
+  const new_contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
+  // console.log(new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
 
@@ -162,9 +163,9 @@ function get_contact(id) {
 }
 
 
-function put_contact(id, lastName, firstName, email, phone, notes ) {
+function put_contact(id, last_name, first_name, email, phone, notes, contact_at ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  const contact = { "lastName": lastName, "firstName": firstName, "email": email, "phone": phone, "notes": notes };
+  const contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
   return datastore.save({ "key": key, "data": contact });
 }
 
@@ -183,27 +184,44 @@ router.get('/', checkAcceptHeader, function (req, res) {
   get_contacts()
     .then((contacts) => {
       res.status(200).json(contacts);
+    })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
     });
 });
 
 
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
-  post_contact(req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
-    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') });
+  post_contact(req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes, req.body.contact_at)
+    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
 router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Put request received!");
-  put_contact(req.params.id, req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
-    .then(res.status(200).end());
+  put_contact(req.params.id, req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes)
+    .then(res.status(200).end())
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
 router.delete('/:id', checkIdExists, function (req, res) {
   console.log("Delete request received!");
-  delete_contact(req.params.id).then(res.status(204).end())
+  delete_contact(req.params.id)
+    .then(res.status(204).end())
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 
@@ -211,6 +229,10 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
   console.log("Get request received!");
   get_contact(req.params.id)
     .then(contact => {res.status(200).json(contact[0]) })
+    .catch(error => {
+      console.error(error);
+      res.send({ error: "Request failed." })
+    });
 });
 
 /* ------------- End Controller Functions ------------- */

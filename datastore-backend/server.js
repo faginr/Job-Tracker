@@ -3,8 +3,6 @@ const bodyParser = require('body-parser')
 const index = require('./index')
 const app = express();
 
-
-
 // tell express to parse all incoming bodies as JSON, send custom error message if not JSON
 app.use(bodyParser.json())
 app.use((err, req, res, next) => {
@@ -24,6 +22,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/', index.router);
+app.enable('trust proxy');
 
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8080;

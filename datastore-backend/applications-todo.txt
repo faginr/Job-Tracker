@@ -1,0 +1,8 @@
+Check each route
+Add Middleware for JWT
+Test all handlers and routes
+Handlers for add/remove skills
+routes for add/remove skills
+handlers for add/remove contacts
+routes for add/remove contacts
+implement all checks on delete route

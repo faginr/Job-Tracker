@@ -1,10 +1,7 @@
 const express = require('express');
-const applications = require('./applications');
-const contacts = require('./contacts');
-const users = require('./users');
-const userAppSkills = require('./userAppSkills')
-const userSkills = require('./userSkills')
-const generalSkills = require('./skills')
+const applications = require('./routes/applications');
+const contacts = require('./routes/contacts');
+const users = require('./routes/users');
 
 const router = express.Router()
 

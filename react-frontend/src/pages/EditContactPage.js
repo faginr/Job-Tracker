@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 export const EditContactPage = ({ contactToEdit }) => {
   
-  const [lastName, setLastName] = useState(contactToEdit.lastName);
-  const [firstName, setFirstName] = useState(contactToEdit.firstName);
+  const [last_name, setLastName] = useState(contactToEdit.last_name);
+  const [first_name, setFirstName] = useState(contactToEdit.first_name);
   const [email, setEmail] = useState(contactToEdit.email);
   const [phone, setPhone] = useState(contactToEdit.phone);
   const [notes, setNotes] = useState(contactToEdit.notes);
@@ -14,7 +14,7 @@ export const EditContactPage = ({ contactToEdit }) => {
   const editContact = async (e) => {
     e.preventDefault();
 
-    const editedContact = { lastName, firstName, email, phone, notes };
+    const editedContact = { last_name, first_name, email, phone, notes };
 
     const response = await fetch(`/contacts/${contactToEdit.id}`, {
       method: 'PUT',
@@ -40,11 +40,11 @@ export const EditContactPage = ({ contactToEdit }) => {
         <input
           required
           type="text"
-          value={lastName}
+          value={last_name}
           onChange={e => setLastName(e.target.value)} />
         <input
           type="text"
-          value={firstName}
+          value={first_name}
           onChange={e => setFirstName(e.target.value)} />
         <input
           type="text"
