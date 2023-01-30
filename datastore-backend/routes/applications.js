@@ -5,7 +5,7 @@ const ds = require('../datastore');
 
 const datastore = ds.datastore;
 
-const APPLICATION = "Application";
+const APPLICATION = "application";
 
 router.use(bodyParser.json());
 

@@ -16,11 +16,11 @@ const datastore = ds.datastore;
 
 const errorMessages = require('./errorMessages');
 
-const CONTACT = "Contact";
+const CONTACT = "contact";
 
 
 /** 
- * Check if the request body is in the json format, if not, send error.
+ * Check if the request body is in the json format, if not, send an error message.
  */
 router.use(bodyParser.json());
 router.use((err, req, res, next) => {
@@ -66,8 +66,8 @@ function checkAcceptHeader (req, res, next) {
  * if not, send an error message.
  */
 function checkRequestBody (req, res, next) {
-  const allKeys = {"lastName": '', "firstName": '', "email": '', "phone": '', "notes": ''};
-  const requiredKeys = ["lastName", "firstName"];
+  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at": ''};
+  const requiredKeys = ["last_name", "first_name"];
   let keyError = false;
 
   // check if received keys are valid
@@ -113,9 +113,10 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
-function post_contact(lastName, firstName, email, phone, notes) {
+function post_contact(last_name, first_name, email, phone, notes, contact_at) {
   var key = datastore.key(CONTACT);
-  const new_contact = { "lastName": lastName, "firstName": firstName, "email": email, "phone": phone, "notes": notes };
+  const new_contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
+  // console.log(new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
 
@@ -162,9 +163,9 @@ function get_contact(id) {
 }
 
 
-function put_contact(id, lastName, firstName, email, phone, notes ) {
+function put_contact(id, last_name, first_name, email, phone, notes, contact_at ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  const contact = { "lastName": lastName, "firstName": firstName, "email": email, "phone": phone, "notes": notes };
+  const contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
   return datastore.save({ "key": key, "data": contact });
 }
 
@@ -193,7 +194,7 @@ router.get('/', checkAcceptHeader, function (req, res) {
 
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
-  post_contact(req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
+  post_contact(req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes, req.body.contact_at)
     .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
     .catch(error => {
       console.error(error);
@@ -204,7 +205,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 
 router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Put request received!");
-  put_contact(req.params.id, req.body.lastName, req.body.firstName, req.body.email, req.body.phone, req.body.notes)
+  put_contact(req.params.id, req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes)
     .then(res.status(200).end())
     .catch(error => {
       console.error(error);
