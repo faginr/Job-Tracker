@@ -5,16 +5,16 @@ const messages = require('./errorMessages')
 const router = express.Router()
 
 function fakeDecode(token, req) {
-    req.body = {"auth": {
-        "username": "tester",
-        "sub": 1234567890
-    }}
+    req.body['auth'] = {
+        "username": token.username,
+        "sub": token.sub
+    }
 }
 
 function extractUserInfo (decodedJWT) {
     return {
         "username": decodedJWT.username,
-        "id": decodedJWT.sub
+        "id": parseInt(decodedJWT.sub, 10)
     }
 }
 
@@ -28,6 +28,7 @@ function extractUserInfo (decodedJWT) {
  */
 async function verifyJWT (req, res, next) {
     let token = req.get('authorization')
+    token = JSON.parse(token.slice(7))
     
     try {
         // put decode capability here, currently stubbing out
@@ -36,7 +37,7 @@ async function verifyJWT (req, res, next) {
 
         // if JWT is valid, add user info from JWT to the body 
         // of the request
-        req.body = extractUserInfo(req.body.auth)
+        req.body.auth = extractUserInfo(req.body.auth)
         next()
     }
     catch (err) {
@@ -58,7 +59,8 @@ async function verifyUser(req, res, next) {
     // make sure JWT matches user in db
     let existUser
     try {
-        existUser = await model.getItemByID(req.body.id)
+        existUser = await model.getItemByID('users', req.body.auth.id)
+        delete req.body.auth
     } catch (err) {
         console.error(err)
         return res.status(500).end()
@@ -126,7 +128,7 @@ function verifyRequestBodyKeys (req, res, next) {
     }
 
     if (!valid) {
-        return res.status(400).send(messages[400].badKeys)
+        return res.status(400).send(messages[400].keyError)
     } 
     next()
 }
@@ -159,6 +161,7 @@ function methodNotAllowedSkillID (req, res) {
     res.status(405).setHeader('Allow', []).end()
 }
 
+/*------------------- ROUTES ------------------------ */
 router.get('/', verifyJWT, verifyUser, verifyAcceptHeader, async (req, res) => {
     try {
         const skills = await model.getItemsNoPaginate('skills')
