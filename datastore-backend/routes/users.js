@@ -1,6 +1,7 @@
 const express = require('express')
-const model = require('../model')
-const messages = require('./errorMessages')
+const model = require('./model')
+const errorMessages = require('./errorMessages')
+
 // TODO: Import auth client
 
 const router = express.Router()
@@ -12,17 +13,19 @@ function newUser (decodedJWT) {
     const [month, day, year] = [date.getMonth() + 1, date.getDate(), date.getFullYear()]
 
     const newUser = {
-        "username": decodedJWT.payload.username,
+        "username": decodedJWT.username,
         "created": `${month}/${day}/${year}`,
-        "id": decodedJWT.payload.sub
+        "id": decodedJWT.sub
     }
 
     return newUser
 }
 
 function fakeDecode(token, req) {
-    req.body.auth.username = 'tester'
-    req.body.auth.id = 1234567890
+    req.body = {"auth": {
+        "username": "tester",
+        "sub": 1234567890
+    }}
 }
 
 /*--------------- Middleware Functions --------------------- */
@@ -141,9 +144,10 @@ function verifyRequestBodyVals (req, res, next) {
  * @param {express.next} next 
  */
 async function verifyResourceExists (req, res, next) {
-    const resourceId = req.params.username
+    const resourceId = req.params.user_id
 
-    const resource = await model.getItemByID('users', resourceId, false)
+    const resource = await model.getItemByID('users', resourceId)
+
     if (resource[0] === null || resource[0] === undefined) {
         res.status(404).send(errorMessages[404].users)
     } else {
@@ -162,10 +166,10 @@ async function verifyResourceExists (req, res, next) {
  * @param {express.next} next 
  */
 async function verifyUserDoesNotExist (req, res, next) {
-    const resourceId = req.params.username
+    const resourceId = req.body.id
 
-    const resource = await model.getItemByID('users', resourceId, false)
-    if (resource[0] !== null || resource[0] !== undefined) {
+    const resource = await model.getItemByID('users', resourceId)
+    if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
         next()
@@ -185,7 +189,7 @@ async function verifyUserDoesNotExist (req, res, next) {
 async function verifyUserOwnsResource (req, res, next) {
     // existing resource is stored in the body of the request at this point 
     // (after verifyResourceExists)
-    if (req.body.existResource.username !== req.body.username) {
+    if (req.body.existResource.id !== req.params.user_id) {
         res.status(403).send(errorMessages[403])
     } else {
         next()
@@ -228,11 +232,36 @@ router.delete('/', methodNotAllowed)
 
 /*------------------ USERS/USERNAME ROUTES -------------------- */
 
-router.get('/users/:username', verifyAcceptHeader,
-                            verifyJWT,
-                            verifyResourceExists,
-                            verifyUserOwnsResource, async(req, res) => {
+router.get('/:user_id', verifyAcceptHeader,
+                        verifyJWT,
+                        verifyResourceExists,
+                        verifyUserOwnsResource, async(req, res) => {
     res.status(200).send(req.body.existResource)
 })
+
+router.delete('/:user_id', verifyJWT,
+                            verifyResourceExists,
+                            verifyUserOwnsResource, async (req, res) => {
+    const user_id = req.body.existResource.id
+    
+    try {
+        // delete applications tied to user
+        const deletedApps = await model.deleteMatchingItemsFromKind('applications', 'user_id', user_id)
+        
+        // delete contacts tied to user
+        const deletedContacts = await model.deleteMatchingItemsFromKind('contacts', 'user_id', user_id)
+
+        // delete user
+        await model.deleteItem('users', user_id)
+        res.status(200).send({"deletedApps": deletedApps.length, "deletedContacts": deletedContacts.length})
+    } catch (error) {
+        console.error(error)
+        res.status(500).end()
+    }
+})
+
+router.put('/:user_id', methodNotAllowed)
+
+router.patch('/:user_id', methodNotAllowed)
 
 module.exports = router
