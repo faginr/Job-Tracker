@@ -1,7 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
-const ds = require("./datastore");
+
+const ds = require('../datastore');
+
 
 const datastore = ds.datastore;
 

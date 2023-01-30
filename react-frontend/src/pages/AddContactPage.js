@@ -1,19 +1,34 @@
-import React, { useState } from 'react';
+/**
+ * Date 1/25/2023
+ * Code Source for AddContactPage:
+ * The code is adapted from a code provided in CS290 Web Development:
+ * Module 9 - Full Stack MERN Apps
+ * Exploration — Implementing a Full-Stack MERN App - Part 1
+ */
+
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
 export const AddContactPage = () => {
   
-  const [name, setName] = useState('');
+  const [last_name, setLastName] = useState('');
+  const [first_name, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
+  const [contact_at, setContactAt] = useState('');
+
+  const [apps, setApps] = useState([]);
 
   const navigate = useNavigate();
 
+  // add contact to the database
   const addContact = async (e) => {
     e.preventDefault();
 
-    const newContact = { name, email, phone, notes };
+    const newContact = { last_name, first_name, email, phone, notes, contact_at };
+    console.log(newContact)
 
     const response = await fetch('/contacts', {
       method: 'POST',
@@ -29,9 +44,20 @@ export const AddContactPage = () => {
       alert(`Failed to add contact, status code = ${response.status}`);
     }
 
-    navigate(-1);  // goes back to Application Page
+    // go back to Application Page
+    navigate(-1);  
   };
-  
+
+  const getApps = async () => {
+    const response = await fetch('/applications');
+    const data = await response.json();
+    setApps(data);
+  };
+
+  useEffect(() => {
+    getApps();
+  }, []);
+
   return (
     <div>
       <form onSubmit={addContact}>
@@ -39,9 +65,15 @@ export const AddContactPage = () => {
         <input
           required
           type="text"
-          placeholder="Enter name (required)"
-          value={name}
-          onChange={e => setName(e.target.value)} />
+          placeholder="Enter last name (required)"
+          value={last_name}
+          onChange={e => setLastName(e.target.value)} />
+        <input
+          required
+          type="text"
+          value={first_name}
+          placeholder="Enter first name (required)"
+          onChange={e => setFirstName(e.target.value)} />
         <input
           type="text"
           value={email}
@@ -57,8 +89,20 @@ export const AddContactPage = () => {
           placeholder="Enter notes"
           value={notes}
           onChange={e => setNotes(e.target.value)} />
+
+        <select onChange={e => setContactAt(e.target.value)}>
+          
+          <option>Please choose one option</option>
+          {apps.map((option, index) => {
+            return <option key={index} value={option.name}>
+              {option.name}
+              </option>
+          })}
+
+        </select>
+        
         <p>
-        <input type="submit" value="Add" />
+        <input type="submit" value="Add Contact" />
         <> </>
         <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
