@@ -1,6 +1,7 @@
 const express = require('express')
 const model = require('./model')
 const errorMessages = require('./errorMessages')
+
 // TODO: Import auth client
 
 const router = express.Router()

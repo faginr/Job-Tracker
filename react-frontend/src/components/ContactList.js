@@ -7,11 +7,12 @@ function ContactList({ contacts, onDelete, onEdit, sorting }) {
     <table id="contacts">
       <thead>
         <tr>
-          <th onClick={() => sorting("lastName")} >Contact Last Name <br />(click to sort)</th>
-          <th onClick={() => sorting("firstName")} >Contact First Name <br />(click to sort)</th>
+          <th onClick={() => sorting("last_name")} >Contact Last Name <br />(click to sort)</th>
+          <th onClick={() => sorting("first_name")} >Contact First Name <br />(click to sort)</th>
           <th>Contact Email</th>
           <th>Contact Phone</th>
           <th>Notes about the contact</th>
+          <th>Contact for application</th>
           <th>Edit</th>
           <th>Delete</th>
         </tr>
