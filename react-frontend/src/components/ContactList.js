@@ -2,7 +2,6 @@ import React from 'react';
 import Contact from './Contact';
 
 function ContactList({ contacts, onDelete, onEdit, sorting }) {
-
   return (
     <table id="contacts">
       <thead>
