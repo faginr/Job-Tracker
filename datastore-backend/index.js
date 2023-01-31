@@ -12,6 +12,9 @@ router.use('/applications', applications);
 router.use('/contacts', contacts);
 router.use('/users', users)
 router.use('/skills', generalSkills)
-router.use('/users/:user_id/', userSkills, userAppSkills)
+
+// TODO: change this to begin with /users/:user_id once user verification
+// implemented
+router.use('/skills', userSkills, userAppSkills)
 
 module.exports = {router}
