@@ -100,7 +100,7 @@ function checkIdExists (req, res, next) {
   const key = datastore.key([CONTACT, parseInt(req.params.id, 10)]);
   return datastore.get(key).then((entity) => {
     if (entity[0] === undefined || entity[0] === null) {
-      res.status(404).send(errorMessages[404]);
+      res.status(404).send(errorMessages[404].contacts);
     } else {
       next()
     }
