@@ -82,7 +82,7 @@ function get_applications(req) {
       }
     }
     // return results object
-    return results;
+    return results.applications;
   });
 }
 
@@ -128,33 +128,52 @@ function patch_application(id, application, new_values) {
   const key = datastore.key([APPLICATION, parseInt(id, 10)]);
   let title;
   let description;
-  let date;
+  let posting_date;
   let status;
   let link;
+  let contacts;
+  let skills;
+  
+
+  // console.log("application: ")
+  // console.dir(JSON.stringify(application))
+  // console.log("new_values: ")
+  // console.dir(JSON.stringify(new_values))
+
 
   // for each attribute, assign new value else retain old value
-  if (new_values["title"] != undefined) {
+  if (new_values["title"] != undefined && new_values["title"] != null) {
     title = new_values["title"];
   } else {
     title = application[0]["title"];
   }
-  if (new_values["description"] != undefined) {
+  if (new_values["description"] != undefined && new_values["description"] != null) {
     description = new_values["description"];
   } else {
     description = application[0]["description"];
   }
-  if (new_values["date"] != undefined) {
-    date = new_values[0]["date"];
+  if (new_values["skills"] != undefined && new_values["skills"] != null) {
+    skills = new_values["skills"];
   } else {
-    date = application[0]["date"];
+    skills = application[0]["skills"];
   }
-  if (new_values["status"] != undefined) {
-    status = new_values[0]["status"];
+  if (new_values["contacts"] != undefined && new_values["contacts"] != null) {
+    contacts = new_values["contacts"];
+  } else {
+    contacts = application[0]["contacts"];
+  }
+  if (new_values["posting_date"] != undefined && new_values["posting_date"] != null) {
+    posting_date = new_values["posting_date"];
+  } else {
+    posting_date = application[0]["posting_date"];
+  }
+  if (new_values["status"] != undefined && new_values["status"] != null) {
+    status = new_values["status"];
   } else {
     status = application[0]["status"];
   }
-  if (new_values["link"] != undefined) {
-    link = new_values[0]["link"];
+  if (new_values["link"] != undefined && new_values["link"] != null) {
+    link = new_values["link"];
   } else {
     link = application[0]["link"];
   }
@@ -162,11 +181,11 @@ function patch_application(id, application, new_values) {
   // build modified application object
   const modified_application = {
     // username: application[0]["username"],
-    skills: application[0]["skills"],
-    contacts: application[0]["contacts"],
+    skills: skills,
+    contacts: contacts,
     title: title,
     description: description,
-    date: date,
+    posting_date: posting_date,
     status: status,
     link: link,
   };
@@ -288,23 +307,32 @@ router.patch("/:id", function (req, res) {
       // collect any modified values, collect correct result values
       const modified_values = {}
       const results = application
+      console.log(application)
       if (req.body.title !== undefined){
         modified_values["title"] = req.body.title
         results["title"] = req.body.title
       }
-      if (req.body.title !== undefined){
+      if (req.body.description !== undefined){
         modified_values["description"] = req.body.description
         results["description"] = req.body.description
       }
-      if (req.body.title !== undefined){
-        modified_values["date"] = req.body.date
-        results["date"] = req.body.date
+      if (req.body.skills !== undefined){
+        modified_values["skills"] = req.body.skills
+        results["skills"] = req.body.skills
       }
-      if (req.body.title !== undefined){
+      if (req.body.contacts !== undefined){
+        modified_values["contacts"] = req.body.contacts
+        results["contacts"] = req.body.contacts
+      }
+      if (req.body.posting_date !== undefined){
+        modified_values["posting_date"] = req.body.posting_date
+        results["posting_date"] = req.body.posting_date
+      }
+      if (req.body.status !== undefined){
         modified_values["status"] = req.body.status
         results["status"] = req.body.status
       }
-      if (req.body.title !== undefined){
+      if (req.body.link !== undefined){
         modified_values["link"] = req.body.link
         results["link"] = req.body.link
       }
@@ -316,7 +344,7 @@ router.patch("/:id", function (req, res) {
         'contacts': results["contacts"],
         'title': results["title"],
         'description': results["description"],
-        'date': results["date"],
+        'posting_date': results["posting_date"],
         'status': results["status"],
         'link': results["link"],
         'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.id
