@@ -17,7 +17,7 @@ export const AddContactPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [contact_at, setContactAt] = useState('');
+  const [contact_at_id, setContactAt] = useState('');
 
   const [apps, setApps] = useState([]);
 
@@ -27,7 +27,7 @@ export const AddContactPage = () => {
   const addContact = async (e) => {
     e.preventDefault();
 
-    const newContact = { last_name, first_name, email, phone, notes, contact_at };
+    const newContact = { last_name, first_name, email, phone, notes, contact_at_id };
     console.log(newContact)
 
     const response = await fetch('/contacts', {
@@ -94,8 +94,8 @@ export const AddContactPage = () => {
           
           <option>Please choose one option</option>
           {apps.map((option, index) => {
-            return <option key={index} value={option.name}>
-              {option.name}
+            return <option key={index} value={option.id}>
+              {option.title}
               </option>
           })}
 
