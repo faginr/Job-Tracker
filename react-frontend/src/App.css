@@ -11,12 +11,25 @@
 }
 
 .App-footer, .App-header {
+  height: 4rem;
   background-color: #3e4147;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   color: white;
+  flex-flow: column wrap;
+}
+
+.App-footer a{
+  color: white;
+}
+
+.App-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .App-link {
