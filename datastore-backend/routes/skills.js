@@ -202,7 +202,9 @@ router.post('/', // verifyJWT,
 router.put('/', methodNotAllowedSkills)
 router.patch('/', methodNotAllowedSkills)
 router.delete('/', methodNotAllowedSkills)
-router.use('/skills/:skill_id', methodNotAllowedSkillID)
+
+// TODO: Uncomment once user verification implemented
+// router.use('/skills/:skill_id', methodNotAllowedSkillID)
 
 
 module.exports = router
