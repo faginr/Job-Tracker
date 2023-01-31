@@ -43,12 +43,21 @@ async function updateUserSkills(skillData, userData) {
 }
 
 /**
- * 
+ * This function loops through a user's applications and buckets the apps
+ * with the appropriate skill. Requires a user object in DS as input. Returns
+ * an array of skills with apps bucketed like follows: 
+ *    [ 
+ *        {
+ *            (skill) id: ..., 
+ *            (skill) description: "...",
+ *            (skill) proficiency: X,
+ *            apps: [{title: "...", app_id: ...}]
+ *        }
+ *     ]
  * @param {obj} userData {id: int, skills: [], contacts: [], applications: [], created_at: date}
  */
-async function createSkillsArray(userData) {
+async function bucketAppsBySkill(userData) {
     const skills = {}
-    const skillsArray = []
     const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
     
     // initialize the skill map for bucketing applications to skills
@@ -57,18 +66,15 @@ async function createSkillsArray(userData) {
         skills[skill.id] = skill
     }
 
-    // loop through the apps and add {title, app_id} to each skill's 
-    // list of associated apps 
     for(let app in userApps){
-        for(appSkill in app.skills) {
-            skills[appSkill].push({'title': app.title, 'app_id': app.id})
+        // each app has an array of skill ids, map these back to initialized
+        // skill map, adding info about app tied to skill
+        for(let appSkill in app.skills) {
+            skills[appSkill].apps.push({'title': app.title, 'app_id': app.id})
         }
     }
 
-    // now loop through skills object and push them into skills array
-    for(let [key,val] of skills) {
-        
-    }
+    return Object.values(skills)
 }
 
 
@@ -206,8 +212,8 @@ router.get('/',
         const user = req.body.user
 
         // create a returnable object by bucketing applications with skills
-        const skills = createSkillsArray(user)
-
+        const skills = await bucketAppsBySkill(user)
+        res.status(200).send(skills)
 })
 
 // create a new skill AND tie to user
