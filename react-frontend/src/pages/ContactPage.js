@@ -16,6 +16,7 @@ function ContactPage({ setContactToEdit }) {
   
   const [contacts, setContacts] = useState([]);
   const [order, setOrder] = useState("ASC");
+  const [apps, setApps] = useState([]);
   
   // sorts the contact table by clicking on the name of the column
   const sorting = (col) => {
@@ -63,9 +64,27 @@ function ContactPage({ setContactToEdit }) {
     setContacts(data);
   };
 
+  const getApps = async () => {
+    const response = await fetch('/applications');
+    const data = await response.json();
+    setApps(data);
+  };
+
   useEffect(() => {
     loadContacts();
+    getApps();
   }, []);
+
+
+  // iterate over contacts and applications, add name and link of application to contact
+  for (let contact of contacts) {
+    for (let app of apps) {
+      if (contact.contact_at_id === app.id) {
+        contact.contact_at_name = app.title;
+        contact.contact_at_link = app.link;
+      } 
+    }
+  }
 
   return (
     <>
