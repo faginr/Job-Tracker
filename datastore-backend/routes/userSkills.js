@@ -27,19 +27,72 @@ const router = express.Router()
  * @param {obj} userData {id: int, skills: [], contacts: [], applications: [], created_at: date}
  * @returns 
  */
-async function updateUserSkills(skillData, userData) {
+async function addUserSkill(skillData, userData) {
     // if skill exists in user skills already, just update that
     // skill
     for (let skill in userData.skills) {
         if (skill.skill_id === skillData.skill_id) {
             userData.skills.skill = skillData
-            return await model.updateItem(req.body.user, 'users')
+            return await model.updateItem(userData, 'users')
         }
     }
     
     // otherwise add the skill to the user
     userData.skills.push(skillData)
     return await model.updateItem(req.body.user, 'users')
+}
+
+async function deleteSkillFromUser(skillID, userData) {
+    let newUserSkills = []
+
+    // user skills is array of objects with keys of skill_id, prof, desc
+    // so compare ID to skill_id
+    for(let skill in userData.skills) {
+        if(skill.skill_id === skillID) {
+            continue;
+        }
+        newUserSkills.push(skill)
+    }
+    userData.skills = newUserSkills
+    return await model.updateItem(userData, 'users')
+}
+
+async function deleteSkillFromApp(skillID, appData) {
+    let newSkillIDs = []
+
+    // app skills is array of IDs, so compare passed skillID
+    // to each of these vals
+    for(let id in appData.skills) {
+        if(id === skillID) {
+            continue;
+        }
+        newSkillIDs.push(id)
+    }
+    return await model.updateItem(appData, 'applications')
+}
+
+async function deleteSkillFromApps(skillID, userID) {
+    let deletedAppRelations = 0
+    const relatedApps = await model.getFilteredItems('applications', 'user_id', userID)
+    for(let app in relatedApps) {
+        for(let id in app.skills) {
+            if(id === skillID) {
+                await deleteSkillFromApp(skillID, appData)
+                deletedAppRelations++
+                break;
+            }
+        }
+    }
+    return deletedAppRelations
+}
+
+async function deleteUserSkill(skillID, userData) {
+    // delete skill out of users array
+    const newUser = await deleteSkillFromUser(skillID, userData)
+
+    // delete skill out of all applications
+    const deletedAppRelations = await deleteSkillFromApps(skillID, userData.id)
+    return {"user": newUser, "deleted_tied_apps": deletedAppRelations}
 }
 
 /**
@@ -58,14 +111,15 @@ async function updateUserSkills(skillData, userData) {
  */
 async function bucketAppsBySkill(userData) {
     const skills = {}
-    const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
     
     // initialize the skill map for bucketing applications to skills
     for(let skill in userData.skills) {
         skill['apps'] = []
         skills[skill.id] = skill
     }
-
+    
+    // grab the apps associated with the user
+    const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
     for(let app in userApps){
         // each app has an array of skill ids, map these back to initialized
         // skill map, adding info about app tied to skill
@@ -208,11 +262,7 @@ router.get('/',
     //verifyUser,                   // adds user info to req.body.user
     verifyAcceptHeader, 
     async (req, res) => {
-        // pull the user info out of the body
-        const user = req.body.user
-
-        // create a returnable object by bucketing applications with skills
-        const skills = await bucketAppsBySkill(user)
+        const skills = await bucketAppsBySkill(req.body.user)
         res.status(200).send(skills)
 })
 
@@ -246,7 +296,15 @@ router.put('/:skill_id',
 })
 
 // delete a skill from a user
-router.delete('/:skill_id', )
+router.delete('/:skill_id', 
+    //verifyUser,               // adds user info to req.body.user
+    verifySkillExists,          // adds skill info to req.body.skill
+    verifyUserOwnsSkill,
+    async (req, res) => {
+        const deleteInfo = await deleteUserSkill(req.body.skill.id, req.body.user)
+        res.status(200).send(deleteInfo)
+    }
+)
 
 // modify an existing skill's proficiency for a user
 router.patch('/:skill_id', 
