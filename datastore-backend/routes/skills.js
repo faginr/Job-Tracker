@@ -162,7 +162,9 @@ function methodNotAllowedSkillID (req, res) {
 }
 
 /*------------------- ROUTES ------------------------ */
-router.get('/', verifyJWT, verifyUser, verifyAcceptHeader, async (req, res) => {
+router.get('/', //verifyJWT,
+                //verifyUser,
+                verifyAcceptHeader, async (req, res) => {
     try {
         const skills = await model.getItemsNoPaginate('skills')
         res.status(200).send(skills)
@@ -172,8 +174,8 @@ router.get('/', verifyJWT, verifyUser, verifyAcceptHeader, async (req, res) => {
     }
 })
 
-router.post('/', verifyJWT, 
-                 verifyUser,
+router.post('/', // verifyJWT, 
+                 // verifyUser,
                  verifyRequestBodyKeys,
                  verifyRequestBodyVals,
                  verifyAcceptHeader,
