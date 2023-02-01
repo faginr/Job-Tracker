@@ -248,12 +248,24 @@ function verifyRequestBodyVals (req, res, next) {
 
 /**
  * Sets the allow header on the response and ends processing.
+ * For routes /users/:user_id/skills
  * @param {express.request} req 
  * @param {express.response} res 
  * @param {express.next} next 
  */
-function methodNotAllowed(req, res, next) {
+function methodNotAllowedSkills(req, res, next) {
     res.status(405).setHeader('Allow', ["GET"]).end()
+}
+
+/**
+ * Sets the allow header on the response and ends processing.
+ * For routes /users/:user_id/skills/:skill_id
+ * @param {express.request} req 
+ * @param {express.response} res 
+ * @param {express.next} next 
+ */
+function methodNotAllowedUserSkill(req, res, next) {
+    res.status(405).setHeader('Allow', ["GET", "PUT", "DELETE"]).end()
 }
 
 /**
@@ -262,7 +274,7 @@ function methodNotAllowed(req, res, next) {
  * ########################################################
  */
 
-// get a user's skills
+// get a user's skills - /users/:user_id/skills
 router.get('/', 
     //verifyUser,                   // adds user info to req.body.user
     verifyAcceptHeader, 
@@ -275,7 +287,9 @@ router.get('/',
 // TODO: Maybe get rid of this route since we can create on /skills now?
 // router.post('/', methodNotAllowed)
 
-router.patch('/:skill_id', methodNotAllowed)
+router.put('/', methodNotAllowedSkills)
+router.patch('/', methodNotAllowedSkills)
+router.delete('/', methodNotAllowedSkills)
 
 // TODO: Uncomment once users have been established
 // // delete a skill from a user
@@ -315,6 +329,10 @@ router.put('/:skill_id',
         // }
         res.status(200).send(newSkillData)
     }
-    )
+)
+
+router.patch('/:skill_id', methodNotAllowedUserSkill)
+router.post('/:skill_id', methodNotAllowedUserSkill)
+router.delete('/:skill_id', methodNotAllowedUserSkill)
 
 module.exports = router
