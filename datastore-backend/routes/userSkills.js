@@ -275,30 +275,7 @@ router.get('/',
 // TODO: Maybe get rid of this route since we can create on /skills now?
 // router.post('/', methodNotAllowed)
 
-// tie an existing skill to a user
-router.put('/:skill_id', 
-    //verifyUser,                   // adds user info to req.body.user
-    verifySkillExists,              // adds skill info to req.body.skill
-    verifyAcceptHeader, 
-    async (req, res) => {
-        const newSkill = {
-            "skill_id": req.params.skill_id,
-            "proficiency": null,
-            "description": req.body.skill.description}
-        
-        //TODO: add skill to user's skill array
-        // user lookup occurs in verifyUser, info
-        // added under req.body.user
-        // 
-        // try {
-            // const updatedUser = await updateUserSkills(newSkill, req.body.user)    
-        //     res.status(200).send(updatedUser)
-        // } catch (err) {
-        //     console.error(err)
-        //     res.status(500).end()
-        // }
-        res.status(200).send(newSkill)
-})
+router.patch('/:skill_id', methodNotAllowed)
 
 // TODO: Uncomment once users have been established
 // // delete a skill from a user
@@ -313,7 +290,8 @@ router.put('/:skill_id',
 // )
 
 // modify an existing skill's proficiency for a user
-router.patch('/:skill_id', 
+// OR tie existing skill to user
+router.put('/:skill_id', 
     verifyContentTypeHeader,
     verifyAcceptHeader,
     verifyRequestBodyKeys,
