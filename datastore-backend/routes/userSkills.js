@@ -96,39 +96,52 @@ async function deleteUserSkill(skillID, userData) {
 }
 
 /**
+ * Takes a user's skills array and converts it to a map with skill_id being the key
+ * and the skill object as the value with a new array of apps added. Returns the map.
+ * @param {any[]} skillArray [{skill_id: "1234", description: "...", prof: X}, ...]
+ * @returns {} {"1234": {skill_id: "1234", description: "...", prof: X, apps: []}, ...}
+ */
+function createSkillMap(skillArray) {
+    const skillMap = {}
+    for(let skill in skillArray) {
+        skill['apps'] = []
+        skillMap[skill.skill_id] = skill
+    }
+    return skillMap
+}
+
+
+/**
  * This function loops through a user's applications and buckets the apps
- * with the appropriate skill. Requires a user object in DS as input. Returns
- * an array of skills with apps bucketed like follows: 
- *    [ 
+ * with the appropriate skill. Requires a user object as displayed in DS as input.
+ * Also requires a map of skills with a key of the skill_id and value of an object with
+ * apps array.
+ * Returns an array of skill objects that have an app array
+ * @param {obj} skillMap {"1234": {skill_id: "1234", description: "...", prof: X, apps: []}}
+ * @param {obj} userData {id: int, skills: [], contacts: [], applications: [], created_at: date}
+ * @returns {Promise<any[]>} Array of objects like so: 
+ * *    [ 
  *        {
- *            (skill) id: ..., 
+ *            (skill) skill_id: ..., 
  *            (skill) description: "...",
  *            (skill) proficiency: X,
  *            apps: [{title: "...", app_id: ...}]
  *        }
  *     ]
- * @param {obj} userData {id: int, skills: [], contacts: [], applications: [], created_at: date}
  */
-async function bucketAppsBySkill(userData) {
-    const skills = {}
-    
-    // initialize the skill map for bucketing applications to skills
-    for(let skill in userData.skills) {
-        skill['apps'] = []
-        skills[skill.id] = skill
-    }
-    
+async function bucketAppsBySkill(userData, skillMap) {
+        
     // grab the apps associated with the user
     const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
     for(let app in userApps){
         // each app has an array of skill ids, map these back to initialized
         // skill map, adding info about app tied to skill
         for(let appSkill in app.skills) {
-            skills[appSkill].apps.push({'title': app.title, 'app_id': app.id})
+            skillMap[appSkill].apps.push({'title': app.title, 'app_id': app.id})
         }
     }
 
-    return Object.values(skills)
+    return Object.values(skillMap)
 }
 
 
@@ -279,7 +292,8 @@ router.get('/',
     //verifyUser,                   // adds user info to req.body.user
     verifyAcceptHeader, 
     async (req, res) => {
-        const skills = await bucketAppsBySkill(req.body.user)
+        const skillMap = createSkillMap(req.body.user.skills)
+        const skills = await bucketAppsBySkill(req.body.user, skillMap)
         res.status(200).send(skills)
 })
 
@@ -295,9 +309,17 @@ router.get('/:skill_id',
     verifyAcceptHeader,
     // verifyUser,              // adds user info to req.body.user
     verifySkillExists,          // adds skill info to req.body.skill
-    verifyUserOwnsSkill,
+    verifyUserOwnsSkill,        // adds user skill info to req.body.userSkill
     async (req, res) => {
         
+        try {
+            const skillMap = createSkillMap([req.body.userSkill])
+            const returnInfo = await bucketAppsBySkill(req.body.user, skillMap)
+            res.status(200).send(returnInfo)
+        } catch (err) {
+            console.error(err)
+            res.status(500).end()
+        }
     }
 )
 
