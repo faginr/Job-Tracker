@@ -16,6 +16,7 @@ const datastore = ds.datastore;
 
 const errorMessages = require('./errorMessages');
 
+// the name of the kind to be stored
 const CONTACT = "contact";
 
 
@@ -129,7 +130,6 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_id)
     "notes": notes, 
     "contact_at_id": contact_at_id 
   };
-  // console.log(new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
 

@@ -1,8 +1,21 @@
+/**
+ * Date 1/25/2023
+ * Code Source for the page:
+ * The code is adapted from a code provided in CS290 Web Development:
+ * Module 9 - Full Stack MERN Apps
+ * Exploration — Implementing a Full-Stack MERN App - Part 1
+ */
+
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
 export const EditContactPage = ({ contactToEdit }) => {
   
+  // hook to navigate among the pages
+  const navigate = useNavigate();
+
+  // store the original application id if replaced by new application
   const originalApplication = contactToEdit.contact_at_id
 
   const [last_name, setLastName] = useState(contactToEdit.last_name);
@@ -14,11 +27,11 @@ export const EditContactPage = ({ contactToEdit }) => {
 
   const [apps, setApps] = useState([]);
 
-  const navigate = useNavigate();
-
+  // function to edit the conatct
   const editContact = async (e) => {
     e.preventDefault();
 
+    // store edited contact data
     const editedContact = { 
       last_name, 
       first_name, 
@@ -90,16 +103,19 @@ export const EditContactPage = ({ contactToEdit }) => {
     navigate(-1);  // goes back to Contact Page
   };
 
+  // function to fetch applications
   const getApps = async () => {
     const response = await fetch('/applications');
     const data = await response.json();
     setApps(data);
   };
 
+  // hook to call the fucntion above
   useEffect(() => {
     getApps();
   }, []);
 
+  // store the name of the application that a contact is related to
   let contact_at_name;
  
   // iterate over the array of the applications and add name of application to the contact
@@ -109,7 +125,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     } 
   }
 
-  // sort the array of application for the select options
+  // sort the array of application
   // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
   let sortedApps = apps.sort((a,b) => {
     if (a.title.toLowerCase() < b.title.toLowerCase()) {
