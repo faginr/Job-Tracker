@@ -57,9 +57,12 @@ export const EditContactPage = ({ contactToEdit }) => {
 
     // if application has changed for the contact, update the old and new applications
     if (originalApplication !== contact_at_id) {
+      console.log('here')
+      console.log('here1', originalApplication)
+      console.log('here2', contact_at_id)
 
       // update the old application if existed
-      if (originalApplication !== '') {
+      if (originalApplication !== '' && originalApplication !== undefined) {
         console.log('applications changed for the contact');
 
         // update the old application
@@ -81,7 +84,7 @@ export const EditContactPage = ({ contactToEdit }) => {
       };
 
       // update the new application if added
-      if (contact_at_id !== '') {
+      if (contact_at_id !== '' && contact_at_id !== undefined) {
         const updatedNewApplication = { contacts: `${contactToEdit.id}` };
 
         const responseUpdateNewApp = await fetch(`/applications/${contact_at_id}`, {
@@ -100,7 +103,8 @@ export const EditContactPage = ({ contactToEdit }) => {
       };
     };
 
-    navigate(-1);  // goes back to Contact Page
+    // go back to Contact Page
+    navigate(-1);  
   };
 
   // function to fetch applications
@@ -123,9 +127,9 @@ export const EditContactPage = ({ contactToEdit }) => {
     if (contactToEdit.contact_at_id === app.id) {
       contact_at_name = app.title;
     } 
-  }
+  };
 
-  // sort the array of application
+  // sort the array of applications
   // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
   let sortedApps = apps.sort((a,b) => {
     if (a.title.toLowerCase() < b.title.toLowerCase()) {

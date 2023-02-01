@@ -47,7 +47,8 @@ function ContactPage({ setContactToEdit }) {
     if (confirmed) {
 
       // update any application if releated to the contact 
-      if (contact_at_id !== '') {
+      if (contact_at_id !== '' && contact_at_id !== undefined) {
+
         const updatedApplication = { contacts: '' };
 
         const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
@@ -65,6 +66,7 @@ function ContactPage({ setContactToEdit }) {
         }
       };
 
+      // delete the contact
       const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
       if (response.status === 204) {
           setContacts(contacts.filter(contact => contact.id !== id));

@@ -12,6 +12,9 @@ import { useNavigate } from "react-router-dom";
 
 export const AddContactPage = () => {
   
+  // hook to navigate among the pages
+  const navigate = useNavigate();
+
   const [last_name, setLastName] = useState('');
   const [first_name, setFirstName] = useState('');
   const [email, setEmail] = useState('');
@@ -21,14 +24,18 @@ export const AddContactPage = () => {
 
   const [apps, setApps] = useState([]);
 
-  const navigate = useNavigate();
-
-  // add contact to the database
+  // add the contact to the database
   const addContact = async (e) => {
     e.preventDefault();
 
-    const newContact = { last_name, first_name, email, phone, notes, contact_at_id };
-    console.log(newContact)
+    const newContact = { 
+      last_name, 
+      first_name, 
+      email, 
+      phone, 
+      notes, 
+      contact_at_id 
+    };
 
     const response = await fetch('/contacts', {
       method: 'POST',
@@ -44,19 +51,55 @@ export const AddContactPage = () => {
       alert(`Failed to add the contact, status code = ${response.status}`);
     }
 
+    // update an application if added
+    if (contact_at_id !== '' && contact_at_id !== undefined) {
+
+      // get contact id to add to the application
+      const conatct_id = await response.json();
+
+      const updateApplication = { contacts: `${conatct_id}` };
+
+      const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateApplication),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if(responseUpdateApp.status === 200){
+        alert("Successfully updated the application!"); 
+      } else {
+        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+      }
+    };
+
     // go back to Application Page
     navigate(-1);  
   };
 
+  // function to fetch applications
   const getApps = async () => {
     const response = await fetch('/applications');
     const data = await response.json();
     setApps(data);
   };
 
+  // hook to call the fucntion above
   useEffect(() => {
     getApps();
   }, []);
+
+  // sort the array of applications
+  // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
+  let sortedApps = apps.sort((a,b) => {
+    if (a.title.toLowerCase() < b.title.toLowerCase()) {
+      return -1;
+    }
+    if (b.title.toLowerCase() > a.title.toLowerCase()) {
+      return 1;
+    }
+    return 0;
+  });
 
   return (
     <div>
@@ -93,7 +136,7 @@ export const AddContactPage = () => {
         <select onChange={e => setContactAt(e.target.value)}>
           
           <option>Please choose one option</option>
-          {apps.map((option, index) => {
+          {sortedApps.map((option, index) => {
             return <option key={index} value={option.id}>
               {option.title}
               </option>

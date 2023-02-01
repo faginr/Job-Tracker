@@ -221,7 +221,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
     req.body.notes, 
     req.body.contact_at_id
     )
-    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
+    .then(key => { res.status(201).json(key.id) })
     .catch(error => {
       console.error(error);
       res.send({ error: "Request failed." })
