@@ -41,18 +41,18 @@ function ContactPage({ setContactToEdit }) {
   }
 
   // function to delete a contact
-  const onDelete = async (id, contact_at_id) => {
+  const onDelete = async (id, contact_at_app_id) => {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
 
     if (confirmed) {
 
       // update any application if releated to the contact 
-      if (contact_at_id !== '' && contact_at_id !== undefined) {
+      if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
 
         const updatedApplication = { contacts: '' };
 
         // PATCH the contact
-        const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
+        const responseUpdateApp = await fetch(`/applications/${contact_at_app_id}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedApplication),
           headers: {
@@ -109,7 +109,7 @@ function ContactPage({ setContactToEdit }) {
   // it adds the name and link of this application to this contact
   for (let contact of contacts) {
     for (let app of apps) {
-      if (contact.contact_at_id === app.id) {
+      if (contact.contact_at_app_id === app.id) {
         contact.contact_at_name = app.title;
         contact.contact_at_link = app.link;
       } 

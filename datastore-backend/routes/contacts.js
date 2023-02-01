@@ -72,7 +72,7 @@ function checkRequestBody (req, res, next) {
     "email": '', 
     "phone": '', 
     "notes": '', 
-    "contact_at_id": ''
+    "contact_at_app_id": ''
   };
   const requiredKeys = ["last_name", "first_name"];
   let keyError = false;
@@ -120,7 +120,7 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
-function post_contact(last_name, first_name, email, phone, notes, contact_at_id) {
+function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id) {
   var key = datastore.key(CONTACT);
   const new_contact = { 
     "last_name": last_name, 
@@ -128,7 +128,7 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_id)
     "email": email, 
     "phone": phone, 
     "notes": notes, 
-    "contact_at_id": contact_at_id 
+    "contact_at_app_id": contact_at_app_id 
   };
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
@@ -176,7 +176,7 @@ function get_contact(id) {
 }
 
 
-function put_contact(id, last_name, first_name, email, phone, notes, contact_at_id ) {
+function put_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   const contact = { 
     "last_name": last_name, 
@@ -184,7 +184,7 @@ function put_contact(id, last_name, first_name, email, phone, notes, contact_at_
     "email": email, 
     "phone": phone, 
     "notes": notes, 
-    "contact_at_id": contact_at_id 
+    "contact_at_app_id": contact_at_app_id 
   };
   return datastore.save({ "key": key, "data": contact });
 }
@@ -219,7 +219,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
     req.body.first_name, 
     req.body.email, req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_id
+    req.body.contact_at_app_id
     )
     .then(key => { res.status(201).json(key.id) })
     .catch(error => {
@@ -238,7 +238,7 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res)
     req.body.email, 
     req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_id
+    req.body.contact_at_app_id
     )
     .then(res.status(200).end())
     .catch(error => {

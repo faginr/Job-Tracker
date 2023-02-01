@@ -20,7 +20,7 @@ export const AddContactPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [contact_at_id, setContactAt] = useState('');
+  const [contact_at_app_id, setContactAt] = useState('');
 
   const [apps, setApps] = useState([]);
 
@@ -34,7 +34,7 @@ export const AddContactPage = () => {
       email, 
       phone, 
       notes, 
-      contact_at_id 
+      contact_at_app_id 
     };
 
     // POST a new contact
@@ -53,7 +53,7 @@ export const AddContactPage = () => {
     }
 
     // update an application if added to the contact
-    if (contact_at_id !== '' && contact_at_id !== undefined) {
+    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
 
       // get contact id to add to the application
       const conatct_id = await response.json();
@@ -61,7 +61,7 @@ export const AddContactPage = () => {
       const updateApplication = { contacts: `${conatct_id}` };
 
       // PATCH the application with contact_id
-      const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
+      const responseUpdateApp = await fetch(`/applications/${contact_at_app_id}`, {
         method: 'PATCH',
         body: JSON.stringify(updateApplication),
         headers: {

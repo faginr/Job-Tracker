@@ -16,14 +16,14 @@ export const EditContactPage = ({ contactToEdit }) => {
   const navigate = useNavigate();
 
   // store the original application id if replaced by new application
-  const originalApplication = contactToEdit.contact_at_id
+  const originalApplication = contactToEdit.contact_at_app_id
 
   const [last_name, setLastName] = useState(contactToEdit.last_name);
   const [first_name, setFirstName] = useState(contactToEdit.first_name);
   const [email, setEmail] = useState(contactToEdit.email);
   const [phone, setPhone] = useState(contactToEdit.phone);
   const [notes, setNotes] = useState(contactToEdit.notes);
-  const [contact_at_id, setContactAt] = useState(contactToEdit.contact_at_id);
+  const [contact_at_app_id, setContactAt] = useState(contactToEdit.contact_at_app_id);
 
   const [apps, setApps] = useState([]);
 
@@ -38,7 +38,7 @@ export const EditContactPage = ({ contactToEdit }) => {
       email, 
       phone, 
       notes, 
-      contact_at_id 
+      contact_at_app_id 
     };
 
     // PUT the contact
@@ -57,10 +57,10 @@ export const EditContactPage = ({ contactToEdit }) => {
     }
 
     // if application has changed for the contact, update the old and new applications
-    if (originalApplication !== contact_at_id) {
+    if (originalApplication !== contact_at_app_id) {
       console.log('here')
       console.log('here1', originalApplication)
-      console.log('here2', contact_at_id)
+      console.log('here2', contact_at_app_id)
 
       // update the old application if existed
       if (originalApplication !== '' && originalApplication !== undefined) {
@@ -86,10 +86,10 @@ export const EditContactPage = ({ contactToEdit }) => {
       };
 
       // PATCH the new application if added
-      if (contact_at_id !== '' && contact_at_id !== undefined) {
+      if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
         const updatedNewApplication = { contacts: `${contactToEdit.id}` };
 
-        const responseUpdateNewApp = await fetch(`/applications/${contact_at_id}`, {
+        const responseUpdateNewApp = await fetch(`/applications/${contact_at_app_id}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedNewApplication),
           headers: {
@@ -126,7 +126,7 @@ export const EditContactPage = ({ contactToEdit }) => {
  
   // iterate over the array of the applications and add name of application to the contact
   for (let app of apps) {
-    if (contactToEdit.contact_at_id === app.id) {
+    if (contactToEdit.contact_at_app_id === app.id) {
       contact_at_name = app.title;
     } 
   };
