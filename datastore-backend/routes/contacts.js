@@ -280,10 +280,12 @@ router.put('/', function (req, res) {
   res.status(405).send(errorMessages[405]);
 });
 
+
 router.patch('/', function (req, res) {
   res.set('Accept', 'GET, POST');
   res.status(405).send(errorMessages[405]);
 });
+
 
 router.delete('/', function (req, res) {
   res.set('Accept', 'GET, POST');
