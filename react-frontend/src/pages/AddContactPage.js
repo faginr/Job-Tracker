@@ -41,7 +41,7 @@ export const AddContactPage = () => {
     if(response.status === 201){
       alert("Successfully added the contact!"); 
     } else {
-      alert(`Failed to add contact, status code = ${response.status}`);
+      alert(`Failed to add the contact, status code = ${response.status}`);
     }
 
     // go back to Application Page

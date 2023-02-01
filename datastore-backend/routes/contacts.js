@@ -66,7 +66,13 @@ function checkAcceptHeader (req, res, next) {
  * if not, send an error message.
  */
 function checkRequestBody (req, res, next) {
-  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at_id": ''};
+  const allKeys = {"last_name": '', 
+    "first_name": '', 
+    "email": '', 
+    "phone": '', 
+    "notes": '', 
+    "contact_at_id": ''
+  };
   const requiredKeys = ["last_name", "first_name"];
   let keyError = false;
 
