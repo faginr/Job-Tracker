@@ -291,6 +291,16 @@ router.put('/', methodNotAllowedSkills)
 router.patch('/', methodNotAllowedSkills)
 router.delete('/', methodNotAllowedSkills)
 
+router.get('/:skill_id', 
+    verifyAcceptHeader,
+    // verifyUser,              // adds user info to req.body.user
+    verifySkillExists,          // adds skill info to req.body.skill
+    verifyUserOwnsSkill,
+    async (req, res) => {
+        
+    }
+)
+
 // TODO: Uncomment once users have been established
 // // delete a skill from a user
 // router.delete('/:skill_id', 
