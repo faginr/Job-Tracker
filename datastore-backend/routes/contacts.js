@@ -21,8 +21,9 @@ const CONTACT = "contact";
 
 
 /** 
+ * Already exists on server.js
  * Check if the request body is in the json format, if not, send an error message.
- */
+ 
 router.use(bodyParser.json());
 router.use((err, req, res, next) => {
   if (err) {
@@ -32,6 +33,7 @@ router.use((err, req, res, next) => {
     next()
   }
 });
+*/
 
 
 /*--------------- Begin Middleware Functions --------------- */
@@ -195,7 +197,7 @@ function delete_contact(id) {
   return datastore.delete(key);
 }
 
-/* ------------- End Model Functions ------------- */
+/* ----------------- End Model Functions ---------------- */
 
 /* ------------- Begin Controller Functions ------------- */
 
@@ -207,7 +209,7 @@ router.get('/', checkAcceptHeader, function (req, res) {
     })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
+      res.status(500).send(errorMessages[500]);
     });
 });
 
@@ -224,12 +226,12 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
     .then(key => { res.status(201).json(key.id) })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
+      res.status(500).send(errorMessages[500]);
     });
 });
 
 
-router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
+router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   console.log("Put request received!");
   put_contact(
     req.params.id, 
@@ -243,7 +245,7 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res)
     .then(res.status(200).end())
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
+      res.status(500).send(errorMessages[500]);
     });
 });
 
@@ -254,7 +256,7 @@ router.delete('/:id', checkIdExists, function (req, res) {
     .then(res.status(204).end())
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
+      res.status(500).send(errorMessages[500]);
     });
 });
 
@@ -265,10 +267,29 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
     .then(contact => {res.status(200).json(contact[0]) })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
+      res.status(500).send(errorMessages[500]);
     });
 });
 
-/* ------------- End Controller Functions ------------- */
+/* -------------- End Controller Functions -------------- */
+
+/* -------------- Begin Not Allowed Routes -------------- */
+
+router.put('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405]);
+});
+
+router.patch('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405]);
+});
+
+router.delete('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405]);
+});
+
+/* --------------- End Not Allowed Routes --------------- */
 
 module.exports = router;
