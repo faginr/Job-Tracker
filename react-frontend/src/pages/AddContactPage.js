@@ -37,6 +37,7 @@ export const AddContactPage = () => {
       contact_at_id 
     };
 
+    // POST a new contact
     const response = await fetch('/contacts', {
       method: 'POST',
       body: JSON.stringify(newContact),
@@ -51,7 +52,7 @@ export const AddContactPage = () => {
       alert(`Failed to add the contact, status code = ${response.status}`);
     }
 
-    // update an application if added
+    // update an application if added to the contact
     if (contact_at_id !== '' && contact_at_id !== undefined) {
 
       // get contact id to add to the application
@@ -59,6 +60,7 @@ export const AddContactPage = () => {
 
       const updateApplication = { contacts: `${conatct_id}` };
 
+      // PATCH the application with contact_id
       const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
         method: 'PATCH',
         body: JSON.stringify(updateApplication),

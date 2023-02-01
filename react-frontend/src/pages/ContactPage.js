@@ -51,6 +51,7 @@ function ContactPage({ setContactToEdit }) {
 
         const updatedApplication = { contacts: '' };
 
+        // PATCH the contact
         const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedApplication),
@@ -66,7 +67,7 @@ function ContactPage({ setContactToEdit }) {
         }
       };
 
-      // delete the contact
+      // DELETE the contact
       const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
       if (response.status === 204) {
           setContacts(contacts.filter(contact => contact.id !== id));

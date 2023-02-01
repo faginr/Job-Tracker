@@ -41,6 +41,7 @@ export const EditContactPage = ({ contactToEdit }) => {
       contact_at_id 
     };
 
+    // PUT the contact
     const response = await fetch(`/contacts/${contactToEdit.id}`, {
       method: 'PUT',
       body: JSON.stringify(editedContact),
@@ -68,6 +69,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         // update the old application
         const updatedOldApplication = { contacts: '' };
 
+        // PATCH the old application if changed
         const responseOldApplication = await fetch(`/applications/${originalApplication}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedOldApplication),
@@ -83,7 +85,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         }
       };
 
-      // update the new application if added
+      // PATCH the new application if added
       if (contact_at_id !== '' && contact_at_id !== undefined) {
         const updatedNewApplication = { contacts: `${contactToEdit.id}` };
 
