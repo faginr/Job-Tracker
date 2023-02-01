@@ -300,16 +300,17 @@ router.put('/:skill_id',
         res.status(200).send(newSkill)
 })
 
-// delete a skill from a user
-router.delete('/:skill_id', 
-    //verifyUser,               // adds user info to req.body.user
-    verifySkillExists,          // adds skill info to req.body.skill
-    verifyUserOwnsSkill,
-    async (req, res) => {
-        const deleteInfo = await deleteUserSkill(req.body.skill.id, req.body.user)
-        res.status(200).send(deleteInfo)
-    }
-)
+// TODO: Uncomment once users have been established
+// // delete a skill from a user
+// router.delete('/:skill_id', 
+//     //verifyUser,               // adds user info to req.body.user
+//     verifySkillExists,          // adds skill info to req.body.skill
+//     verifyUserOwnsSkill,
+//     async (req, res) => {
+//         const deleteInfo = await deleteUserSkill(req.body.skill.id, req.body.user)
+//         res.status(200).send(deleteInfo)
+//     }
+// )
 
 // modify an existing skill's proficiency for a user
 router.patch('/:skill_id', 
