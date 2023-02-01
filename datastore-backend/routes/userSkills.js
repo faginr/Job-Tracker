@@ -211,8 +211,13 @@ function verifyAcceptHeader (req, res, next) {
  * @param {express.next} next 
  */
 function verifyRequestBodyKeys (req, res, next) {
+    // body can be either blank, or only proficiency passed
+    let keyLength = Object.keys(req.body).length
+    let profDefined = (req.body.proficiency !== undefined)
 
-    if (("proficiency" in req.body) && Object.keys(req.body).length === 1) {
+    if (keyLength < 1) {
+        next()
+    } else if (keyLength === 1 && profDefined) {
         next()
     } else {
         return res.status(400).send(messages[400].keyError)
