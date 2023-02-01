@@ -41,10 +41,30 @@ function ContactPage({ setContactToEdit }) {
   }
 
   // function to delete a contact
-  const onDelete = async id => {
+  const onDelete = async (id, contact_at_id) => {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
 
     if (confirmed) {
+
+      // update any application if releated to the contact 
+      if (contact_at_id !== '') {
+        const updatedApplication = { contacts: '' };
+
+        const responseUpdateApp = await fetch(`/applications/${contact_at_id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedApplication),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if(responseUpdateApp.status === 200){
+          alert("Successfully updated the application!"); 
+        } else {
+          alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+        }
+      };
+
       const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
       if (response.status === 204) {
           setContacts(contacts.filter(contact => contact.id !== id));

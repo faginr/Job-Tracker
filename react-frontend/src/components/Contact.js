@@ -11,7 +11,7 @@ function Contact({ contact, onDelete, onEdit }) {
       <td>{contact.notes}</td>
       <td><a href={contact.contact_at_link}>{contact.contact_at_name}</a></td>
       <td><MdEdit onClick={() => onEdit(contact)} /></td>
-      <td><MdDeleteForever onClick={() => onDelete(contact.id)} /></td>
+      <td><MdDeleteForever onClick={() => onDelete(contact.id, contact.contact_at_id)} /></td>
     </tr>
   );
 }
