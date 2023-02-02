@@ -407,19 +407,25 @@ router.delete('/:id', checkIdExists, function (req, res) {
 
 router.put('/', function (req, res) {
   res.set('Accept', 'GET, POST');
-  res.status(405).send(errorMessages[405]);
+  res.status(405).send(errorMessages[405].all);
 });
 
 
 router.patch('/', function (req, res) {
   res.set('Accept', 'GET, POST');
-  res.status(405).send(errorMessages[405]);
+  res.status(405).send(errorMessages[405].all);
 });
 
 
 router.delete('/', function (req, res) {
   res.set('Accept', 'GET, POST');
-  res.status(405).send(errorMessages[405]);
+  res.status(405).send(errorMessages[405].all);
+});
+
+
+router.post('/:id', function (req, res) {
+  res.set('Accept', 'GET, PUT, PATCH, DELETE');
+  res.status(405).send(errorMessages[405].postWithId);
 });
 
 /* --------------- End Not Allowed Routes --------------- */

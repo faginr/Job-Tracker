@@ -7,7 +7,8 @@ const errorMessages = {
       },
   403: {"Error": "User does not own resource."}, 
   404: {"Error": "No contact exists with this id."},
-  405: {"Error": "Only GET, POST requests allowed for all applications route."},
+  405: {all: {"Error": "Only GET, POST requests allowed for all applications route."},
+        postWithId: {"Error": "POST not allowed with contact_id in url."}},
   406: {"Error": "The user sends unsupported Accept header."},
   415: {"Error": "The user sends unsupported Content-Type."},
   500: {"Error": "Request failed."}
