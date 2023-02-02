@@ -19,7 +19,7 @@ function fromStore (data) {
  * NOTE - use this function when wanting to supply ID for datastore manually.
  * If OK with DS assigning an ID instead, use postItem
  * @param {obj} newData 
- * @param {str} id 
+ * @param {int} id 
  * @param {str} kind 
  * @returns 
  */
@@ -237,8 +237,8 @@ async function deleteMatchingItemsFromKind(kind, filter_prop, filter_val) {
     const keys = await ds.runQuery(query)
 
     // perform batch delete
-    await ds.delete(keys)
-    return keys
+    await ds.delete(keys[0])
+    return keys[0]
 }
 
 /**

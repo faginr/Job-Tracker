@@ -15,17 +15,14 @@ function newUser (decodedJWT) {
     const newUser = {
         "username": decodedJWT.username,
         "created": `${month}/${day}/${year}`,
-        "id": decodedJWT.sub
+        "id": parseInt(decodedJWT.sub, 10)
     }
 
     return newUser
 }
 
 function fakeDecode(token, req) {
-    req.body = {"auth": {
-        "username": "tester",
-        "sub": 1234567890
-    }}
+    req.body['auth'] = JSON.parse(req.get('Authorization').slice(7))
 }
 
 /*--------------- Middleware Functions --------------------- */
