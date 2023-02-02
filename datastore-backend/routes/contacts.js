@@ -64,7 +64,7 @@ function checkAcceptHeader (req, res, next) {
 
 /************************************************************* 
  * Check if the user sends the body with valid object keys, 
- * if not, send an error message.
+ * if not, send an error message (used by POST and PUT).
  ************************************************************/
 function checkRequestBody (req, res, next) {
 
@@ -107,6 +107,37 @@ function checkRequestBody (req, res, next) {
 };
 
 
+/************************************************************* 
+ * Check if the user sends the body with valid object keys, 
+ * if not, send an error message (used by POST and PUT).
+ ************************************************************/
+function checkRequestBodyPatch (req, res, next) {
+
+  // available keys
+  const allKeys = {"last_name": '', 
+    "first_name": '', 
+    "email": '', 
+    "phone": '', 
+    "notes": '', 
+    "contact_at_app_id": ''
+  };
+
+  // check if received keys are valid
+  Object.keys(req.body).forEach(key => {
+    if (!(key in allKeys)) {
+      res.status(400).send(errorMessages[400].keyError)
+    }    
+  });
+
+  // required keys cannot be empty strings, if so, send an error message
+  if (req.body.last_name === '' || req.body.first_name === '') {
+    res.status(400).send(errorMessages[400].requiredKey)
+  };
+
+  next()
+};
+
+
 /*************************************************************  
  * Check if the user sends a valid object's id, 
  * if not, send an error message.
@@ -119,8 +150,7 @@ function checkIdExists (req, res, next) {
     } else {
       next()
     }
-  });
-
+  })
 };
 
 /*--------------- End Middleware Functions ----------------- */
@@ -142,9 +172,8 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_app
     "notes": notes, 
     "contact_at_app_id": contact_at_app_id 
   };
-  console.log('post', new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
-}
+};
 
 
 /************************************************************* 
@@ -159,8 +188,8 @@ function get_contacts() {
     // adds id attribute to every element in the array at element 0 of
     // the variable entities
     return entities[0].map(ds.fromDatastore);
-  });
-}
+  })
+};
 
 
 /************************************************************* 
@@ -186,8 +215,8 @@ function get_contact(id) {
       console.log('get', entity)
       return entity.map(ds.fromDatastore);
     }
-  });
-}
+  })
+};
 
 
 /************************************************************* 
@@ -204,9 +233,50 @@ function put_contact(id, last_name, first_name, email, phone, notes, contact_at_
     "notes": notes, 
     "contact_at_app_id": contact_at_app_id 
   };
-  console.log('post', contact)
+  console.log('post', contact);
   return datastore.save({ "key": key, "data": contact });
-}
+};
+
+
+/************************************************************* 
+ * The function sends a request to datastore to update some old values 
+ * with the new values and returns the status code.
+ ************************************************************/
+function patch_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
+  const key = datastore.key([CONTACT, parseInt(id, 10)]);
+  return datastore.get(key).then((entity) => {
+
+    if (last_name === undefined) {
+      last_name = entity[0].last_name
+    }
+    if (first_name === undefined) {
+      first_name = entity[0].first_name
+    }
+    if (email === undefined) {
+      email = entity[0].email
+    }
+    if (phone === undefined) {
+      phone = entity[0].phone
+    }
+    if (notes === undefined) {
+      notes = entity[0].notes
+    }
+    if (contact_at_app_id === undefined) {
+      contact_at_app_id = entity[0].contact_at_app_id
+    };
+
+    const contact = { 
+      "last_name": last_name, 
+      "first_name": first_name, 
+      "email": email, 
+      "phone": phone, 
+      "notes": notes, 
+      "contact_at_app_id": contact_at_app_id 
+    };
+    
+    return datastore.save({ "key": key, "data": contact });
+  })
+};
 
 
 /************************************************************* 
@@ -216,7 +286,7 @@ function put_contact(id, last_name, first_name, email, phone, notes, contact_at_
 function delete_contact(id) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   return datastore.delete(key);
-}
+};
 
 /* ----------------- End Model Functions ---------------- */
 
@@ -231,7 +301,7 @@ router.get('/', checkAcceptHeader, function (req, res) {
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    });
+    })
 });
 
 
@@ -249,7 +319,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    });
+    })
 });
 
 
@@ -269,7 +339,27 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, func
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    });
+    })
+});
+
+
+// update the datastore only with the received values
+router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
+  console.log("Patch request received!");
+  patch_contact(
+    req.params.id, 
+    req.body.last_name, 
+    req.body.first_name, 
+    req.body.email, 
+    req.body.phone, 
+    req.body.notes, 
+    req.body.contact_at_app_id
+    )
+    .then(res.status(200).end())
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
 });
 
 
@@ -280,7 +370,7 @@ router.delete('/:id', checkIdExists, function (req, res) {
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    });
+    })
 });
 
 
@@ -291,7 +381,7 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    });
+    })
 });
 
 /* -------------- End Controller Functions -------------- */

@@ -2,7 +2,8 @@
 const errorMessages = {
   400: {jsonError: {"Error": "Problem with JSON format in body."}, 
         keyError: {"Error": "The user sends invalid object keys."},
-        userExists: {"Error": "User already exists."}
+        userExists: {"Error": "User already exists."},
+        requiredKey: {"Error": "Required keys must have value."}
       },
   403: {"Error": "User does not own resource."}, 
   404: {"Error": "No contact exists with this id."},
