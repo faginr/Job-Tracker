@@ -292,6 +292,9 @@ function delete_contact(id) {
 
 /* ------------- Begin Controller Functions ------------- */
 
+/************************************************************* 
+ * GET all contacts
+ ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
   console.log("Get all request received!");
   get_contacts()
@@ -305,6 +308,9 @@ router.get('/', checkAcceptHeader, function (req, res) {
 });
 
 
+/************************************************************* 
+ * POST a new contact
+ ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
   post_contact(
@@ -323,7 +329,23 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 });
 
 
-// replace old values with the new values
+/************************************************************* 
+ * GET this contact_id
+ ************************************************************/
+router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
+  console.log("Get request received!");
+  get_contact(req.params.id)
+    .then(contact => {res.status(200).json(contact[0]) })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+
+/************************************************************* 
+ * PUT: replace all values for this contact_id
+ ************************************************************/
 router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   console.log("Put request received!");
   put_contact(
@@ -343,7 +365,10 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, func
 });
 
 
-// update the datastore only with the received values
+/************************************************************* 
+ * PATCH: update some values, the received values, 
+ * do not change others for this contact_id
+ ************************************************************/
 router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
   console.log("Patch request received!");
   patch_contact(
@@ -363,21 +388,13 @@ router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExist
 });
 
 
+/************************************************************* 
+ * DELETE this contact_id
+ ************************************************************/
 router.delete('/:id', checkIdExists, function (req, res) {
   console.log("Delete request received!");
   delete_contact(req.params.id)
     .then(res.status(204).end())
-    .catch(error => {
-      console.error(error);
-      res.status(500).send(errorMessages[500]);
-    })
-});
-
-
-router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
-  console.log("Get request received!");
-  get_contact(req.params.id)
-    .then(contact => {res.status(200).json(contact[0]) })
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
