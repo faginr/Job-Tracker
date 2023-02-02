@@ -288,14 +288,14 @@ function methodNotAllowedUserSkill(req, res, next) {
  */
 
 // get a user's skills - /users/:user_id/skills
-router.get('/', 
-    //verifyUser,                   // adds user info to req.body.user
-    verifyAcceptHeader, 
-    async (req, res) => {
-        const skillMap = createSkillMap(req.body.user.skills)
-        const skills = await bucketAppsBySkill(req.body.user, skillMap)
-        res.status(200).send(skills)
-})
+// router.get('/', 
+//     //verifyUser,                   // adds user info to req.body.user
+//     verifyAcceptHeader, 
+//     async (req, res) => {
+//         const skillMap = createSkillMap(req.body.user.skills)
+//         const skills = await bucketAppsBySkill(req.body.user, skillMap)
+//         res.status(200).send(skills)
+// })
 
 // create a new skill AND tie to user
 // TODO: Maybe get rid of this route since we can create on /skills now?
