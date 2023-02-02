@@ -1,15 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
+const model = require('../model')
 
 const ds = require('../datastore');
-
 
 const datastore = ds.datastore;
 
 const APPLICATION = "application";
 
 router.use(bodyParser.json());
+
 
 // gcloud auth application-default login
 
@@ -19,174 +20,20 @@ router.use(bodyParser.json());
 //                                                                                              /
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-// POST application
-
-function post_application(
-  title,
-  description,
-  skills = [],
-  contacts = [],
-  posting_date = null,
-  status = null,
-  link = null
-) {
-  var app_key = datastore.key(APPLICATION);
-  const new_application = {
-    title: title,
-    description: description,
-    skills: skills,
-    contacts: contacts,
-    posting_date: posting_date,
-    status: status,
-    link: link,
-  };
-  return datastore.save({ key: app_key, data: new_application }).then(() => {
-    return app_key;
-  });
+// Verify a given attribute is not undefined or null; true means value is undefined or null
+function verify_not_blank (val){
+  if (val === undefined || val === null) {
+    return true
+  }
 }
 
-// GET all applications
-
-/**
- * The function datastore.query returns an array, where the element at index 0
- * is itself an array. Each element in the array at element 0 is a JSON object
- * with an entity fromt the type "Application".
- */
-function get_applications(req) {
-  // get application data
-  const query = datastore.createQuery(APPLICATION);
-  // create results object
-  const results = {};
-  return datastore.runQuery(query).then((entities) => {
-    // Use Array.map to call the function fromDatastore. This function
-    // adds id attribute to every element in the array at element 0 of
-    // the variable entities
-
-    // map query payload to results object
-    results.applications = entities[0].map(ds.fromDatastore);
-    // if results is not empty
-    if (results.applications !== undefined && results.applications !== null) {
-      // iterate through results
-      for (let i = 0; i < results.applications.length; i++) {
-        // for each record with an id
-        if (results.applications[i]["id"] !== undefined) {
-          // create self link to resource
-          results.applications[i]["self"] =
-            req.protocol +
-            "://" +
-            req.get("host") +
-            req.baseUrl +
-            "/" +
-            results.applications[i]["id"];
-        }
-      }
-    }
-    // return results object
-    return results;
-  });
+// Verify an id in a route is of valid type; true means invalid type
+function verify_id (id) {
+  let idRegex = /[^0-9]/gi
+  if (idRegex.test(id) === true){
+      return true
+  } 
 }
-
-// GET application by id
-
-/**
- * Note that datastore.get returns an array where each element is a JSON object
- * corresponding to an entity of the Type "Application." If there are no entities
- * in the result, then the 0th element is undefined.
- * @param {number} id Int ID value
- * @returns An array of length 1.
- *      If a application with the provided id exists, then the element in the array
- *           is that application
- *      If no application with the provided id exists, then the value of the
- *          element is undefined
- */
-function get_application(req) {
-  const key = datastore.key([APPLICATION, parseInt(req.params.id, 10)]);
-  return datastore.get(key).then((entity) => {
-    if (entity[0] === undefined || entity[0] === null) {
-      // No entity found. Don't try to add the id attribute
-      return entity;
-    } else {
-      // Use Array.map to call the function fromDatastore. This function
-      // adds id attribute to every element in the array entity
-      let results = entity.map(ds.fromDatastore);
-      results[0]["self"] =
-        req.protocol +
-        "://" +
-        req.get("host") +
-        req.baseUrl +
-        "/" +
-        results[0]["id"];
-      return results;
-    }
-  });
-}
-
-// PATCH an application
-
-function patch_application(id, application, new_values) {
-  // get application by stored id
-  const key = datastore.key([APPLICATION, parseInt(id, 10)]);
-  let title;
-  let description;
-  let date;
-  let status;
-  let link;
-
-  // for each attribute, assign new value else retain old value
-  if (new_values["title"] != undefined) {
-    title = new_values["title"];
-  } else {
-    title = application[0]["title"];
-  }
-  if (new_values["description"] != undefined) {
-    description = new_values["description"];
-  } else {
-    description = application[0]["description"];
-  }
-  if (new_values["date"] != undefined) {
-    date = new_values[0]["date"];
-  } else {
-    date = application[0]["date"];
-  }
-  if (new_values["status"] != undefined) {
-    status = new_values[0]["status"];
-  } else {
-    status = application[0]["status"];
-  }
-  if (new_values["link"] != undefined) {
-    link = new_values[0]["link"];
-  } else {
-    link = application[0]["link"];
-  }
-
-  // build modified application object
-  const modified_application = {
-    // username: application[0]["username"],
-    skills: application[0]["skills"],
-    contacts: application[0]["contacts"],
-    title: title,
-    description: description,
-    date: date,
-    status: status,
-    link: link,
-  };
-
-  // save modified application record
-  return datastore.save({ key: key, data: modified_application });
-}
-
-// DELETE applcation
-
-function delete_application(id) {
-  const key = datastore.key([APPLICATION, parseInt(id, 10)]);
-  return datastore.delete(key);
-}
-
-// function put_application(id, name, description, skill) {
-//   const key = datastore.key([APPLICATION, parseInt(id, 10)]);
-//   const application = { "name": name, "description": description, "skill": skill };
-//   return datastore.save({ "key": key, "data": application });
-// }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              /
@@ -199,37 +46,64 @@ function delete_application(id) {
 router.post("/", function (req, res) {
   console.log("Post request received!");
 
-  // check if required parameters were sent in request; if not reject with 400 error
-  if (req.body.title === undefined || req.body.title === null) {
-    // if not, send 400
+  // Test for invalid request
+  if (
+    verify_not_blank(req.body.title) 
+    || verify_not_blank(req.body.description)
+    ) {
+    // Failure, reject
     return res.status(400).json({Error:  "The request object is missing at least one of the required attributes"});
   }
-  if (req.body.description === undefined || req.body.title === null) {
-    // if not, send 400
-    return res.status(400).json({Error:  "The request object is missing at least one of the required attributes"});
+  
+  // create object with new application data
+  const default_values = {
+    'skills': "",
+    'contacts': "",
+    'posting_date': "",
+    'status': "",
+    'link': "",
+  }
+  const new_application = {
+    'title': req.body.title,
+    'description': req.body.description,
+    'skills': req.body.skills,
+    'contacts': req.body.contacts,
+    'posting_date': req.body.posting_date,
+    'status': req.body.status,
+    'link': req.body.link,
   }
 
-  // create default object for return
+  // apply default values to blanks
+  if (req.body.skills === undefined){
+    new_application["skills"] = default_values["skills"]
+  }
+  if (req.body.contacts === undefined){
+    new_application["contacts"] = default_values["contacts"]
+  }
+  if (req.body.posting_date === undefined){
+    new_application["posting_date"] = default_values["posting_date"]
+  }
+  if (req.body.status === undefined){
+    new_application["status"] = default_values["status"]
+  }
+  if (req.body.link === undefined){
+    new_application["link"] = default_values["link"]
+  }
 
-  post_application(
-    req.body.title,
-    req.body.description,
-    req.body.skills,
-    req.body.contacts,
-    req.body.posting_date,
-    req.body.status,
-    req.body.link
-  ).then((key) => {
-    res.status(201).json({
-      'id': key.id,
-      'title': req.body.title,
-      'description': req.body.description,
-      'skills': req.body.skills,
-      'contacts': req.body.contacts,
-      'posting date': req.body.posting_date,
-      'status': req.body.status,
-      'link': req.body.link,
-      'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
+  // save new object in datastore
+  model.postItem(new_application, 'application')
+    .then((key) => {
+      // return object in response body
+      res.status(201).json({
+        'id': key.id,
+        'title': new_application["title"],
+        'description': new_application["description"],
+        'skills': new_application["skills"],
+        'contacts': new_application["contacts"],
+        'posting date': new_application["posting_date"],
+        'status': new_application["status"],
+        'link': new_application["link"],
+        'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
     });
   });
 });
@@ -238,7 +112,9 @@ router.post("/", function (req, res) {
 
 router.get("/", function (req, res) {
   console.log("Get all requests received!");
-  get_applications(req).then((applications) => {
+
+  // Get all entities by kind 'application'
+  model.getItemsNoPaginate('application').then((applications) => {
     res.status(200).json(applications);
   });
 });
@@ -247,16 +123,31 @@ router.get("/", function (req, res) {
 
 router.get("/:id", function (req, res) {
   console.log("Get request received!");
-  get_application(req)
+  
+  // Test for invalid request 
+  if (
+    verify_id(req.params.id) 
+    || verify_not_blank(req.params.id)
+    ){
+      // Failure, reject
+      return res.status(400).json({ Error: 'No application exists with this id'})
+  } 
+
+  // Get entity by kind and id
+  model.getItemByID('application', req.params.id)
   .then((application) => {
-    if (application[0] === undefined || application[0] === null) {
-      // The 0th element is undefined. This means there is no application with this id
+
+    // Check if application data is blank (doesn't exist)
+    if (verify_not_blank(application[0])) {
       res.status(404).json({ Error: "No application exists with this id" });
     } 
+
+    // Reject any non-JSON requests
     const accepts = req.accepts(['application/json']);
     if(!accepts){
       return res.status(406).json({'Error': 'Not accepted, only application/json supported'});
     }
+
     else {
       // Return the 0th element which is the application with this id
       res.status(200).json(application[0]);
@@ -264,64 +155,71 @@ router.get("/:id", function (req, res) {
   });
 });
 
-// router.put("/:id", function (req, res) {
-//   console.log("Put request received!");
-//   put_application(
-//     req.params.id,
-//     req.body.name,
-//     req.body.description,
-//     req.body.skill
-//   ).then(res.status(200).end());
-// });
-
 // PATCH application by id route
 
 router.patch("/:id", function (req, res) {
   console.log("Patch request received!");
+
+  // Test for invalid request
+  if (
+    verify_id(req.params.id) 
+    || verify_not_blank(req.params.id)
+    ){
+      console.log("here")
+      // Failure, reject
+      return res.status(400).json({ Error: 'No application exists with this id'})
+  } 
+  
   // get application by id
-  get_application(req)
+  model.getItemByID('application', req.params.id)
   .then(application => {
+
     // if application doesn't exist reject with 404 error
-    if(application[0] === undefined || application[0] === null){
+    if(verify_not_blank(application[0])){
       return res.status(404).json({'Error': 'No application with this id exists'});
     } else {
+
       // collect any modified values, collect correct result values
-      const modified_values = {}
       const results = application
       if (req.body.title !== undefined){
-        modified_values["title"] = req.body.title
-        results["title"] = req.body.title
+        results[0]["title"] = req.body.title
       }
-      if (req.body.title !== undefined){
-        modified_values["description"] = req.body.description
-        results["description"] = req.body.description
+      if (req.body.description !== undefined){
+        results[0]["description"] = req.body.description
       }
-      if (req.body.title !== undefined){
-        modified_values["date"] = req.body.date
-        results["date"] = req.body.date
+      if (req.body.skills !== undefined){
+        results[0]["skills"] = req.body.skills
       }
-      if (req.body.title !== undefined){
-        modified_values["status"] = req.body.status
-        results["status"] = req.body.status
+      if (req.body.contacts !== undefined){
+        results[0]["contacts"] = req.body.contacts
       }
-      if (req.body.title !== undefined){
-        modified_values["link"] = req.body.link
-        results["link"] = req.body.link
+      if (req.body.posting_date !== undefined){
+        results[0]["posting_date"] = req.body.posting_date
       }
-      return patch_application(req.params.id, application, modified_values)
+      if (req.body.status !== undefined){
+        results[0]["status"] = req.body.status
+      }
+      if (req.body.link !== undefined){
+        results[0]["link"] = req.body.link
+      }
+      // Update application in datastore, return updated object in response body
+      return model.updateItem(results[0], 'application')
       .then(res.status(200).json({
         'id': req.params.id,
         // 'user': results["user"],
-        'skills': results["skills"],
-        'contacts': results["contacts"],
-        'title': results["title"],
-        'description': results["description"],
-        'date': results["date"],
-        'status': results["status"],
-        'link': results["link"],
+        'skills': results[0]["skills"],
+        'contacts': results[0]["contacts"],
+        'title': results[0]["title"],
+        'description': results[0]["description"],
+        'posting_date': results[0]["posting_date"],
+        'status': results[0]["status"],
+        'link': results[0]["link"],
         'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.id
       }))
     }
+  })
+  .catch(error => {
+    res.status(500).json({'Error': error}).end()
   })
 })
 
@@ -329,15 +227,27 @@ router.patch("/:id", function (req, res) {
 
 router.delete("/:id", function (req, res) {
   console.log("Delete request received!");
-  // get application by id
-  get_application(req)
+  
+  // Test for invalid request
+  if (
+    verify_id(req.params.id) 
+    || verify_not_blank(req.params.id)
+    ){
+      // Failure, reject
+      return res.status(400).json({ Error: 'No application exists with this id'})
+  } 
+
+  // Get application by id
+  model.getItemByID('application', req.params.id)
   .then(application => {
+    
     // if applcation doesn't exist, reject with 404
-    if(application[0] === undefined || application[0] === null){
+    if(verify_not_blank(application[0])){
       return res.status(404).json({'Error': 'No application with this id exists'});
     }
+
     // TODO implement all necessary checks and removals before delete
-    return delete_application(req.params.id).then(res.status(204).end());
+    return model.deleteItem('application', req.params.id).then(res.status(204).end());
   })
 });
 

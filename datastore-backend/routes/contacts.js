@@ -66,7 +66,7 @@ function checkAcceptHeader (req, res, next) {
  * if not, send an error message.
  */
 function checkRequestBody (req, res, next) {
-  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at": ''};
+  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at_id": ''};
   const requiredKeys = ["last_name", "first_name"];
   let keyError = false;
 
@@ -113,9 +113,16 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
-function post_contact(last_name, first_name, email, phone, notes, contact_at) {
+function post_contact(last_name, first_name, email, phone, notes, contact_at_id) {
   var key = datastore.key(CONTACT);
-  const new_contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
+  const new_contact = { 
+    "last_name": last_name, 
+    "first_name": first_name, 
+    "email": email, 
+    "phone": phone, 
+    "notes": notes, 
+    "contact_at_id": contact_at_id 
+  };
   // console.log(new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
@@ -163,9 +170,16 @@ function get_contact(id) {
 }
 
 
-function put_contact(id, last_name, first_name, email, phone, notes, contact_at ) {
+function put_contact(id, last_name, first_name, email, phone, notes, contact_at_id ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  const contact = { "last_name": last_name, "first_name": first_name, "email": email, "phone": phone, "notes": notes, "contact_at": contact_at };
+  const contact = { 
+    "last_name": last_name, 
+    "first_name": first_name, 
+    "email": email, 
+    "phone": phone, 
+    "notes": notes, 
+    "contact_at_id": contact_at_id 
+  };
   return datastore.save({ "key": key, "data": contact });
 }
 
@@ -194,7 +208,13 @@ router.get('/', checkAcceptHeader, function (req, res) {
 
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
-  post_contact(req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes, req.body.contact_at)
+  post_contact(
+    req.body.last_name, 
+    req.body.first_name, 
+    req.body.email, req.body.phone, 
+    req.body.notes, 
+    req.body.contact_at_id
+    )
     .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
     .catch(error => {
       console.error(error);
@@ -205,7 +225,15 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 
 router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Put request received!");
-  put_contact(req.params.id, req.body.last_name, req.body.first_name, req.body.email, req.body.phone, req.body.notes)
+  put_contact(
+    req.params.id, 
+    req.body.last_name, 
+    req.body.first_name, 
+    req.body.email, 
+    req.body.phone, 
+    req.body.notes, 
+    req.body.contact_at_id
+    )
     .then(res.status(200).end())
     .catch(error => {
       console.error(error);
