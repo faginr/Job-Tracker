@@ -35,7 +35,7 @@ async function postItemManId(newData, id, kind) {
 
     await ds.save(entity)
 
-    newData.id = newKey.id
+    newData.id = String(newKey.id)
     return newData
 }
 
