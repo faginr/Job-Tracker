@@ -8,18 +8,16 @@
 
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const router = express.Router();
-
 const ds = require('../datastore');
 const datastore = ds.datastore;
-
 const errorMessages = require('./errorMessages');
 
 // the name of the kind to be stored
 const CONTACT = "contact";
 
 
+//const bodyParser = require('body-parser');
 /** 
  * Already exists on server.js
  * Check if the request body is in the json format, if not, send an error message.
@@ -38,10 +36,10 @@ router.use((err, req, res, next) => {
 
 /*--------------- Begin Middleware Functions --------------- */
 
-/** 
+/************************************************************* 
  * Check if the user sends accepted Content-Type header, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkContentTypeHeader (req, res, next) {
   if (req.get('content-type') !== 'application/json') {
     res.status(415).send(errorMessages[415])
@@ -51,10 +49,10 @@ function checkContentTypeHeader (req, res, next) {
 };
 
 
-/** 
+/************************************************************* 
  * Check if the user sends accepted Accept header, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkAcceptHeader (req, res, next) {
   if (req.get('accept') !== 'application/json' && req.get('accept') !== '*/*') {
     res.status(406).send(errorMessages[406])
@@ -64,11 +62,13 @@ function checkAcceptHeader (req, res, next) {
 };
 
 
-/** 
+/************************************************************* 
  * Check if the user sends the body with valid object keys, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkRequestBody (req, res, next) {
+
+  // available keys
   const allKeys = {"last_name": '', 
     "first_name": '', 
     "email": '', 
@@ -76,7 +76,13 @@ function checkRequestBody (req, res, next) {
     "notes": '', 
     "contact_at_app_id": ''
   };
-  const requiredKeys = ["last_name", "first_name"];
+
+  // required keys
+  const requiredKeys = [
+    "last_name", 
+    "first_name"
+  ];
+
   let keyError = false;
 
   // check if received keys are valid
@@ -101,10 +107,10 @@ function checkRequestBody (req, res, next) {
 };
 
 
-/** 
+/*************************************************************  
  * Check if the user sends a valid object's id, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkIdExists (req, res, next) {
   const key = datastore.key([CONTACT, parseInt(req.params.id, 10)]);
   return datastore.get(key).then((entity) => {
@@ -122,6 +128,10 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
+/************************************************************* 
+ * The function sends a request to datastore to store the received data 
+ * and returns the status code and the key of new created object.
+ ************************************************************/
 function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id) {
   var key = datastore.key(CONTACT);
   const new_contact = { 
@@ -132,15 +142,16 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_app
     "notes": notes, 
     "contact_at_app_id": contact_at_app_id 
   };
+  console.log('post', new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 }
 
 
-/**
+/************************************************************* 
  * The function datastore.query returns an array, where the element at index 0
  * is itself an array. Each element in the array at element 0 is a JSON object
  * with an entity fromt the type "Contact".
- */
+ ************************************************************/
 function get_contacts() {
   const q = datastore.createQuery(CONTACT);
   return datastore.runQuery(q).then((entities) => {
@@ -152,7 +163,7 @@ function get_contacts() {
 }
 
 
-/**
+/************************************************************* 
  * Note that datastore.get returns an array where each element is a JSON object 
  * corresponding to an entity of the Type "Contact." If there are no entities
  * in the result, then the 0th element is undefined.
@@ -162,7 +173,7 @@ function get_contacts() {
  *           is that contact
  *      If no contact with the provided id exists, then the value of the 
  *          element is undefined
- */
+ ************************************************************/
 function get_contact(id) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   return datastore.get(key).then((entity) => {
@@ -172,12 +183,17 @@ function get_contact(id) {
     } else {
       // Use Array.map to call the function fromDatastore. This function
       // adds id attribute to every element in the array entity
+      console.log('get', entity)
       return entity.map(ds.fromDatastore);
     }
   });
 }
 
 
+/************************************************************* 
+ * The function sends a request to datastore to replace 
+ * old values with the new values and returns the status code.
+ ************************************************************/
 function put_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   const contact = { 
@@ -188,10 +204,15 @@ function put_contact(id, last_name, first_name, email, phone, notes, contact_at_
     "notes": notes, 
     "contact_at_app_id": contact_at_app_id 
   };
+  console.log('post', contact)
   return datastore.save({ "key": key, "data": contact });
 }
 
 
+/************************************************************* 
+ * The function sends a request to datastore to delete the object
+ * and returns the status code.
+ ************************************************************/
 function delete_contact(id) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   return datastore.delete(key);
@@ -219,7 +240,8 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   post_contact(
     req.body.last_name, 
     req.body.first_name, 
-    req.body.email, req.body.phone, 
+    req.body.email, 
+    req.body.phone, 
     req.body.notes, 
     req.body.contact_at_app_id
     )
@@ -231,6 +253,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 });
 
 
+// replace old values with the new values
 router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   console.log("Put request received!");
   put_contact(
