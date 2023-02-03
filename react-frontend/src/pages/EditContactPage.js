@@ -172,6 +172,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         <select onChange={e => setContactAt(e.target.value)}>
           
           <option>{contact_at_name}</option>
+          <option></option>
           {sortedApps.map((option, index) => {
             return <option key={index} value={option.id}>
               {option.title}
