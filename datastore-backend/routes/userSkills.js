@@ -1,6 +1,7 @@
 const express = require('express');
 const model = require('../model')
 const messages = require('./errorMessages')
+const verifyUser = require('./middleware/verifyUser')
 
 const router = express.Router()
 
@@ -30,16 +31,19 @@ const router = express.Router()
 async function addUserSkill(skillData, userData) {
     // if skill exists in user skills already, just update that
     // skill
-    for (let skill in userData.skills) {
+    for(i=0; i<userData.skills.length; i++) {
+        let skill = userData.skills[i]
         if (skill.skill_id === skillData.skill_id) {
             userData.skills.skill = skillData
-            return await model.updateItem(userData, 'users')
+            await model.updateItem(userData, 'users')
+            return userData
         }
     }
     
     // otherwise add the skill to the user
     userData.skills.push(skillData)
-    return await model.updateItem(req.body.user, 'users')
+    await model.updateItem(userData, 'users')
+    return userData
 }
 
 async function deleteSkillFromUser(skillID, userData) {
@@ -103,10 +107,10 @@ async function deleteUserSkill(skillID, userData) {
  */
 function createSkillMap(skillArray) {
     const skillMap = {}
-    for(let skill in skillArray) {
+    skillArray.forEach((skill) => {
         skill['apps'] = []
         skillMap[skill.skill_id] = skill
-    }
+    })
     return skillMap
 }
 
@@ -133,13 +137,11 @@ async function bucketAppsBySkill(userData, skillMap) {
         
     // grab the apps associated with the user
     const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
-    for(let app in userApps){
-        // each app has an array of skill ids, map these back to initialized
-        // skill map, adding info about app tied to skill
-        for(let appSkill in app.skills) {
-            skillMap[appSkill].apps.push({'title': app.title, 'app_id': app.id})
-        }
-    }
+    userApps.forEach((app) => {
+        app.skills.forEach((skill_id) => {
+            skillMap[skill_id].apps.push({'title': app.title, 'app_id': app.id})
+        })
+    })
 
     return Object.values(skillMap)
 }
@@ -172,16 +174,24 @@ async function verifySkillExists (req, res, next) {
 }
 
 /**
- * Verifies that the user requesting action via a JWT owns the resource 
- * being requested. If the user requesting action does not own the resource, 
- * a 403 status/error message is returned.
+ * Verifies that the user requesting action via a JWT owns the skill 
+ * being requested. If the user requesting action does not own the skill, 
+ * a 403 status/error message is returned. If they do, then the user's
+ * skill info {proficiency, skill_id, description} are added to the 
+ * request body under userSkill
  * @param {express.request} req 
  * @param {express.response} res 
  * @param {express.next} next 
  */
 async function verifyUserOwnsSkill (req, res, next) {
-    // TODO: lookup user and make sure skill parameter is in their skill
-    // array... once user verification implemented
+    let userOwnsSkill = false
+    req.body.user.skills.forEach((skill) => {
+        if(skill.skill_id === req.params.skill_id){
+            userOwnsSkill = true
+            req.body['userSkill'] = skill
+            return
+        }
+    })
     next()
 }
 
@@ -287,42 +297,37 @@ function methodNotAllowedUserSkill(req, res, next) {
  * ########################################################
  */
 
-// get a user's skills - /users/:user_id/skills
-// router.get('/', 
-//     //verifyUser,                   // adds user info to req.body.user
-//     verifyAcceptHeader, 
-//     async (req, res) => {
-//         const skillMap = createSkillMap(req.body.user.skills)
-//         const skills = await bucketAppsBySkill(req.body.user, skillMap)
-//         res.status(200).send(skills)
-// })
+router.get('/:user_id/skills', 
+    verifyUser.verifyJWTWithUserParam,      // adds user info to req.body.user
+    verifyAcceptHeader, 
+    async (req, res) => {
+        const skillMap = createSkillMap(req.body.user.skills)
+        const skills = await bucketAppsBySkill(req.body.user, skillMap)
+        res.status(200).send(skills)
+})
 
-// create a new skill AND tie to user
-// TODO: Maybe get rid of this route since we can create on /skills now?
-// router.post('/', methodNotAllowed)
+router.post('/:user_id/skills', methodNotAllowedSkills)
+router.put('/:user_id/skills', methodNotAllowedSkills)
+router.patch('/:user_id/skills', methodNotAllowedSkills)
+router.delete('/:user_id/skills', methodNotAllowedSkills)
 
-router.put('/', methodNotAllowedSkills)
-router.patch('/', methodNotAllowedSkills)
-router.delete('/', methodNotAllowedSkills)
-
-// TODO: Uncomment once users have been established
-// router.get('/:skill_id', 
-//     verifyAcceptHeader,
-//     // verifyUser,              // adds user info to req.body.user
-//     verifySkillExists,          // adds skill info to req.body.skill
-//     verifyUserOwnsSkill,        // adds user skill info to req.body.userSkill
-//     async (req, res) => {
+router.get('/:user_id/skills/:skill_id', 
+    verifyAcceptHeader,
+    verifyUser.verifyJWTWithUserParam,  // adds user info to req.body.user
+    verifySkillExists,                  // adds skill info to req.body.skill
+    verifyUserOwnsSkill,                // adds user skill info to req.body.userSkill
+    async (req, res) => {
         
-//         try {
-//             const skillMap = createSkillMap([req.body.userSkill])
-//             const returnInfo = await bucketAppsBySkill(req.body.user, skillMap)
-//             res.status(200).send(returnInfo)
-//         } catch (err) {
-//             console.error(err)
-//             res.status(500).end()
-//         }
-//     }
-// )
+        try {
+            const skillMap = createSkillMap([req.body.userSkill])
+            const returnInfo = await bucketAppsBySkill(req.body.user, skillMap)
+            res.status(200).send(returnInfo)
+        } catch (err) {
+            console.error(err)
+            res.status(500).end()
+        }
+    }
+)
 
 // TODO: Uncomment once users have been established
 // // delete a skill from a user
@@ -338,13 +343,13 @@ router.delete('/', methodNotAllowedSkills)
 
 // modify an existing skill's proficiency for a user
 // OR tie existing skill to user
-router.put('/:skill_id', 
+router.put('/:user_id/skills/:skill_id', 
     verifyContentTypeHeader,
     verifyAcceptHeader,
     verifyRequestBodyKeys,
     verifyRequestBodyVals, 
-    //verifyUser,               // adds user info to req.body.user
-    verifySkillExists,          // adds skill info to req.body.skill
+    verifyUser.verifyJWTWithUserParam,  // adds user info to req.body.user
+    verifySkillExists,                  // adds skill info to req.body.skill
     async (req, res) => {
         const newSkillData = {
             "skill_id": req.params.skill_id,
@@ -352,15 +357,13 @@ router.put('/:skill_id',
             "description": req.body.skill.description
         }
 
-        // TODO: update user's skill array once user verification complete
-        // try {
-        //     const updatedUser = updateUserSkills(newSkillData, req.body.user)
-        //     res.status(200).send(updatedUser)
-        // } catch (err) {
-        //     console.error(err)
-        //     res.status(500).end()
-        // }
-        res.status(200).send(newSkillData)
+        try {
+            const updatedUser = await addUserSkill(newSkillData, req.body.user)
+            res.status(200).send(updatedUser)
+        } catch (err) {
+            console.error(err)
+            res.status(500).end()
+        }
     }
 )
 
