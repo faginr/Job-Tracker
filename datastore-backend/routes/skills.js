@@ -174,10 +174,9 @@ router.get('/', //verifyJWT,
     }
 })
 
-router.post('/', // verifyJWT, 
-                 // verifyUser,
-                 verifyRequestBodyKeys,
+router.post('/', verifyRequestBodyKeys,
                  verifyRequestBodyVals,
+                 verifyUser.verifyJWTOnly,
                  verifyAcceptHeader,
                  verifyContentTypeHeader, async (req, res) => {
     
