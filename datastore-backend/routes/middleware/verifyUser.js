@@ -20,11 +20,10 @@ function extractUserInfo (decodedJWT) {
     return userInfo
 }
 
-function fakeDecode(req) {
-    req.body['auth'] = {
-        "username": "tester",
-        "sub": "1234567890",
-    }
+function fakeDecode(token, req) {
+    // token is a JSON object as string like "Bearer <Token>"
+    // so slice token to only get <Token> part
+    req.body['auth'] = JSON.parse(token.slice(7))
 }
 
 /**
@@ -40,7 +39,7 @@ function jwtValid (req) {
     try {
         // put decode capability here, currently stubbing out
         // decode places info under req.body.auth
-        fakeDecode(req)
+        fakeDecode(token, req)
 
         // if decode is successful, extract the user info
         // and replace req.body.auth with it
