@@ -110,9 +110,9 @@ router.get('/', verifyUser.verifyJWTOnly,
     }
 })
 
-router.post('/', verifyUser.verifyJWTOnly, 
-                 verifyRequestBodyKeys,
+router.post('/', verifyRequestBodyKeys,
                  verifyRequestBodyVals,
+                 verifyUser.verifyJWTOnly,
                  verifyAcceptHeader,
                  verifyContentTypeHeader, async (req, res) => {
     
