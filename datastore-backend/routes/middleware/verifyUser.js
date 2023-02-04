@@ -69,9 +69,19 @@ function userMatchesJWT(req) {
 }
 
 
-async function addUserToBody(req) {
-    let user = await model.getItemByID('users', req.params.user_id)
-    req.body['user'] = user[0]
+async function userExists(req) {
+    let user;
+    try {
+        user = await model.getItemByID('users', req.params.user_id)
+        req.body['user'] = user[0]
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+    if(req.body.user === null || req.body.user === undefined) {
+        return false
+    }
+    return true
 }
 
 
@@ -96,9 +106,7 @@ async function verifyJWTWithUserParam (req, res, next) {
         return res.status(403).send(messages[403])
     }
 
-    await addUserToBody(req)
-    
-    if (req.body.user === null || req.body.user === undefined) {
+    if (!(await userExists(req))) {
         return res.status(404).send(messages[404].users)
     }
 
