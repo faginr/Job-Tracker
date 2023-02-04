@@ -1,4 +1,5 @@
 const messages = require("../errorMessages")
+const model = require("../../model")
 
 /**
  * A collection of functions that aid in the verification
@@ -58,27 +59,54 @@ function jwtValid (req) {
  * @returns 
  */
 function userMatchesJWT(req) {
-    return(parseInt(req.params.user_id, 10) === req.body.auth.id)
+    try {
+        return(parseInt(req.params.user_id, 10) === req.body.auth.id)
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
+
+
+async function userExists(req) {
+    let user;
+    try {
+        user = await model.getItemByID('users', req.params.user_id)
+        req.body['user'] = user[0]
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+    if(req.body.user === null || req.body.user === undefined) {
+        return false
+    }
+    return true
+}
+
 
 /**
  * Use this middleware when on route like /users/:user_id...
  * Checks to make sure the JWT passed in the request is valid.
- * Also checks to make sure the user_id parameter matches the JWT passed.
+ * Then checks to make sure the user_id parameter matches the JWT passed.
+ * Finally checks to make sure the user exists.
  * If both pass, passes control to next function with {username, id}
- * stored under req.body.auth.
+ * stored under req.body.auth and user lookup data from DS under req.body.user
  * @param {express.request} req 
  * @param {express.response} res 
  * @param {express.next} next 
  * @returns 
  */
-function verifyJWTWithUserParam (req, res, next) {
+async function verifyJWTWithUserParam (req, res, next) {
     if (!(jwtValid(req))){
         return res.status(401).send(messages[401])
     }
 
     if (!(userMatchesJWT(req))) {
         return res.status(403).send(messages[403])
+    }
+
+    if (!(await userExists(req))) {
+        return res.status(404).send(messages[404].users)
     }
 
     next()

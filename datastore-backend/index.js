@@ -10,11 +10,7 @@ const router = express.Router()
 
 router.use('/applications', applications);
 router.use('/contacts', contacts);
-router.use('/users', users)
+router.use('/users', users, userSkills, userAppSkills)
 router.use('/skills', generalSkills)
-
-// TODO: change this to begin with /users/:user_id once user verification
-// implemented
-router.use('/skills', userSkills, userAppSkills)
 
 module.exports = {router}

@@ -1,75 +1,12 @@
 const express = require('express');
 const model = require('../model');
 const messages = require('./errorMessages')
+const verifyUser = require('./middleware/verifyUser')
 
 const router = express.Router()
 
-function fakeDecode(token, req) {
-    req.body['auth'] = {
-        "username": token.username,
-        "sub": token.sub
-    }
-}
-
-function extractUserInfo (decodedJWT) {
-    return {
-        "username": decodedJWT.username,
-        "id": parseInt(decodedJWT.sub, 10)
-    }
-}
 
 /*--------------- Middleware Functions --------------------- */
-/**
- * Verifies that the JWT is valid. If valid, adds user info obtained
- * from the JWT to the body of the request (username, id, date created).
- * @param {express.request} req 
- * @param {express.response} res 
- * @param {express.next} next 
- */
-async function verifyJWT (req, res, next) {
-    let token = req.get('authorization')
-    token = JSON.parse(token.slice(7))
-    
-    try {
-        // put decode capability here, currently stubbing out
-        // decode places info in request body under auth
-        fakeDecode(token, req)
-
-        // if JWT is valid, add user info from JWT to the body 
-        // of the request
-        req.body.auth = extractUserInfo(req.body.auth)
-        next()
-    }
-    catch (err) {
-        console.error(err)
-        res.status(401).send(messages[401])
-    }
-}
-
-
-/*--------------- Middleware Functions --------------------- */
-/**
- * Verifies that the JWT is valid. If valid, adds user info obtained
- * from the JWT to the body of the request (username, id, date created).
- * @param {express.request} req 
- * @param {express.response} res 
- * @param {express.next} next 
- */
-async function verifyUser(req, res, next) {
-    // make sure JWT matches user in db
-    let existUser
-    try {
-        existUser = await model.getItemByID('users', req.body.auth.id)
-        delete req.body.auth
-    } catch (err) {
-        console.error(err)
-        return res.status(500).end()
-    }
-    if (existUser[0] === null || existUser[0] === undefined) {
-        return res.status(403).send(messages[403])
-    }
-    next()
-}
     
 
 /**
@@ -162,8 +99,7 @@ function methodNotAllowedSkillID (req, res) {
 }
 
 /*------------------- ROUTES ------------------------ */
-router.get('/', //verifyJWT,
-                //verifyUser,
+router.get('/', verifyUser.verifyJWTOnly,
                 verifyAcceptHeader, async (req, res) => {
     try {
         const skills = await model.getItemsNoPaginate('skills')
@@ -174,7 +110,12 @@ router.get('/', //verifyJWT,
     }
 })
 
+<<<<<<< HEAD
 router.post('/', verifyRequestBodyKeys,
+=======
+router.post('/', verifyUser.verifyJWTOnly, 
+                 verifyRequestBodyKeys,
+>>>>>>> main
                  verifyRequestBodyVals,
                  verifyUser.verifyJWTOnly,
                  verifyAcceptHeader,
@@ -201,9 +142,7 @@ router.post('/', verifyRequestBodyKeys,
 router.put('/', methodNotAllowedSkills)
 router.patch('/', methodNotAllowedSkills)
 router.delete('/', methodNotAllowedSkills)
-
-// TODO: Uncomment once user verification implemented
-// router.use('/skills/:skill_id', methodNotAllowedSkillID)
+router.use('/skills/:skill_id', methodNotAllowedSkillID)
 
 
 module.exports = router
