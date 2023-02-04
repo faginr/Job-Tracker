@@ -110,12 +110,7 @@ router.get('/', verifyUser.verifyJWTOnly,
     }
 })
 
-<<<<<<< HEAD
 router.post('/', verifyRequestBodyKeys,
-=======
-router.post('/', verifyUser.verifyJWTOnly, 
-                 verifyRequestBodyKeys,
->>>>>>> main
                  verifyRequestBodyVals,
                  verifyUser.verifyJWTOnly,
                  verifyAcceptHeader,
