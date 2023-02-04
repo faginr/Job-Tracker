@@ -5,6 +5,7 @@ const errorMessages = {
         userExists: {"Error": "User already exists"},
         valueError: {"Error": "Request body values contain invalid data"}
       },
+  401: {"401": "JWT is Invalid!"},
   403: {"403": "User does not own resource"}, 
   404: {contacts: {"Error": "No contact exists with this id."},
         users: {"404": "User does not exist"},
