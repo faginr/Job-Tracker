@@ -3,20 +3,9 @@ import SharedSkills from '../components/SharedSkill';
 import SkillForm from '../components/SkillForm';
 import DisplayButton from '../components/DisplayButton';
 
-function SkillPage({user}) {
+function SkillPage({user, setFeatureObj, setDisplay}) {
 
   const [skills, setSkills] = useState([])
-  const [skillToEdit, setSkillToEdit] = useState()
-  const [edit, setEdit] = useState(false)
-  const [addNew, setAddNew] = useState(false)
-
-  function toggleEdit() {
-    setEdit(!edit)
-  }
-
-  function toggleAdd() {
-    setAddNew(!addNew)
-  }
 
   async function loadSkills() {
     const response = await fetch(`/users/${JSON.parse(user).sub}/skills`, {
@@ -38,12 +27,10 @@ function SkillPage({user}) {
   return (
     <div>
       <h1>Your current skills:</h1>
-      <SharedSkills skills={skills} setShowForm={toggleEdit} setObjectToEdit={setSkillToEdit} />
-      {edit?<SkillForm skillToEdit={skillToEdit} closeForm={toggleEdit}/>:<div></div>}
+      <SharedSkills skills={skills} setDisplay={setDisplay} setObjectToEdit={setFeatureObj} />
       
       <div>------------------</div>
-      <DisplayButton displayTitle={"Add New Skill"} setShowForm={toggleAdd}/>
-      {addNew?<SkillForm closeForm={toggleAdd}/>:<div></div>}
+      <DisplayButton displayTitle={"Add New Skill"} setDisplay={setDisplay}/>
     </div>
   );
 }

@@ -14,11 +14,18 @@ import EditContactPage from './pages/EditContactPage';
 import NotFound from './pages/NotFound';
 
 import Navigation from './components/Navigation';
+import FeaturePane from './components/FeaturePane';
 
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
   const [contactToEdit, setContactToEdit] = useState();
   const [user, setUser] = useState('{"username": "tester1", "sub": "1234567890"}')
+  const [hide, setHide] = useState(true)
+  const [featureObj, setFeatureObj] = useState({})
+
+  function toggleHidePanel() {
+    setHide(!hide)
+  }
 
   return (
     <div className="App">
@@ -29,6 +36,7 @@ function App() {
       <Navigation />
 
       <main className="App-main">
+        <div className='main-display'>
           <Routes>
             <Route path="/" element={<HomePage setUser={setUser}/>} />
             
@@ -38,7 +46,7 @@ function App() {
             
             <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
             
-            <Route path="/skills" element={<SkillPage user={user}/>} />
+            <Route path="/skills" element={<SkillPage user={user} setFeatureObj={setFeatureObj} setDisplay={toggleHidePanel}/>} />
             
             <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
 
@@ -48,6 +56,12 @@ function App() {
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </div>
+        
+        {/* This area controls hiding/unhiding pane on right */}
+        <div className="feature-pane">
+          {!hide?<FeaturePane featureObj={featureObj}/>:<div/>}
+        </div>
       </main>
 
       <footer className="App-footer">
