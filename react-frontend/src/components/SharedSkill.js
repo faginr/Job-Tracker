@@ -1,23 +1,14 @@
 import React from "react";
+import DisplayButton from "./DisplayButton";
 
-function SharedSkills({skills}) {
+function SharedSkills({skills, setShowForm, setObjectToEdit}) {
     return (
         <div className="sharedSkill">
-            <h1>Shared Skills in Datastore:</h1>
-            <ul>
-                {skills.map((skill) => {
-                    return (
-                        <li key={skill.id}>{skill.id}: {skill.description}</li>
-                    )
-                })}
-            </ul>
-            <h1>Still to Come:</h1>
-            <ul>
-                <li>Tying skills to user</li>
-                <li>Deleting skill from user</li>
-                <li>Allowing user to set proficiency</li>
-                <li>Tying skills to applications</li>
-            </ul>
+            {skills.map((skill) => {
+                return (
+                    <DisplayButton key={skill.skill_id} displayObject={skill} displayTitle={skill.description} setShowForm={setShowForm} setObjectToEdit={setObjectToEdit} />
+                )
+            })}
         </div>
     )
 }

@@ -18,6 +18,7 @@ import Navigation from './components/Navigation';
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
   const [contactToEdit, setContactToEdit] = useState();
+  const [user, setUser] = useState('{"username": "tester1", "sub": "1234567890"}')
 
   return (
     <div className="App">
@@ -29,7 +30,7 @@ function App() {
 
       <main className="App-main">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage setUser={setUser}/>} />
             
             <Route path="/applications" element={<ApplicationPage setApplicationToEdit={setApplicationToEdit} />} />
             
@@ -37,7 +38,7 @@ function App() {
             
             <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
             
-            <Route path="/skills" element={<SkillPage />} />
+            <Route path="/skills" element={<SkillPage user={user}/>} />
             
             <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
 
