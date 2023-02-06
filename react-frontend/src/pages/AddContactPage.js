@@ -135,7 +135,7 @@ export const AddContactPage = () => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
 
-        <select onChange={e => setContactAt(e.target.value)}>
+        <select multiple onChange={e => setContactAt(e.target.value)}>
           
           <option>Please choose one option</option>
           {sortedApps.map((option, index) => {

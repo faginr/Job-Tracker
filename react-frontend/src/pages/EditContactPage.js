@@ -169,7 +169,7 @@ export const EditContactPage = ({ contactToEdit }) => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
 
-        <select onChange={e => setContactAt(e.target.value)}>
+        <select multiple onChange={e => setContactAt(e.target.value)}>
           
           <option>{contact_at_name}</option>
           <option></option>
