@@ -53,9 +53,7 @@ function App() {
         </div>
         
         {/* This area controls hiding/unhiding pane on right */}
-        <div className="feature-pane">
-          {featureObj}
-        </div>
+        {featureObj}
       </main>
 
       <footer className="App-footer">

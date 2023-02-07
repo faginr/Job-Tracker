@@ -16,7 +16,7 @@ function SkillForm({skillToEdit, setFeaturePane}) {
     }
     
     return (
-        <div className="SkillForm">
+        <div className="feature-pane">
             <label>
                 Description:
                 <input 

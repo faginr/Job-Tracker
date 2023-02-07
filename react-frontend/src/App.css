@@ -40,6 +40,24 @@
   color: green;
 }
 
+.feature-pane {
+  animation-duration: 2s;
+  animation-name: slidein;
+  z-index: 1;
+}
+
+@keyframes slidein {
+  from {
+    margin-left: 100%;
+    width: 300%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
+}
+
 td, th {
   border: 1px solid #ddd;
   padding: 8px;
