@@ -18,6 +18,8 @@ import Navigation from './components/Navigation';
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
   const [contactToEdit, setContactToEdit] = useState();
+  const [user, setUser] = useState('{"username": "tester1", "sub": "1234567890"}')
+  const [featureObj, setFeatureObj] = useState()
 
   return (
     <div className="App">
@@ -28,8 +30,9 @@ function App() {
       <Navigation />
 
       <main className="App-main">
+        <div className='main-display'>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage setUser={setUser}/>} />
             
             <Route path="/applications" element={<ApplicationPage setApplicationToEdit={setApplicationToEdit} />} />
             
@@ -37,7 +40,7 @@ function App() {
             
             <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
             
-            <Route path="/skills" element={<SkillPage />} />
+            <Route path="/skills" element={<SkillPage user={user} setFeaturePane={setFeatureObj}/>} />
             
             <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
 
@@ -47,6 +50,12 @@ function App() {
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </div>
+        
+        {/* This area controls hiding/unhiding pane on right */}
+        <div className="feature-pane">
+          {featureObj}
+        </div>
       </main>
 
       <footer className="App-footer">
