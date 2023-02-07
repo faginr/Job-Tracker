@@ -1,13 +1,9 @@
 import React from "react";
 
-function DisplayButton({displayObject, displayTitle, setDisplay, setObjectToEdit}) {
+function DisplayButton({displayObject, displayTitle, setFeaturePane}) {
 
     function handleClick() {
-        setDisplay()
-
-        if(displayObject!==undefined){
-            setObjectToEdit(displayObject)
-        }
+        setFeaturePane(displayObject)
     }
 
     return (

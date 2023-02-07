@@ -1,12 +1,18 @@
 import React from "react";
 import DisplayButton from "./DisplayButton";
 
-function SharedSkills({skills, setDisplay, setObjectToEdit}) {
+function SharedSkills({skills, setFeaturePane}) {
+
+
     return (
         <div className="sharedSkill">
             {skills.map((skill) => {
                 return (
-                    <DisplayButton key={skill.skill_id} displayObject={skill} displayTitle={skill.description} setDisplay={setDisplay} setObjectToEdit={setObjectToEdit} />
+                    <DisplayButton 
+                        key={skill.skill_id}
+                        displayObject={skill}
+                        displayTitle={skill.description}
+                        setFeaturePane={setFeaturePane} />
                 )
             })}
         </div>

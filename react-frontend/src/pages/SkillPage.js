@@ -3,9 +3,13 @@ import SharedSkills from '../components/SharedSkill';
 import SkillForm from '../components/SkillForm';
 import DisplayButton from '../components/DisplayButton';
 
-function SkillPage({user, setFeatureObj, setDisplay}) {
+function SkillPage({user, setFeaturePane}) {
 
   const [skills, setSkills] = useState([])
+
+  function setSkillFormAsFeature(skillToEdit) {
+    setFeaturePane(<SkillForm skillToEdit={skillToEdit} setFeaturePane={setFeaturePane}/>)
+}
 
   async function loadSkills() {
     const response = await fetch(`/users/${JSON.parse(user).sub}/skills`, {
@@ -27,10 +31,10 @@ function SkillPage({user, setFeatureObj, setDisplay}) {
   return (
     <div>
       <h1>Your current skills:</h1>
-      <SharedSkills skills={skills} setDisplay={setDisplay} setObjectToEdit={setFeatureObj} />
+      <SharedSkills skills={skills} setFeaturePane={setSkillFormAsFeature} />
       
       <div>------------------</div>
-      <DisplayButton displayTitle={"Add New Skill"} setDisplay={setDisplay}/>
+      <DisplayButton displayTitle={"Add New Skill"} setFeaturePane={setSkillFormAsFeature} />
     </div>
   );
 }

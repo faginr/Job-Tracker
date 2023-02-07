@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-function SkillForm({skillToEdit, closeForm}) {
+function SkillForm({skillToEdit, setFeaturePane}) {
     const [skill, setSkill] = useState(skillToEdit===undefined?{}:skillToEdit)
 
     function updateSkill(e, identifier) {
@@ -12,8 +12,7 @@ function SkillForm({skillToEdit, closeForm}) {
 
     function handleSubmit(e) {
         e.preventDefault()
-        console.log(skill)
-        closeForm()
+        setFeaturePane()
     }
     
     return (
