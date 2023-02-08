@@ -4,21 +4,21 @@ import SkillForm from '../components/SkillForm';
 import DisplayButton from '../components/DisplayButton';
 import { user } from '../components/User';
 
-function SkillPage({setFeaturePane}) {
+function SkillPage({setFeatureChild}) {
   const [skills, setSkills] = useState([])
 
   function handleFormSubmit() {
     // on form submission, close the feature pane and update your list of 
     // existing skills to match what you just submitted
-    setFeaturePane()
-    loadSkills()
+    setFeatureChild()
+    loadUserSkills()
   }
 
   function setSkillFormAsFeature(skillToEdit) {
-    setFeaturePane(<SkillForm skillToEdit={skillToEdit} handleFormSubmittal={handleFormSubmit}/>)
+    setFeatureChild(<SkillForm skillToEdit={skillToEdit} handleFormSubmittal={handleFormSubmit}/>)
   }
 
-  async function loadSkills() {
+  async function loadUserSkills() {
     const response = await fetch(`/users/${JSON.parse(user).sub}/skills`, {
       headers: {
         'Authorization': `Bearer ${user}`
@@ -33,7 +33,7 @@ function SkillPage({setFeaturePane}) {
     setSkills(data);
   }
 
-  useEffect(() => {loadSkills()}, [])
+  useEffect(() => {loadUserSkills()}, [])
 
   return (
     <div id="skills-page">
