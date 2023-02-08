@@ -18,7 +18,6 @@ import Navigation from './components/Navigation';
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
   const [contactToEdit, setContactToEdit] = useState();
-  const [user, setUser] = useState('{"username": "tester1", "sub": "1234567890"}')
   const [featureObj, setFeatureObj] = useState()
 
   return (
@@ -27,12 +26,12 @@ function App() {
         <h5>Welcome to Job Tracker!</h5>
       </header>
 
-      <Navigation />
+      <Navigation setFeatureObj={setFeatureObj}/>
 
       <main className="App-main">
-        <div className='main-display'>
+        <div id='main-display'>
           <Routes>
-            <Route path="/" element={<HomePage setUser={setUser}/>} />
+            <Route path="/" element={<HomePage />} />
             
             <Route path="/applications" element={<ApplicationPage setApplicationToEdit={setApplicationToEdit} />} />
             
@@ -40,7 +39,7 @@ function App() {
             
             <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
             
-            <Route path="/skills" element={<SkillPage user={user} setFeaturePane={setFeatureObj}/>} />
+            <Route path="/skills" element={<SkillPage setFeaturePane={setFeatureObj}/>} />
             
             <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
 
