@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import SharedSkills from '../components/SharedSkill';
+import UserSkills from '../components/UserSkills';
 import SkillForm from '../components/SkillForm';
 import DisplayButton from '../components/DisplayButton';
 import { user } from '../components/User';
+import AddSkill from '../components/AddSkill';
 
 function SkillPage({setFeatureChild}) {
   const [skills, setSkills] = useState([])
@@ -16,6 +17,10 @@ function SkillPage({setFeatureChild}) {
 
   function setSkillFormAsFeature(skillToEdit) {
     setFeatureChild(<SkillForm skillToEdit={skillToEdit} handleFormSubmittal={handleFormSubmit}/>)
+  }
+
+  function setAddSkillAsFeature() {
+    setFeatureChild(<AddSkill handleSkillClick={handleFormSubmit}/>)
   }
 
   async function loadUserSkills() {
@@ -38,10 +43,10 @@ function SkillPage({setFeatureChild}) {
   return (
     <div id="skills-page">
       <h1>Your current skills:</h1>
-      <SharedSkills skills={skills} handleClickAction={setSkillFormAsFeature} />
+      <UserSkills userSkills={skills} handleClickAction={setSkillFormAsFeature} />
       
       <div>------------------</div>
-      <DisplayButton displayTitle={"Add New Skill"} handleClickAction={setSkillFormAsFeature} />
+      <DisplayButton displayTitle={"Add New Skill"} handleClickAction={setAddSkillAsFeature} />
     </div>
   );
 }

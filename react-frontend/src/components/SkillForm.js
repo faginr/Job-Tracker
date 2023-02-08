@@ -3,22 +3,6 @@ import { user } from "./User";
 
 function SkillForm({skillToEdit, handleFormSubmittal}) {
     const [skill, setSkill] = useState(skillToEdit===undefined?{}:skillToEdit)
-    const [allSkills, setAllSkills] = useState([])
-
-    async function loadAllSkills() {
-        const response = await fetch('/skills', {
-            headers: {
-                'Authorization': `Bearer ${user}`
-            }
-        })
-        if (response.status !== 200) {
-            alert('Uh-oh, I couldn\'t load all the skills in DS!')
-            return
-        }
-
-        const data = await response.json()
-        setAllSkills(data)
-    }
 
     function updateSkill(e, identifier) {
         setSkill({
@@ -60,10 +44,6 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
             alert("Uh-oh, something went wrong with creating a new skill")
         }
     }
-
-    useEffect(() => {
-        loadAllSkills()
-    }, [])
     
     return (
         <div id='skill-form' className='form'>
@@ -89,13 +69,6 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                 </label>
             </div>
             <button onClick={handleSubmit}>Submit</button>
-            {skillToEdit!==undefined?<div/>:(
-                <div>
-                    <ul>
-                        {allSkills.map((skill) => {return(<li>{skill.description}</li>)})}
-                    </ul>
-                </div>
-            )}
         </div>
     )
 }

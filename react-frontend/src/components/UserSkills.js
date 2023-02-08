@@ -1,12 +1,12 @@
 import React from "react";
 import DisplayButton from "./DisplayButton";
 
-function SharedSkills({skills, handleClickAction}) {
+function UserSkills({userSkills, handleClickAction}) {
 
 
     return (
         <div className="sharedSkill">
-            {skills.map((skill) => {
+            {userSkills.map((skill) => {
                 return (
                     <DisplayButton 
                         key={skill.skill_id}
@@ -19,4 +19,4 @@ function SharedSkills({skills, handleClickAction}) {
     )
 }
 
-export default SharedSkills
+export default UserSkills
