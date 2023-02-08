@@ -63,16 +63,18 @@
   animation-name: slidein;
   z-index: 1;
   position: absolute;
-  top: 10px;
+  top: 0px;
   left: 50%;
-  width: 40%;
+  width: 50%;
   height: 100%;
   border-left:gray;
   border-left-style: solid;
+  background-color: white;
+  padding: 2%;
 }
 
-.feature-pane * {
-  margin-left: 10px;
+.hidden {
+  display: none;
 }
 
 @keyframes slidein {
