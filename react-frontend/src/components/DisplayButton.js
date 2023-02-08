@@ -1,9 +1,9 @@
 import React from "react";
 
-function DisplayButton({displayObject, displayTitle, setFeaturePane}) {
+function DisplayButton({displayObject, displayTitle, handleClickAction}) {
 
     function handleClick() {
-        setFeaturePane(displayObject)
+        handleClickAction(displayObject)
     }
 
     return (

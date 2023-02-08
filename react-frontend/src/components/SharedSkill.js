@@ -1,7 +1,7 @@
 import React from "react";
 import DisplayButton from "./DisplayButton";
 
-function SharedSkills({skills, setFeaturePane}) {
+function SharedSkills({skills, handleClickAction}) {
 
 
     return (
@@ -12,7 +12,7 @@ function SharedSkills({skills, setFeaturePane}) {
                         key={skill.skill_id}
                         displayObject={skill}
                         displayTitle={skill.description}
-                        setFeaturePane={setFeaturePane} />
+                        handleClickAction={handleClickAction} />
                 )
             })}
         </div>
