@@ -3,10 +3,10 @@
 import React from "react";
 import { NavLink } from 'react-router-dom';
 
-function Navigation ({setFeatureObj}) {
+function Navigation ({setFeatureChild}) {
 
   function handleClick() {
-    setFeatureObj()
+    setFeatureChild()
   }
 
   return (
