@@ -61,16 +61,19 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
         }
     }
 
-    useEffect(() => {loadAllSkills()}, [])
+    useEffect(() => {
+        loadAllSkills()
+    }, [])
     
     return (
-        <div id='skill-form' className='feature-pane'>
+        <div id='skill-form' className='form'>
             <div>
                 <label>
                     Description:
                     <input 
                         type="text" 
-                        placeholder={skill.description ?? 'e.g. Python'} 
+                        readOnly={skillToEdit?true:false}
+                        placeholder={skillToEdit?skill.description:'e.g. Python'} 
                         onChange={(e) => {updateSkill(e, 'description')}}/>
                 </label>
             </div>
@@ -81,7 +84,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                         type="number"
                         min={1}
                         max={5}
-                        value={skill.proficiency ?? 1}
+                        value={skillToEdit?skill.proficiency:1}
                         onChange={(e) => {updateSkill(e, 'proficiency')}}/>
                 </label>
             </div>
