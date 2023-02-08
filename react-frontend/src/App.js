@@ -1,6 +1,6 @@
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 
 import HomePage from './pages/HomePage';
@@ -18,7 +18,23 @@ import Navigation from './components/Navigation';
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
   const [contactToEdit, setContactToEdit] = useState();
-  const [featureObj, setFeatureObj] = useState()
+  const [featureChild, setFeatureChild] = useState()
+  const [featureClass, setFeatureClass] = useState("hidden")
+
+  function toggleFeatureClass() {
+    // if featureChild is not null, then display feature-pane
+    if (featureChild) {
+      setFeatureClass("feature-pane")
+    } else {
+      setFeatureClass("hidden")
+    }
+  }
+
+  useEffect(() => {
+    // toggle between displaying feature pane and not
+    // every time featureChild is updated
+    toggleFeatureClass()
+  }, [featureChild])
 
   return (
     <div>
@@ -27,7 +43,7 @@ function App() {
       </header>
       
       <div className="App">
-        <Navigation setFeatureObj={setFeatureObj}/>
+        <Navigation setFeatureChild={setFeatureChild}/>
 
         <main className="App-main">
           <div id='main-display'>
@@ -40,7 +56,7 @@ function App() {
               
               <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
               
-              <Route path="/skills" element={<SkillPage setFeaturePane={setFeatureObj}/>} />
+              <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
               
               <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
 
@@ -54,9 +70,11 @@ function App() {
           
         </main>
       </div>
-      
+
       {/* This area controls hiding/unhiding pane on right */}
-      {featureObj}
+      <div className={featureClass}>
+        {featureChild}
+      </div>
 
       <footer className="App-footer">
         <h4><a href="https://forms.gle/3W7bCuVhibz82q6W6">Request Support</a></h4>
