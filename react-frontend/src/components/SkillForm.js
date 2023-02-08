@@ -64,7 +64,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                         type="number"
                         min={1}
                         max={5}
-                        value={skillToEdit?skill.proficiency:1}
+                        placeholder={skillToEdit?skill.proficiency:1}
                         onChange={(e) => {updateSkill(e, 'proficiency')}}/>
                 </label>
             </div>
