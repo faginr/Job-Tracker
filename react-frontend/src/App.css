@@ -89,6 +89,20 @@
   }
 }
 
+.user-skills .display-button{
+  margin: 1%;
+}
+
+.add-skill li {
+  list-style: none;
+  padding: 5px;
+  margin: 5px 5px 5px 0px;
+  width: 40%;
+  border:rgb(50, 50, 122);
+  border-radius: 5px;
+  border-style: solid;
+}
+
 td, th {
   border: 1px solid #ddd;
   padding: 8px;

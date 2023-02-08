@@ -9,7 +9,7 @@ function DisplayButton({displayObject, displayTitle, handleClickAction}) {
     return (
         <span>
             <button 
-                className="displayButton" 
+                className="display-button" 
                 onClick={handleClick}>
                 {displayTitle}
             </button>

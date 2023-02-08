@@ -5,7 +5,7 @@ function UserSkills({userSkills, handleClickAction}) {
 
 
     return (
-        <div className="sharedSkill">
+        <div className="user-skills">
             {userSkills.map((skill) => {
                 return (
                     <DisplayButton 

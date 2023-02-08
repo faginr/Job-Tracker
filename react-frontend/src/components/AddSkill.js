@@ -8,6 +8,11 @@ import { user } from "./User";
 // the parent component when a skill is clicked.
 function AddSkill({handleSkillClick}) {
     const [allSkills, setAllSkills] = useState([])
+    const [query, setQuery] = useState("")
+
+    const filterdSkills = allSkills.filter((skill) => {
+        return skill.description.includes(query)
+    })
 
     async function loadAllSkills() {
         const response = await fetch('/skills', {
@@ -46,8 +51,9 @@ function AddSkill({handleSkillClick}) {
 
     return(
         <div className="add-skill">
+            <input type="search" placeholder="Search..." onChange={(e)=>setQuery(e.target.value)}/>
             <ul>
-                {allSkills.map((skill) => {
+                {filterdSkills.map((skill) => {
                     return(
                         <li key={skill.id} 
                             onClick={() => handleSkillSelection(skill)}>
