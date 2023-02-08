@@ -194,15 +194,18 @@ async function verifyUserOwnsSkill (req, res, next) {
 }
 
 /**
- * Verifies the content type header of the request is application/json.
+ * Verifies the content type header of the request is application/json
+ * if the content is not empty.
  * If content-type header is incorrect, sends 415 message.
  * @param {express.request} req 
  * @param {express.response} res 
  * @param {express.next} next 
  */
 function verifyContentTypeHeader (req, res, next) {
-    if (req.get('content-type') !== 'application/json') {
-        return res.status(415).send(messages[415])
+    if (req.get('content-length') !== "0") {
+        if (req.get('content-type') !== 'application/json') {
+            return res.status(415).send(messages[415])
+        } 
     } 
     next()
 }
