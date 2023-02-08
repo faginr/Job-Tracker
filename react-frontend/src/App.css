@@ -1,13 +1,25 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .App-main {
+  width: 80%;
+  z-index: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row;
+  position: relative;
+  /* align-items: center; */
+  /* justify-content: center; */
+}
 
+#main-display{
+  width: 100%;
+  position: relative;
+  z-index: 0;
+  flex-shrink: 0;
 }
 
 .App-footer, .App-header {
@@ -19,6 +31,7 @@
   justify-content: space-between;
   color: white;
   flex-flow: column wrap;
+  width: 100%;
 }
 
 .App-footer a{
@@ -34,16 +47,32 @@
 
 .App-link {
   color: rgb(50, 50, 122);
+  margin: 1rem 1rem;
 }
 
 .active {
   color: green;
 }
 
+.navigation-bar {
+  max-width: 20%;
+}
+
 .feature-pane {
-  animation-duration: 2s;
+  animation-duration: 1s;
   animation-name: slidein;
   z-index: 1;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 40%;
+  height: 100%;
+  border-left:gray;
+  border-left-style: solid;
+}
+
+.feature-pane * {
+  margin-left: 10px;
 }
 
 @keyframes slidein {
