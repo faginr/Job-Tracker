@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { datastore_url } from '../components/Constants';
 
 export const AddContactPage = () => {
   
@@ -38,13 +39,14 @@ export const AddContactPage = () => {
     };
 
     // POST a new contact
-    const response = await fetch('/contacts', {
-      method: 'POST',
-      body: JSON.stringify(newContact),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${datastore_url}/contacts`, 
+      {
+        method: 'POST',
+        body: JSON.stringify(newContact),
+        headers: {'Content-Type': 'application/json'},
+      }
+    );
 
     if(response.status === 201){
       alert("Successfully added the contact!"); 
@@ -52,44 +54,44 @@ export const AddContactPage = () => {
       alert(`Failed to add the contact, status code = ${response.status}`);
     }
 
-    // update an application if added to the contact
-    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
-
-      // get contact id to add to the application
-      const conatct_id = await response.json();
-
-      const updateApplication = { contacts: `${conatct_id}` };
-
-      // PATCH the application with contact_id
-      const responseUpdateApp = await fetch(`/applications/${contact_at_app_id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updateApplication),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if(responseUpdateApp.status === 200){
-        alert("Successfully updated the application!"); 
-      } else {
-        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-      }
-    };
+//    // update an application if added to the contact
+//    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
+//
+//      // get contact id to add to the application
+//      const conatct_id = await response.json();
+//
+//      const updateApplication = { contacts: `${conatct_id}` };
+//
+//      // PATCH the application with contact_id
+//      const responseUpdateApp = await fetch(`/applications/${contact_at_app_id}`, {
+//        method: 'PATCH',
+//        body: JSON.stringify(updateApplication),
+//        headers: {
+//          'Content-Type': 'application/json',
+//        },
+//      });
+//      if(responseUpdateApp.status === 200){
+//        alert("Successfully updated the application!"); 
+//      } else {
+//        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+//      }
+//    };
 
     // go back to Application Page
     navigate(-1);  
   };
 
-  // function to fetch applications
-  const getApps = async () => {
-    const response = await fetch('/applications');
-    const data = await response.json();
-    setApps(data);
-  };
-
-  // hook to call the fucntion above
-  useEffect(() => {
-    getApps();
-  }, []);
+//  // function to fetch applications
+//  const getApps = async () => {
+//    const response = await fetch('/applications');
+//    const data = await response.json();
+//    setApps(data);
+//  };
+//
+//  // hook to call the fucntion above
+//  useEffect(() => {
+//    getApps();
+//  }, []);
 
   // sort the array of applications
   // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
@@ -106,19 +108,19 @@ export const AddContactPage = () => {
   return (
     <div>
       <form onSubmit={addContact}>
-        <h1>Add Contact</h1>
-        <input
-          required
-          type="text"
-          placeholder="Enter last name (required)"
-          value={last_name}
-          onChange={e => setLastName(e.target.value)} />
+        <h1>Add Contact</h1>       
         <input
           required
           type="text"
           value={first_name}
           placeholder="Enter first name (required)"
           onChange={e => setFirstName(e.target.value)} />
+        <input
+          required
+          type="text"
+          placeholder="Enter last name (required)"
+          value={last_name}
+          onChange={e => setLastName(e.target.value)} />
         <input
           type="text"
           value={email}
