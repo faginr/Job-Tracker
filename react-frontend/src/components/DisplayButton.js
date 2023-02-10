@@ -1,6 +1,6 @@
 import React from "react";
 
-function DisplayButton({displayObject, displayTitle, handleClickAction}) {
+function DisplayButton({displayObject, displayTitle, handleClickAction, className="display-button"}) {
 
     function handleClick() {
         handleClickAction(displayObject)
@@ -9,7 +9,7 @@ function DisplayButton({displayObject, displayTitle, handleClickAction}) {
     return (
         <span>
             <button 
-                className="display-button" 
+                className={className}
                 onClick={handleClick}>
                 {displayTitle}
             </button>

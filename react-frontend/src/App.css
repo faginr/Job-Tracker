@@ -58,8 +58,24 @@
   max-width: 20%;
 }
 
+.regular-skill {
+  margin: 5px;
+}
+
+.alert-skill {
+  background-color: maroon;
+}
+
+button {
+  padding: 5px;
+}
+
 .feature-pane-header {
   margin-bottom: 1rem;
+}
+
+hr {
+  width: 40%;
 }
 
 .feature-pane {
@@ -89,7 +105,7 @@
 
   to {
     margin-left: 0%;
-    width: 100%;
+    width: 50%;
   }
 }
 

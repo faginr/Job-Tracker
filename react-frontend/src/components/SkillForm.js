@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import { user } from "./User";
 
 function SkillForm({skillToEdit, handleFormSubmittal}) {
@@ -48,15 +48,11 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
     return (
         <div id='skill-form' className='form'>
             <div>
-                <label>
-                    Description:
-                    <input 
-                        type="text" 
-                        readOnly={skillToEdit?true:false}
-                        placeholder={skillToEdit?skill.description:'e.g. Python'} 
-                        onChange={(e) => {updateSkill(e, 'description')}}/>
-                </label>
+                <h2>
+                    {skillToEdit.description}
+                </h2>
             </div>
+
             <div>
                 <label>
                     Proficiency: 
@@ -69,6 +65,23 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                 </label>
             </div>
             <button onClick={handleSubmit}>Submit</button>
+            <div>
+                <h2>
+                    Tied to Applications:
+                    <ul>
+                        {skillToEdit?.apps.map((app) => {
+                            return (
+                                <li>{app.title ?? "missing title"}</li>
+                            )
+                        })}
+                    </ul>
+                </h2>
+            </div>
+            <div>
+                <h2>
+                    Ability to add application here?
+                </h2>
+            </div>
         </div>
     )
 }

@@ -37,7 +37,7 @@ function AddSkill({handleSkillClick}) {
             }, 
         })
         if (response.status !== 200) {
-            alert(`Uh-oh, I couldn\'t tie ${skill.description} to user!`)
+            alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
             return
         }
     }

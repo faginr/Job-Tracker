@@ -6,7 +6,6 @@ function FeaturePane({featureClass, setFeatureChild, child}) {
         <div className={featureClass}>
             <div className="feature-pane-header">
                 <button onClick={()=>setFeatureChild()}>Cancel</button>
-                <hr />
             </div>
             <div className="feature-child">
                 {child}
