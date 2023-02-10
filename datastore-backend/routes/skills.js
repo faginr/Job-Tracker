@@ -59,6 +59,7 @@ function verifyRequestBodyKeys (req, res, next) {
     if (valid) {
         requiredKeys.forEach(key => {
             if (!(key in request)) {
+                console.log("key not in request")
                 valid = false
             }
         })

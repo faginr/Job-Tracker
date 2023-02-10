@@ -8,11 +8,84 @@ import { user } from "./User";
 // the parent component when a skill is clicked.
 function AddSkill({handleSkillClick}) {
     const [allSkills, setAllSkills] = useState([])
+    const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
+    const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
     const [query, setQuery] = useState("")
 
     const filterdSkills = allSkills.filter((skill) => {
-        return skill.description.includes(query)
+        return (skill.description.includes(query))
     })
+
+    function createNew() {
+        return (
+            <li onClick={() => setNewSkillFormClass("new-skill-form")}>
+                Create New
+            </li>
+        )
+    }
+
+    async function createSkill (e) {
+        e.preventDefault()
+        console.log(newSkill)
+        newSkill.description ?? (newSkill['description'] = query)
+        console.log(newSkill)
+
+        // send the skill to the backend for creation
+        let response = await fetch(`/skills`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${user}`,
+                'Content-type': 'application/json'
+            }, 
+            // only send the description to POST
+            body: JSON.stringify({'description': newSkill.description}),
+        })
+        if (response.status !== 201) {
+            alert(`Uh-oh, I couldn't create ${newSkill.description} in DS!`)
+            return
+        }
+
+        let data = await response.json()
+
+        // tie the skill to the user
+        response = await fetch(`/users/${JSON.parse(user).sub}/skills/${data.id}`, {
+            method: "PUT",
+            headers: {
+                'Authorization': `Bearer ${user}`,
+                'Content-type': 'application/json',
+            }, 
+            // PUT method expect only proficiency in body
+            // and form auto-formats prof as string, so need to conver to num
+            body: JSON.stringify({'proficiency': parseInt(newSkill.proficiency)})
+        })
+        if (response.status !== 204) {
+            alert(`Uh-oh, I couldn't tie ${data.description} to user!`)
+            return
+        }
+        
+        // hide the form
+        setNewSkillFormClass("hidden")
+        
+        // update your list of skills with skill returned from POST
+        allSkills.push(data)
+        setAllSkills(allSkills)
+        console.log(allSkills)
+
+        // reset your query
+        setQuery("")
+    }
+
+    function handleForm(e, identifier) {
+        setNewSkill({
+            ...newSkill,
+            [identifier]: e.target.value
+        })
+        if(identifier === 'description'){
+            // update the query to allow for dynamically
+            // changing list
+            setQuery(e.target.value)
+        }
+    }
 
     async function loadAllSkills() {
         const response = await fetch('/skills', {
@@ -51,17 +124,33 @@ function AddSkill({handleSkillClick}) {
 
     return(
         <div className="add-skill">
+            <h2>
+                Add Skill to Your Profile
+            </h2>
             <input type="search" placeholder="Search..." onChange={(e)=>setQuery(e.target.value)}/>
             <ul>
-                {filterdSkills.map((skill) => {
+                {filterdSkills[0]==undefined?createNew():filterdSkills.map((skill) => {
                     return(
                         <li key={skill.id} 
                             onClick={() => handleSkillSelection(skill)}>
                                 {skill.description}
                         </li>
-                    )
-                })}
+                    )}
+                )}
             </ul>
+            <div className={newSkillFormClass}>
+                <form>
+                    <label>
+                        Description:
+                        <input type="text" value={query} onChange={(e)=>handleForm(e, 'description')}/>
+                    </label>
+                    <label>
+                        Proficiency:
+                        <input type="number" max={5} min={1} onChange={(e)=>handleForm(e, 'proficiency')}/>
+                    </label>
+                    <button onClick={(e) => createSkill(e)}>Create New</button>
+                </form>
+            </div>
         </div>
     )
 }
