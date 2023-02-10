@@ -17,6 +17,20 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
         handleFormSubmittal()
     }
 
+    async function handleDelete(e) {
+        e.preventDefault()
+        const response = await fetch(`users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${user}`,
+            }
+        })
+        if (response.status !== 200) {
+            alert("Uh-oh, I had trouble deleting this skill")
+        }
+        handleFormSubmittal()
+    }
+
     async function sendUpdate(skill) {
         const response = await fetch(`users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
             method: 'PUT',
@@ -72,8 +86,8 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                         {skillToEdit?.apps.map((app) => {
                             return (
                                 <li>{app.title ?? "missing title"}</li>
-                            )
-                        })}
+                                )
+                            })}
                     </ul>
                 </h2>
             </div>
@@ -81,6 +95,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                 <h2>
                     Ability to add application here?
                 </h2>
+                <button onClick={handleDelete}>Delete</button>
             </div>
         </div>
     )
