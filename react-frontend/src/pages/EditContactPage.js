@@ -49,67 +49,67 @@ export const EditContactPage = ({ contactToEdit }) => {
       alert(`Failed to edit contact, status code = ${response.status}`);
     }
 
-//    // if application has changed for the contact, update the old and new applications
-//    if (originalApplication !== contact_at_app_id) {
-//
-//      // update the old application if existed
-//      if (originalApplication !== '' && originalApplication !== undefined) {
-//        console.log('applications changed for the contact');
-//
-//        // update the old application
-//        const updatedOldApplication = { contacts: '' };
-//
-//        // PATCH the old application if changed
-//        const responseOldApplication = await fetch(`/applications/${originalApplication}`, {
-//          method: 'PATCH',
-//          body: JSON.stringify(updatedOldApplication),
-//          headers: {
-//            'Content-Type': 'application/json',
-//          },
-//        });
-//
-//        if(responseOldApplication.status === 200){
-//          alert("Successfully updated the old application!"); 
-//        } else {
-//          alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
-//        }
-//      };
-//
-//      // PATCH the new application if added
-//      if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
-//        const updatedNewApplication = { contacts: `${contactToEdit.id}` };
-//
-//        const responseUpdateNewApp = await fetch(`/applications/${contact_at_app_id}`, {
-//          method: 'PATCH',
-//          body: JSON.stringify(updatedNewApplication),
-//          headers: {
-//            'Content-Type': 'application/json',
-//          },
-//        });
-//
-//        if(responseUpdateNewApp.status === 200){
-//          alert("Successfully updated the new application!"); 
-//        } else {
-//          alert(`Failed to update the new application, status code = ${responseUpdateNewApp.status}`);
-//        }
-//      };
-//    };
+    // if application has changed for the contact, update the old and new applications
+    if (originalApplication !== contact_at_app_id) {
+
+      // update the old application if existed
+      if (originalApplication !== '' && originalApplication !== undefined) {
+        console.log('applications changed for the contact');
+
+        // update the old application
+        const updatedOldApplication = { contacts: '' };
+
+        // PATCH the old application if changed
+        const responseOldApplication = await fetch(`${datastore_url}/applications/${originalApplication}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedOldApplication),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if(responseOldApplication.status === 200){
+          alert("Successfully updated the old application!"); 
+        } else {
+          alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
+        }
+      };
+
+      // PATCH the new application if added
+      if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
+        const updatedNewApplication = { contacts: `${contactToEdit.id}` };
+
+        const responseUpdateNewApp = await fetch(`${datastore_url}/applications/${contact_at_app_id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedNewApplication),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if(responseUpdateNewApp.status === 200){
+          alert("Successfully updated the new application!"); 
+        } else {
+          alert(`Failed to update the new application, status code = ${responseUpdateNewApp.status}`);
+        }
+      };
+    };
 
     // go back to Contact Page
     navigate(-1);  
   };
 
-//  // function to fetch applications
-//  const getApps = async () => {
-//    const response = await fetch('/applications');
-//    const data = await response.json();
-//    setApps(data);
-//  };
-//
-//  // hook to call the fucntion above
-//  useEffect(() => {
-//    getApps();
-//  }, []);
+  // function to fetch applications
+  const getApps = async () => {
+    const response = await fetch(`${datastore_url}/applications`);
+    const data = await response.json();
+    setApps(data);
+  };
+
+  // hook to call the fucntion above
+  useEffect(() => {
+    getApps();
+  }, []);
 
   // store the name of the application that a contact is related to
   let contact_at_name;

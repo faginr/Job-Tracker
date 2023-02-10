@@ -45,44 +45,43 @@ export const AddContactPage = () => {
       alert(`Failed to add the contact, status code = ${response.status}`);
     }
 
-//    // update an application if added to the contact
-//    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
-//
-//      // get contact id to add to the application
-//      const conatct_id = await response.json();
-//
-//      const updateApplication = { contacts: `${conatct_id}` };
-//
-//      // PATCH the application with contact_id
-//      const responseUpdateApp = await fetch(`/applications/${contact_at_app_id}`, {
-//        method: 'PATCH',
-//        body: JSON.stringify(updateApplication),
-//        headers: {
-//          'Content-Type': 'application/json',
-//        },
-//      });
-//      if(responseUpdateApp.status === 200){
-//        alert("Successfully updated the application!"); 
-//      } else {
-//        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-//      }
-//    };
+    // update an application if added to the contact
+    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
 
+      // get contact id to add to the application
+      const conatct_id = await response.json();
+
+      const updateApplication = { contacts: `${conatct_id}` };
+
+      // PATCH the application with contact_id
+      const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact_at_app_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateApplication),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if(responseUpdateApp.status === 200){
+        alert("Successfully updated the application!"); 
+      } else {
+        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+      }
+    }
     // go back to Application Page
     navigate(-1);  
   };
 
-//  // function to fetch applications
-//  const getApps = async () => {
-//    const response = await fetch('/applications');
-//    const data = await response.json();
-//    setApps(data);
-//  };
-//
-//  // hook to call the fucntion above
-//  useEffect(() => {
-//    getApps();
-//  }, []);
+  // function to fetch applications
+  const getApps = async () => {
+    const response = await fetch(`${datastore_url}/applications`);
+    const data = await response.json();
+    setApps(data);
+  };
+
+  // hook to call the fucntion above
+  useEffect(() => {
+    getApps();
+  }, []);
 
   // sort the array of applications
   // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
