@@ -58,6 +58,10 @@
   max-width: 20%;
 }
 
+.feature-pane-header {
+  margin-bottom: 1rem;
+}
+
 .feature-pane {
   animation-duration: 1s;
   animation-name: slidein;

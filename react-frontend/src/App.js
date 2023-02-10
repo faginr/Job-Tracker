@@ -14,6 +14,7 @@ import EditContactPage from './pages/EditContactPage';
 import NotFound from './pages/NotFound';
 
 import Navigation from './components/Navigation';
+import FeaturePane from './components/FeaturePane';
 
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
@@ -72,9 +73,7 @@ function App() {
       </div>
 
       {/* This area controls hiding/unhiding pane on right */}
-      <div className={featureClass}>
-        {featureChild}
-      </div>
+      <FeaturePane featureClass={featureClass} setFeatureChild={setFeatureChild} child={featureChild} />
 
       <footer className="App-footer">
         <h4><a href="https://forms.gle/3W7bCuVhibz82q6W6">Request Support</a></h4>
