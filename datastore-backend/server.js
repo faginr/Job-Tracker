@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
 // log every request coming in to the console
 app.use((req, res, next) => {
   const reqUrl = req.protocol + '://' + req.get('host') + req.originalUrl
-  console.log(req.method + ': ' + reqUrl)
+  console.log(`${req.method}: ${reqUrl}\tAuthorization: ${req.get('Authorization')}`)
   next()
 })
 
