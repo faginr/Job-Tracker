@@ -257,7 +257,7 @@ function verifyRequestBodyKeys (req, res, next) {
 function verifyRequestBodyVals (req, res, next) {
     let proficiency = req.body.proficiency
     let proficiencyIsInt = Number.isInteger(proficiency)
-    let profiencyIsUndefined = (proficiency === undefined)
+    let profiencyIsUndefined = (proficiency == undefined)
 
     if (profiencyIsUndefined) {
         return next()
@@ -365,7 +365,7 @@ router.put('/:user_id/skills/:skill_id',
 
         try {
             const updatedUser = await addUserSkill(newSkillData, req.body.user)
-            res.status(200).send(updatedUser)
+            res.status(204).send(updatedUser)
         } catch (err) {
             console.error(err)
             res.status(500).end()
