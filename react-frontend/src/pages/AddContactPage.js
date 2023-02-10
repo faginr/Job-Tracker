@@ -1,12 +1,3 @@
-/**
- * Date 1/25/2023
- * Code Source for the page:
- * The code is adapted from a code provided in CS290 Web Development:
- * Module 9 - Full Stack MERN Apps
- * Exploration — Implementing a Full-Stack MERN App - Part 1
- */
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../components/Constants';

@@ -1,12 +1,3 @@
-/**
- * Date 1/25/2023
- * Code Source for Model and Control Functions:
- * The code is adapted from a code provided in CS493 Cloud Development:
- * Module 4: Intermediate Restful API
- * Exploration - Intermediate REST API Features with Node.js
- */
-
-
 const express = require('express');
 const router = express.Router();
 const ds = require('../datastore');
@@ -128,10 +119,6 @@ function checkRequestBodyPatch (req, res, next) {
  * if not, send an error message.
  ************************************************************/
 function checkIdExists (req, res, next) {
-  if (req.params.id === null) {
-    console.log('key is null!');
-    res.status(404).send(errorMessages[404].contacts);
-  }
   const key = datastore.key([CONTACT, parseInt(req.params.id, 10)]);
   return datastore.get(key).then((entity) => {
     if (entity[0] === undefined || entity[0] === null) {
@@ -426,6 +413,10 @@ router.post('/:id', function (req, res) {
   res.set('Accept', 'GET, PUT, PATCH, DELETE');
   res.status(405).send(errorMessages[405].postWithId);
 });
+
+router.route('/null', function (reg, res) {
+  
+})
 
 /* --------------- End Not Allowed Routes --------------- */
 
