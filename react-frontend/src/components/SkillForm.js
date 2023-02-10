@@ -40,7 +40,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
             },
             body: JSON.stringify({'proficiency': parseInt(skill.proficiency, 10)})
         })
-        if (response.status !== 200) {
+        if (response.status !== 204) {
             alert("Uh-oh, something went wrong with updating the skill")
         }
     }
