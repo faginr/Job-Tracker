@@ -48,7 +48,7 @@ export const AddContactPage = () => {
         headers: {'Content-Type': 'application/json'},
       }
     );
-    if(responseContactId.status === 201){
+    if (responseContactId.status === 201) {
       alert("Successfully added the contact!"); 
     } else {
       alert(`Failed to add the contact, status code = ${responseContactId.status}`);
@@ -93,7 +93,7 @@ export const AddContactPage = () => {
             'Content-Type': 'application/json',
           },
         });
-        if(responseUpdateApp.status === 200){
+        if (responseUpdateApp.status === 200) {
           alert("Successfully updated the application!"); 
         } else {
           alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);

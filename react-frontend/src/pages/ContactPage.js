@@ -15,6 +15,7 @@ function ContactPage({ setContactToEdit }) {
   /************************************************************* 
    * Function to allow the user to sort the contact table 
    * by clicking on the name of the column
+   * Source: https://www.youtube.com/watch?v=g523Bj0y36Q
    ************************************************************/
   const sorting = (col) => {
     if (order === "Ascending"){
@@ -52,7 +53,7 @@ function ContactPage({ setContactToEdit }) {
               'Accept': 'application/json',
             },
           });
-          if(responseGetApp.status === 200){
+          if (responseGetApp.status === 200) {
             alert("Successfully get the application!"); 
           } else {
             alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
@@ -75,7 +76,7 @@ function ContactPage({ setContactToEdit }) {
               'Content-Type': 'application/json',
             },
           });
-          if(responseUpdateApp.status === 200){
+          if (responseUpdateApp.status === 200) {
             alert("Successfully updated the application!"); 
           } else {
             alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);

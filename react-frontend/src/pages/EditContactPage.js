@@ -4,10 +4,9 @@ import { datastore_url } from '../components/Constants';
 
 export const EditContactPage = ({ contactToEdit }) => {
   
-  // hook to navigate among the pages
-  const navigate = useNavigate();
+  const navigate = useNavigate();   // hook to navigate among the pages
 
-  // store the original application id if replaced by new application
+  // store the original application id's if replaced by new application
   const originalApplication = contactToEdit.contact_at_app_id
 
   const [last_name, setLastName] = useState(contactToEdit.last_name);
@@ -16,14 +15,15 @@ export const EditContactPage = ({ contactToEdit }) => {
   const [phone, setPhone] = useState(contactToEdit.phone);
   const [notes, setNotes] = useState(contactToEdit.notes);
   const [contact_at_app_id, setContactAt] = useState(contactToEdit.contact_at_app_id);
-
   const [apps, setApps] = useState([]);
 
-  // function to edit the conatct
+
+  /************************************************************* 
+   * Function to edit the contact 
+   ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
 
-    // store edited contact data
     const editedContact = { 
       last_name, 
       first_name, 
@@ -42,8 +42,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         headers: {'Content-Type': 'application/json',},
       }
     );
-
-    if(response.status === 200){
+    if (response.status === 200){
       alert("Successfully edited the contact!"); 
     } else {
       alert(`Failed to edit contact, status code = ${response.status}`);
@@ -99,30 +98,41 @@ export const EditContactPage = ({ contactToEdit }) => {
     navigate(-1);  
   };
 
-  // function to fetch applications
+
+  /************************************************************* 
+   * Function to fetch applications 
+   ************************************************************/
   const getApps = async () => {
     const response = await fetch(`${datastore_url}/applications`);
     const data = await response.json();
     setApps(data);
   };
 
-  // hook to call the fucntion above
+
+  /************************************************************* 
+   * Hook to call the function above 
+   ************************************************************/
   useEffect(() => {
     getApps();
   }, []);
 
-  // store the name of the application that a contact is related to
+
+  /************************************************************* 
+   * Iterate over the array of the applications 
+   * and add name of application to the contact 
+   ************************************************************/
   let contact_at_name;
- 
-  // iterate over the array of the applications and add name of application to the contact
   for (let app of apps) {
     if (contactToEdit.contact_at_app_id === app.id) {
       contact_at_name = app.title;
     } 
   };
 
-  // sort the array of applications
-  // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
+
+  /************************************************************* 
+   * Sort the array of applications
+   * Source: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
+   ************************************************************/
   let sortedApps = apps.sort((a,b) => {
     if (a.title.toLowerCase() < b.title.toLowerCase()) {
       return -1;
@@ -133,6 +143,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     return 0;
   });
 
+  
   return (
     <div>
       <form onSubmit={editContact}>
