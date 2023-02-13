@@ -30,11 +30,13 @@ const router = express.Router()
  */
 async function addUserSkill(skillData, userData) {
     // if skill exists in user skills already, just update that
-    // skill
+    // skill as long as new proficiency is not null
     for(let skill of userData.skills) {
         if (skill.skill_id === skillData.skill_id) {
-            skill.proficiency = skillData.proficiency
-            await model.updateItem(userData, 'users')
+            if (skillData.proficiency) {
+                skill.proficiency = skillData.proficiency
+                await model.updateItem(userData, 'users')
+            }
             return userData
         }
     }
