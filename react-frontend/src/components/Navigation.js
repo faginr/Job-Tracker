@@ -3,19 +3,26 @@
 import React from "react";
 import { NavLink } from 'react-router-dom';
 
-function Navigation () {
+function Navigation ({setFeatureChild}) {
+
+  function handleClick() {
+    setFeatureChild()
+  }
+
   return (
-    <nav>
-      <p>Click one of the tabs to navigate to:</p>
-      <h4>
-        <NavLink className="App-link" to="/">Home Page</NavLink>
-        <> </>
-        <NavLink className="App-link"to="/applications">Application Page</NavLink>
-        <> </>
-        <NavLink className="App-link" to="/skills">Skill Page</NavLink>
-        <> </>
-        <NavLink className="App-link" to="/contacts">Contact Page</NavLink>
-      </h4>
+    <nav className="navigation-bar">
+        <div className="App-link" onClick={handleClick}>
+          <NavLink to="/">Home</NavLink>
+        </div>
+        <div className="App-link" onClick={handleClick}>
+          <NavLink to="/applications">Applications</NavLink>
+        </div>
+        <div className="App-link" onClick={handleClick}>
+          <NavLink to="/skills">Skills</NavLink>
+        </div>
+        <div className="App-link" onClick={handleClick}>
+          <NavLink to="/contacts">Contacts</NavLink>
+        </div>
     </nav>
   );
 }
