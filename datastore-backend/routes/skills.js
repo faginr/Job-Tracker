@@ -127,7 +127,7 @@ router.post('/', verifyRequestBodyKeys,
         }
 
         // otherwise create it
-        skill = await model.postItem(req.body, 'skills')
+        skill = await model.postItem({"description": req.body.description}, 'skills')
         return res.status(201).send(skill)
     } catch (err) {
         console.error(err)
