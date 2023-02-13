@@ -127,7 +127,8 @@ function AddSkill({handleSkillClick}) {
             </h2>
             <input type="search" placeholder="Search..." onChange={(e)=>setQuery(e.target.value)}/>
             <ul>
-                {filterdSkills[0]==undefined?createNew():filterdSkills.map((skill) => {
+                {/* List all skills in database */}
+                {filterdSkills.map((skill) => {
                     return(
                         <li key={skill.id} 
                             onClick={() => handleSkillSelection(skill)}>
@@ -135,6 +136,9 @@ function AddSkill({handleSkillClick}) {
                         </li>
                     )}
                 )}
+
+                {/* Add ability to create new skill if less than 4 skills on screen */}
+                {filterdSkills.length<4?createNew():<div/>}
             </ul>
             <div className={newSkillFormClass}>
                 <form>
