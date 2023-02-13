@@ -13,7 +13,7 @@ function AddSkill({handleSkillClick}) {
     const [query, setQuery] = useState("")
 
     const filterdSkills = allSkills.filter((skill) => {
-        return (skill.description.includes(query))
+        return (skill.description.toLowerCase().includes(query.toLowerCase()))
     })
 
     function createNew() {
@@ -62,16 +62,8 @@ function AddSkill({handleSkillClick}) {
             alert(`Uh-oh, I couldn't tie ${data.description} to user!`)
         }
         
-        // hide the form
-        setNewSkillFormClass("hidden")
-        
-        // update your list of skills with skill returned from POST
-        allSkills.push(data)
-        setAllSkills(allSkills)
-        console.log(allSkills)
-
-        // reset your query
-        setQuery("")
+        // hide the feature pane
+        handleSkillClick()
     }
 
     function handleForm(e, identifier) {
