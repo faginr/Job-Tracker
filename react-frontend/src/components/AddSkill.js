@@ -48,7 +48,7 @@ function AddSkill({handleSkillClick}) {
         let data = await response.json()
 
         // tie the skill to the user
-        response = await fetch(`/users/${JSON.parse(user).sub}/skills/${data.id}`, {
+        let putResponse = await fetch(`/users/${JSON.parse(user).sub}/skills/${data.id}`, {
             method: "PUT",
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -58,9 +58,8 @@ function AddSkill({handleSkillClick}) {
             // and form auto-formats prof as string, so need to conver to num
             body: JSON.stringify({'proficiency': parseInt(newSkill.proficiency)})
         })
-        if (response.status !== 204) {
+        if (putResponse.status !== 204) {
             alert(`Uh-oh, I couldn't tie ${data.description} to user!`)
-            return
         }
         
         // hide the form
@@ -109,9 +108,8 @@ function AddSkill({handleSkillClick}) {
                 'Authorization': `Bearer ${user}`
             }, 
         })
-        if (response.status !== 200) {
+        if (response.status !== 204) {
             alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
-            return
         }
     }
 
