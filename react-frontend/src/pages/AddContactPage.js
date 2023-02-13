@@ -6,20 +6,20 @@ import { MultiSelect } from "react-multi-select-component";
 
 export const AddContactPage = () => {
   
-  // hook to navigate among the pages
-  const navigate = useNavigate();
-
+  const navigate = useNavigate();   // hook to navigate among the pages
   const [last_name, setLastName] = useState('');
   const [first_name, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  //const [contact_at_app_id, setContactAt] = useState([]);
-
   let [apps, setApps] = useState([]);
   const [selected, setSelected] = useState([]);
   let contact_at_app_id = []
 
+
+  /************************************************************* 
+   * Function to POST a new contact 
+   ************************************************************/
   // add the contact to the database
   const addContact = async (e) => {
     e.preventDefault();
@@ -48,7 +48,6 @@ export const AddContactPage = () => {
         headers: {'Content-Type': 'application/json'},
       }
     );
-
     if(responseContactId.status === 201){
       alert("Successfully added the contact!"); 
     } else {
@@ -71,7 +70,6 @@ export const AddContactPage = () => {
             'Accept': 'application/json',
           },
         });
-
         if(responseGetApp.status === 200){
           alert("Successfully get the application!"); 
         } else {
@@ -80,8 +78,8 @@ export const AddContactPage = () => {
 
         const data = await responseGetApp.json();
         const appContacts = [];
-        for (let app of data.contacts) {
-          appContacts.push(app)
+        for (let contact of data.contacts) {
+          appContacts.push(contact)
         };
 
         appContacts.push(`${contact_id}`)
@@ -106,19 +104,28 @@ export const AddContactPage = () => {
     navigate(-1);  
   };
 
-  // function to fetch applications
+
+  /************************************************************* 
+   * Function to fetch applications 
+   ************************************************************/
   const getApps = async () => {
     const response = await fetch(`${datastore_url}/applications`);
     const data = await response.json();
     setApps(data);
   };
 
-  // hook to call the fucntion above
+
+  /************************************************************* 
+   * Hook to call the function above 
+   ************************************************************/
   useEffect(() => {
     getApps();
   }, []);
 
-  // add keys required by MultiSelect
+
+  /************************************************************* 
+   * Function to add keys required by MultiSelect
+   ************************************************************/
   function addKeys() {
     apps = apps.map(function(obj) {
         obj.label = obj.title;
@@ -128,6 +135,11 @@ export const AddContactPage = () => {
   };
   addKeys();
 
+
+  /************************************************************* 
+   * Search option for MultiSelect 
+   * Source: https://www.npmjs.com/package/react-multi-select-component
+   ************************************************************/
   const filterOptions = (options, filter) => {
     if (!filter) {
       return options;
@@ -135,6 +147,7 @@ export const AddContactPage = () => {
     const re = new RegExp(filter, "i");
     return options.filter(({ label }) => label && label.match(re));
   };
+
 
   return (
     <div>
