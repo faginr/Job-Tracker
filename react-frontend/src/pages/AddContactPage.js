@@ -62,12 +62,33 @@ export const AddContactPage = () => {
       const contact_id = await responseContactId.json();
 
       // update the application(s)
-      for (let contact of contact_at_app_id) {      
+      for (let application of contact_at_app_id) {
 
-        const updateApplication = { contacts: `${contact_id}` };
+        // GET the application to be updated
+        const responseGetApp = await fetch(`${datastore_url}/applications/${application}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if(responseGetApp.status === 200){
+          alert("Successfully get the application!"); 
+        } else {
+          alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
+        };
+
+        const data = await responseGetApp.json();
+        const appContacts = [];
+        for (let app of data.contacts) {
+          appContacts.push(app)
+        };
+
+        appContacts.push(`${contact_id}`)
+        const updateApplication = { contacts: appContacts };
 
         // PATCH the application with contact_id
-        const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact}`, {
+        const responseUpdateApp = await fetch(`${datastore_url}/applications/${application}`, {
           method: 'PATCH',
           body: JSON.stringify(updateApplication),
           headers: {
