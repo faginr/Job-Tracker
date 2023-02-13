@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../components/Constants';
+import { MultiSelect } from "react-multi-select-component";
+
 
 export const AddContactPage = () => {
   
@@ -12,13 +14,21 @@ export const AddContactPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [contact_at_app_id, setContactAt] = useState('');
+  //const [contact_at_app_id, setContactAt] = useState([]);
 
-  const [apps, setApps] = useState([]);
+  let [apps, setApps] = useState([]);
+  const [selected, setSelected] = useState([]);
+  let contact_at_app_id = []
 
   // add the contact to the database
   const addContact = async (e) => {
     e.preventDefault();
+
+    if (selected.length > 0) {
+      for (let element of selected) {
+        contact_at_app_id.push(element.id)
+      } 
+    };  
 
     const newContact = { 
       last_name, 
@@ -30,7 +40,7 @@ export const AddContactPage = () => {
     };
 
     // POST a new contact
-    const response = await fetch(
+    const responseContactId = await fetch(
       `${datastore_url}/contacts`, 
       {
         method: 'POST',
@@ -39,32 +49,36 @@ export const AddContactPage = () => {
       }
     );
 
-    if(response.status === 201){
+    if(responseContactId.status === 201){
       alert("Successfully added the contact!"); 
     } else {
-      alert(`Failed to add the contact, status code = ${response.status}`);
-    }
+      alert(`Failed to add the contact, status code = ${responseContactId.status}`);
+    };
 
     // update an application if added to the contact
-    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
+    if (contact_at_app_id.length > 0) {
 
-      // get contact id to add to the application
-      const conatct_id = await response.json();
+      // get contact_id
+      const contact_id = await responseContactId.json();
 
-      const updateApplication = { contacts: `${conatct_id}` };
+      // update the application(s)
+      for (let contact of contact_at_app_id) {      
 
-      // PATCH the application with contact_id
-      const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact_at_app_id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updateApplication),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if(responseUpdateApp.status === 200){
-        alert("Successfully updated the application!"); 
-      } else {
-        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+        const updateApplication = { contacts: `${contact_id}` };
+
+        // PATCH the application with contact_id
+        const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateApplication),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if(responseUpdateApp.status === 200){
+          alert("Successfully updated the application!"); 
+        } else {
+          alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+        }
       }
     }
     // go back to Application Page
@@ -83,17 +97,23 @@ export const AddContactPage = () => {
     getApps();
   }, []);
 
-  // sort the array of applications
-  // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
-  let sortedApps = apps.sort((a,b) => {
-    if (a.title.toLowerCase() < b.title.toLowerCase()) {
-      return -1;
+  // add keys required by MultiSelect
+  function addKeys() {
+    apps = apps.map(function(obj) {
+        obj.label = obj.title;
+        obj.value = obj.title;
+        return obj;
+    })
+  };
+  addKeys();
+
+  const filterOptions = (options, filter) => {
+    if (!filter) {
+      return options;
     }
-    if (b.title.toLowerCase() > a.title.toLowerCase()) {
-      return 1;
-    }
-    return 0;
-  });
+    const re = new RegExp(filter, "i");
+    return options.filter(({ label }) => label && label.match(re));
+  };
 
   return (
     <div>
@@ -127,17 +147,16 @@ export const AddContactPage = () => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
 
-        <select multiple onChange={e => setContactAt(e.target.value)}>
-          
-          <option>Please choose one option</option>
-          {sortedApps.map((option, index) => {
-            return <option key={index} value={option.id}>
-              {option.title}
-              </option>
-          })}
+        <div>
+          <h5>Select Applications releated to the contact</h5>
+          <MultiSelect
+            options={apps}
+            value={selected}
+            onChange={setSelected}
+            filterOptions={filterOptions}
+          />
+        </div>
 
-        </select>
-        
         <p>
         <input type="submit" value="Add Contact" />
         <> </>

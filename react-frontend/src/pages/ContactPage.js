@@ -39,23 +39,24 @@ function ContactPage({ setContactToEdit }) {
     if (confirmed) {
 
     // update any application if releated to the contact 
-    if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
+    if (Object.keys(contact_at_app_id).length > 0) {
+      for (let contact of contact_at_app_id) {
+        const updatedApplication = { contacts: [] };
 
-      const updatedApplication = { contacts: '' };
+        // PATCH the contact
+        const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updatedApplication),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      // PATCH the contact
-      const responseUpdateApp = await fetch(`${datastore_url}/applications/${contact_at_app_id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updatedApplication),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if(responseUpdateApp.status === 200){
-        alert("Successfully updated the application!"); 
-      } else {
-        alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+        if(responseUpdateApp.status === 200){
+          alert("Successfully updated the application!"); 
+        } else {
+          alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+        }
       }
     };
 
@@ -108,29 +109,27 @@ function ContactPage({ setContactToEdit }) {
     getApps();
   }, []);
 
-
   // iterate over contacts and applications, if a contact is related to an application, 
   // add the name and link of this application to this contact
+  let arrayAppsNames = [];
+  let objApps = {};
+  
   for (let contact of contacts) {
-    for (let app of apps) {
-      if (contact.contact_at_app_id === app.id) {
-        contact.contact_at_name = app.title;
-        contact.contact_at_link = app.link;
-      } 
-    }
-  }
+    arrayAppsNames = [];
+    for (let app_id of contact.contact_at_app_id) {
+      for (let app of apps) {
+        if (app_id === app.id) {
+          objApps = {};
+          objApps['title'] = app.title;
+          objApps['link'] = app.link;
+          arrayAppsNames.push(objApps); 
+        } 
+      }
+    };
+    contact.arrayAppsNames = arrayAppsNames
+  };
+  //console.log('arrayAppsNames', arrayAppsNames)
 
-  // sort the array of contacts
-  // source of the function: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
-  let sortedContacts = contacts.sort((a,b) => {
-    if (a.first_name.toLowerCase() < b.first_name.toLowerCase()) {
-      return -1;
-    }
-    if (b.first_name.toLowerCase() > a.first_name.toLowerCase()) {
-      return 1;
-    }
-    return 0;
-  });
 
   return (
     <>
@@ -140,7 +139,7 @@ function ContactPage({ setContactToEdit }) {
         <p>Hello Username!</p>
         <p>List of your contacts:</p>
         <ContactList 
-          contacts={sortedContacts} 
+          contacts={contacts} 
           onDelete={onDelete}
           onEdit={onEdit}
           sorting={sorting}></ContactList>
