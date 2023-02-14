@@ -12,6 +12,8 @@ The target audience for Job Tracker is computer science students attempting to l
 
 ## What the goal is
 
+The goal of the project is to give users a single centralized application to organize and to a lesser extent analyze their own personal job hunting efforts. Each user's data is privately stored and authenticated to ensure privacy and data integrity. User's are able to search their own data in a variety of ways, and edit/add attributes on the fly from each section of the application. The focus is providing a non-technical and user friendly experience that will improve the user's application management process.
+
 ## Communincation
 
 ## How to run
