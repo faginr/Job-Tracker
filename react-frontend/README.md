@@ -22,6 +22,8 @@
 
 ## License
 
+Job Tracker falls under the [MIT License](https://opensource.org/licenses/MIT).
+
 ## React Notes - 
 
 # Getting Started with React App
