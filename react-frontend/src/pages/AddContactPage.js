@@ -20,7 +20,6 @@ export const AddContactPage = () => {
   /************************************************************* 
    * Function to POST a new contact 
    ************************************************************/
-  // add the contact to the database
   const addContact = async (e) => {
     e.preventDefault();
 
@@ -70,10 +69,10 @@ export const AddContactPage = () => {
             'Accept': 'application/json',
           },
         });
-        if(responseGetApp.status === 200){
+        if (responseGetApp.status === 200) {
           alert("Successfully get the application!"); 
         } else {
-          alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
+          alert(`Failed to get the application, status code = ${responseGetApp.status}`);
         };
 
         const data = await responseGetApp.json();
@@ -111,6 +110,21 @@ export const AddContactPage = () => {
   const getApps = async () => {
     const response = await fetch(`${datastore_url}/applications`);
     const data = await response.json();
+
+    // sort by title
+    // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+    data.sort((a, b) => {
+      const titleA = a.title.toUpperCase(); // ignore upper and lowercase
+      const titleB = b.title.toUpperCase(); // ignore upper and lowercase
+      if (titleA < titleB) {
+        return -1;
+      }
+      if (titleA > titleB) {
+        return 1;
+      };
+      return 0;
+    });
+
     setApps(data);
   };
 

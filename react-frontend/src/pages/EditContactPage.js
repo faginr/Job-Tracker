@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../components/Constants';
+import { MultiSelect } from "react-multi-select-component";
+
 
 export const EditContactPage = ({ contactToEdit }) => {
   
@@ -14,15 +16,33 @@ export const EditContactPage = ({ contactToEdit }) => {
   const [email, setEmail] = useState(contactToEdit.email);
   const [phone, setPhone] = useState(contactToEdit.phone);
   const [notes, setNotes] = useState(contactToEdit.notes);
-  const [contact_at_app_id, setContactAt] = useState(contactToEdit.contact_at_app_id);
-  const [apps, setApps] = useState([]);
+  let [apps, setApps] = useState([]);
+  const [selected, setSelected] = useState([]);
+  let contact_at_app_id = [];
+  let contactAtNameStr = '';
+  const [visible, setVisible] = useState(true);
 
+  const show = (e) => {
+    e.preventDefault();
+    setVisible(true);
+  }
+
+  const hide = (e) => {
+    e.preventDefault();
+    setVisible(false);
+  }
 
   /************************************************************* 
    * Function to edit the contact 
    ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
+
+    if (selected.length > 0) {
+      for (let element of selected) {
+        contact_at_app_id.push(element.id)
+      } 
+    };
 
     const editedContact = { 
       last_name, 
@@ -42,7 +62,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         headers: {'Content-Type': 'application/json',},
       }
     );
-    if (response.status === 200){
+    if (response.status === 200) {
       alert("Successfully edited the contact!"); 
     } else {
       alert(`Failed to edit contact, status code = ${response.status}`);
@@ -52,46 +72,85 @@ export const EditContactPage = ({ contactToEdit }) => {
     if (originalApplication !== contact_at_app_id) {
 
       // update the old application if existed
-      if (originalApplication !== '' && originalApplication !== undefined) {
-        console.log('applications changed for the contact');
+      for (let app of originalApplication) {
+        if (!(contact_at_app_id.includes(app))) {
+          // GET the application to be updated
+          const responseGetApp = await fetch(`${datastore_url}/applications/${app}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+          if (responseGetApp.status === 200) {
+            alert("Successfully get the application!"); 
+          } else {
+            alert(`Failed to get the application, status code = ${responseGetApp.status}`);
+          };
 
-        // update the old application
-        const updatedOldApplication = { contacts: '' };
+          const data = await responseGetApp.json();
+          const appContacts = [];
+          for (let contact of data.contacts) {
+            if (contact !== contactToEdit.id) {
+              appContacts.push(contact)
+            }
+          };
 
-        // PATCH the old application if changed
-        const responseOldApplication = await fetch(`${datastore_url}/applications/${originalApplication}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updatedOldApplication),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+          const updatedOldApplication = { contacts: appContacts };
 
-        if(responseOldApplication.status === 200){
-          alert("Successfully updated the old application!"); 
-        } else {
-          alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
+          // PATCH the old application if changed
+          const responseOldApplication = await fetch(`${datastore_url}/applications/${app}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updatedOldApplication),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (responseOldApplication.status === 200) {
+            alert("Successfully updated the old application!"); 
+          } else {
+            alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
+          }
         }
       };
 
       // PATCH the new application if added
-      if (contact_at_app_id !== '' && contact_at_app_id !== undefined) {
-        const updatedNewApplication = { contacts: `${contactToEdit.id}` };
+      for (let app of contact_at_app_id) {
+        if (!(originalApplication.includes(app))) {
+          // GET the application to be updated
+          const responseGetApp = await fetch(`${datastore_url}/applications/${app}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+          if (responseGetApp.status === 200) {
+            alert("Successfully get the application!"); 
+          } else {
+            alert(`Failed to get the application, status code = ${responseGetApp.status}`);
+          };
 
-        const responseUpdateNewApp = await fetch(`${datastore_url}/applications/${contact_at_app_id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updatedNewApplication),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+          const data = await responseGetApp.json();
+          const appContacts = data.contacts;
+          appContacts.push(contactToEdit.id)
+          const updatedNewApplication = { contacts: appContacts };
 
-        if(responseUpdateNewApp.status === 200){
-          alert("Successfully updated the new application!"); 
-        } else {
-          alert(`Failed to update the new application, status code = ${responseUpdateNewApp.status}`);
+          // PATCH the new application
+          const responseNewApplication = await fetch(`${datastore_url}/applications/${app}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updatedNewApplication),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (responseNewApplication.status === 200) {
+            alert("Successfully updated the old application!"); 
+          } else {
+            alert(`Failed to update the old application, status code = ${responseNewApplication.status}`);
+          }
         }
-      };
+      }
     };
 
     // go back to Contact Page
@@ -110,38 +169,58 @@ export const EditContactPage = ({ contactToEdit }) => {
 
 
   /************************************************************* 
+   * Iterate over the array of the applications 
+   * and get the name of applications related to the contact
+   ************************************************************/
+  let contactAtNameArray = [];
+  for (let contactApp of contactToEdit.contact_at_app_id) {
+    for (let app of apps) {
+      if (contactApp === app.id) {
+        contactAtNameArray.push(app.title);
+      } 
+    }
+  };
+
+  if (contactAtNameArray.length === 0) {
+    contactAtNameStr = 'None';
+  } else {
+    contactAtNameStr = JSON.stringify(contactAtNameArray);
+    contactAtNameStr = contactAtNameStr.slice(1, -1);
+  };
+
+
+  /************************************************************* 
+   * Function to add keys required by MultiSelect
+   ************************************************************/
+  function addKeys() {
+    apps = apps.map(function(obj) {
+        obj.label = obj.title;
+        obj.value = obj.title;
+        return obj;
+    })
+  };
+  addKeys();
+
+  
+  /************************************************************* 
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
     getApps();
   }, []);
 
-
+  
   /************************************************************* 
-   * Iterate over the array of the applications 
-   * and add name of application to the contact 
+   * Search option for MultiSelect 
+   * Source: https://www.npmjs.com/package/react-multi-select-component
    ************************************************************/
-  let contact_at_name;
-  for (let app of apps) {
-    if (contactToEdit.contact_at_app_id === app.id) {
-      contact_at_name = app.title;
-    } 
+  const filterOptions = (options, filter) => {
+    if (!filter) {
+      return options;
+    }
+    const re = new RegExp(filter, "i");
+    return options.filter(({ label }) => label && label.match(re));
   };
-
-
-  /************************************************************* 
-   * Sort the array of applications
-   * Source: https://stackabuse.com/sort-array-of-objects-by-string-property-value/
-   ************************************************************/
-  let sortedApps = apps.sort((a,b) => {
-    if (a.title.toLowerCase() < b.title.toLowerCase()) {
-      return -1;
-    }
-    if (b.title.toLowerCase() > a.title.toLowerCase()) {
-      return 1;
-    }
-    return 0;
-  });
 
   
   return (
@@ -170,17 +249,33 @@ export const EditContactPage = ({ contactToEdit }) => {
           value={notes}
           onChange={e => setNotes(e.target.value)} />
 
-        <select multiple onChange={e => setContactAt(e.target.value)}>
-          
-          <option>{contact_at_name}</option>
-          <option></option>
-          {sortedApps.map((option, index) => {
-            return <option key={index} value={option.id}>
-              {option.title}
-              </option>
-          })}
+        <div>
+          {visible && 
+            <>
+              <h5>Your previously selected Applications:</h5>
+              <>{contactAtNameStr}</>
+            </>
+          }
 
-        </select> 
+          <div><br />
+            {visible &&
+              <button onClick={hide}>Remove all previous Applications</button>
+            }
+            {!visible &&
+              <button onClick={show}>Undo</button>
+            }
+          </div>
+
+          <h5>or<br />Select new Applications releated to the contact:</h5>
+          <MultiSelect
+            options={apps}
+            value={selected}
+            onChange={setSelected}
+            filterOptions={filterOptions}
+          />
+
+          <h5>or<br />Leave as it is.</h5>
+        </div> 
 
         <p>
         <input type="submit" value="Submit Changes" />
