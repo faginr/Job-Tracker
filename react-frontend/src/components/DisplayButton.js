@@ -1,15 +1,15 @@
 import React from "react";
 
-function DisplayButton({displayObject, displayTitle, setFeaturePane}) {
+function DisplayButton({displayObject, displayTitle, handleClickAction, className="display-button"}) {
 
     function handleClick() {
-        setFeaturePane(displayObject)
+        handleClickAction(displayObject)
     }
 
     return (
         <span>
             <button 
-                className="displayButton" 
+                className={className}
                 onClick={handleClick}>
                 {displayTitle}
             </button>

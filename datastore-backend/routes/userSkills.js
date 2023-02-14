@@ -30,11 +30,13 @@ const router = express.Router()
  */
 async function addUserSkill(skillData, userData) {
     // if skill exists in user skills already, just update that
-    // skill
+    // skill as long as new proficiency is not null
     for(let skill of userData.skills) {
         if (skill.skill_id === skillData.skill_id) {
-            skill.proficiency = skillData.proficiency
-            await model.updateItem(userData, 'users')
+            if (skillData.proficiency) {
+                skill.proficiency = skillData.proficiency
+                await model.updateItem(userData, 'users')
+            }
             return userData
         }
     }
@@ -194,15 +196,18 @@ async function verifyUserOwnsSkill (req, res, next) {
 }
 
 /**
- * Verifies the content type header of the request is application/json.
+ * Verifies the content type header of the request is application/json
+ * if the content is not empty.
  * If content-type header is incorrect, sends 415 message.
  * @param {express.request} req 
  * @param {express.response} res 
  * @param {express.next} next 
  */
 function verifyContentTypeHeader (req, res, next) {
-    if (req.get('content-type') !== 'application/json') {
-        return res.status(415).send(messages[415])
+    if (req.get('content-length') !== "0") {
+        if (req.get('content-type') !== 'application/json') {
+            return res.status(415).send(messages[415])
+        } 
     } 
     next()
 }
@@ -254,7 +259,7 @@ function verifyRequestBodyKeys (req, res, next) {
 function verifyRequestBodyVals (req, res, next) {
     let proficiency = req.body.proficiency
     let proficiencyIsInt = Number.isInteger(proficiency)
-    let profiencyIsUndefined = (proficiency === undefined)
+    let profiencyIsUndefined = (proficiency == undefined)
 
     if (profiencyIsUndefined) {
         return next()
@@ -362,7 +367,7 @@ router.put('/:user_id/skills/:skill_id',
 
         try {
             const updatedUser = await addUserSkill(newSkillData, req.body.user)
-            res.status(200).send(updatedUser)
+            res.status(204).send(updatedUser)
         } catch (err) {
             console.error(err)
             res.status(500).end()

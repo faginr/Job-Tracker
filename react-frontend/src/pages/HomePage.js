@@ -1,13 +1,14 @@
+import { setUser } from '../components/User';
 import React from 'react';
 import icon from '../images/icon.png';
 
-function HomePage({setUser}) {
-  function updateUser(e, user) {
+function HomePage() {
+  function updateUser(e, desiredUser) {
     e.preventDefault()
 
-    if (user === "user1") {
+    if (desiredUser === "user1") {
       setUser('{"username": "tester1", "sub": "1234567890"}')
-    } else if (user === "user2"){
+    } else if (desiredUser === "user2"){
       setUser('{"username": "tester2", "sub": "2345678901"}')
     } else {
       setUser('{"username": "noexist", "sub": "1111111111"}')
