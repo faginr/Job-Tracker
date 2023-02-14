@@ -114,8 +114,8 @@ export const AddContactPage = () => {
     // sort by title
     // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
     data.sort((a, b) => {
-      const titleA = a.title.toUpperCase(); // ignore upper and lowercase
-      const titleB = b.title.toUpperCase(); // ignore upper and lowercase
+      const titleA = a.title.toUpperCase();
+      const titleB = b.title.toUpperCase();
       if (titleA < titleB) {
         return -1;
       }
@@ -135,32 +135,6 @@ export const AddContactPage = () => {
   useEffect(() => {
     getApps();
   }, []);
-
-
-  /************************************************************* 
-   * Function to add keys required by MultiSelect
-   ************************************************************/
-  function addKeys() {
-    apps = apps.map(function(obj) {
-        obj.label = obj.title;
-        obj.value = obj.title;
-        return obj;
-    })
-  };
-  addKeys();
-
-
-  /************************************************************* 
-   * Search option for MultiSelect 
-   * Source: https://www.npmjs.com/package/react-multi-select-component
-   ************************************************************/
-  const filterOptions = (options, filter) => {
-    if (!filter) {
-      return options;
-    }
-    const re = new RegExp(filter, "i");
-    return options.filter(({ label }) => label && label.match(re));
-  };
 
 
   return (
@@ -196,7 +170,7 @@ export const AddContactPage = () => {
           onChange={e => setNotes(e.target.value)} />
 
         <div>
-          <h5>Select Applications releated to the contact</h5>
+          <p>Select Applications releated to the contact</p>
           <SelectMulti
             apps={apps}
             selected={selected}

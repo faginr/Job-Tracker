@@ -20,25 +20,44 @@ export const EditContactPage = ({ contactToEdit }) => {
   const [selected, setSelected] = useState([]);
   let contact_at_app_id = [];
   let contactAtNameStr = '';
-  const [visible, setVisible] = useState(true);
+  let contactAtNameArray = [];
+  const [visibleRemove, setVisibleRemove] = useState(true);
+  const [visibleUndo, setVisibleUndo] = useState(false);
 
-  const show = (e) => {
+  let show = (e) => {
     e.preventDefault();
-    setVisible(true);
-  }
+    setVisibleRemove(true);
+    setVisibleUndo(false);
+  };
 
-  const hide = (e) => {
+  let hide = (e) => {
     e.preventDefault();
-    setVisible(false);
-  }
+    setVisibleRemove(false);
+    setVisibleUndo(true);
+  };
 
   /************************************************************* 
    * Function to edit the contact 
    ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
-    console.log('visible', visible)
-    console.log('selected', selected.length)
+
+    // if no changes, do nothing
+    if (visibleRemove === true
+        && selected.length === 0
+        && last_name === contactToEdit.last_name 
+        && first_name === contactToEdit.first_name
+        && email === contactToEdit.email
+        && phone === contactToEdit.phone
+        && notes === contactToEdit.notes) {
+      console.log ('no changes');
+      return navigate(-1);
+    };
+
+    // remove all applications
+    if (visibleRemove === false && selected.length === 0) {
+      contact_at_app_id = [];
+    };
 
     if (selected.length > 0) {
       for (let element of selected) {
@@ -70,7 +89,7 @@ export const EditContactPage = ({ contactToEdit }) => {
       alert(`Failed to edit contact, status code = ${response.status}`);
     }
 
-    // if application has changed for the contact, update the old and new applications
+    // if the array of application has changed for the contact, update the old and new applications
     if (originalApplication !== contact_at_app_id) {
 
       // update the old application by removing the contact id
@@ -166,6 +185,21 @@ export const EditContactPage = ({ contactToEdit }) => {
   const getApps = async () => {
     const response = await fetch(`${datastore_url}/applications`);
     const data = await response.json();
+
+    // sort by title
+    // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+    data.sort((a, b) => {
+      const titleA = a.title.toUpperCase();
+      const titleB = b.title.toUpperCase();
+      if (titleA < titleB) {
+        return -1;
+      }
+      if (titleA > titleB) {
+        return 1;
+      };
+      return 0;
+    });
+
     setApps(data);
   };
 
@@ -174,34 +208,24 @@ export const EditContactPage = ({ contactToEdit }) => {
    * Iterate over the array of the applications 
    * and get the name of applications related to the contact
    ************************************************************/
-  let contactAtNameArray = [];
-  for (let contactApp of contactToEdit.contact_at_app_id) {
-    for (let app of apps) {
-      if (contactApp === app.id) {
-        contactAtNameArray.push(app.title);
-      } 
+  function applicationNames() {
+    for (let contactApp of contactToEdit.contact_at_app_id) {
+      for (let app of apps) {
+        if (contactApp === app.id) {
+          contactAtNameArray.push(app.title);
+        } 
+      }
+    };
+
+    if (contactAtNameArray.length === 0) {
+      contactAtNameStr = 'None';
+    } else {
+      contactAtNameStr = JSON.stringify(contactAtNameArray);
+      contactAtNameStr = contactAtNameStr.slice(1, -1);
     }
   };
 
-  if (contactAtNameArray.length === 0) {
-    contactAtNameStr = 'None';
-  } else {
-    contactAtNameStr = JSON.stringify(contactAtNameArray);
-    contactAtNameStr = contactAtNameStr.slice(1, -1);
-  };
-
-
-  /************************************************************* 
-   * Function to add keys required by MultiSelect
-   ************************************************************/
-  function addKeys() {
-    apps = apps.map(function(obj) {
-        obj.label = obj.title;
-        obj.value = obj.title;
-        return obj;
-    })
-  };
-  addKeys();
+  applicationNames();
 
   
   /************************************************************* 
@@ -209,22 +233,13 @@ export const EditContactPage = ({ contactToEdit }) => {
    ************************************************************/
   useEffect(() => {
     getApps();
+    if (originalApplication.length === 0 ) {
+      setVisibleRemove(false);
+      setVisibleUndo(false);
+    };
   }, []);
 
-  
-  /************************************************************* 
-   * Search option for MultiSelect 
-   * Source: https://www.npmjs.com/package/react-multi-select-component
-   ************************************************************/
-  const filterOptions = (options, filter) => {
-    if (!filter) {
-      return options;
-    }
-    const re = new RegExp(filter, "i");
-    return options.filter(({ label }) => label && label.match(re));
-  };
-
-  
+   
   return (
     <div>
       <form onSubmit={editContact}>
@@ -252,30 +267,34 @@ export const EditContactPage = ({ contactToEdit }) => {
           onChange={e => setNotes(e.target.value)} />
 
         <div>
-          {visible && 
-            <>
-              <h5>Your previously selected Applications:</h5>
+          {visibleRemove && 
+            <><br />
+              <>Your previously selected Applications:</><br /><br />
               <>{contactAtNameStr}</>
             </>
           }
 
           <div><br />
-            {visible &&
+            {visibleRemove &&
               <button onClick={hide}>Remove all previous Applications</button>
             }
-            {!visible &&
+            {visibleUndo &&
               <button onClick={show}>Undo</button>
             }
           </div>
 
-          <h5>or<br />Select new Applications releated to the contact:</h5>
+          {visibleRemove &&
+            <><br />or</>
+          }
+
+          <><br />Select new Applications releated to the contact:</><br /><br />
           <SelectMulti
             apps={apps}
             selected={selected}
             setSelected={setSelected}
             />
 
-          <h5>or<br />Leave as it is.</h5>
+          <>or<br />Leave as it is.</>
         </div> 
 
         <p>
