@@ -54,7 +54,7 @@ function ContactPage({ setContactToEdit }) {
             },
           });
           if (responseGetApp.status === 200) {
-            alert("Successfully get the application!"); 
+            //alert("Successfully get the application!"); 
           } else {
             alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
           };
@@ -77,7 +77,7 @@ function ContactPage({ setContactToEdit }) {
             },
           });
           if (responseUpdateApp.status === 200) {
-            alert("Successfully updated the application!"); 
+            //alert("Successfully updated the application!"); 
           } else {
             alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
           }

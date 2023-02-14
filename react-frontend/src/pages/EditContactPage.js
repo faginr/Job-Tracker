@@ -103,7 +103,7 @@ export const EditContactPage = ({ contactToEdit }) => {
             },
           });
           if (responseGetApp.status === 200) {
-            alert("Successfully get the application!"); 
+            //alert("Successfully get the application!"); 
           } else {
             alert(`Failed to get the application, status code = ${responseGetApp.status}`);
           };
@@ -128,7 +128,7 @@ export const EditContactPage = ({ contactToEdit }) => {
           });
 
           if (responseOldApplication.status === 200) {
-            alert("Successfully updated the old application!"); 
+            //alert("Successfully updated the old application!"); 
           } else {
             alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
           }
@@ -146,7 +146,7 @@ export const EditContactPage = ({ contactToEdit }) => {
             },
           });
           if (responseGetApp.status === 200) {
-            alert("Successfully get the application!"); 
+            //alert("Successfully get the application!"); 
           } else {
             alert(`Failed to get the application, status code = ${responseGetApp.status}`);
           };
@@ -166,7 +166,7 @@ export const EditContactPage = ({ contactToEdit }) => {
           });
 
           if (responseNewApplication.status === 200) {
-            alert("Successfully updated the old application!"); 
+            //alert("Successfully updated the old application!"); 
           } else {
             alert(`Failed to update the old application, status code = ${responseNewApplication.status}`);
           }
