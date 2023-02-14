@@ -36,6 +36,8 @@ The live application is deployed here:
 
 ### Local Development Build
 
+The application can be built and run locally by cloning the repository and following the steps laid out in this section.
+
 ## How to build
 
 ## How to test
