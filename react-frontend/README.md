@@ -16,6 +16,12 @@ The goal of the project is to give users a single centralized application to org
 
 ## Communincation
 
+Job Tracker has its own Gitter channel (what is [Gitter](https://blog.gitter.im/about/)?).
+
+If you would like to send a message through Gitter, click the link below:
+
+[Job-Tracker](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/job-tracker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## How to run
 
 ## How to build
