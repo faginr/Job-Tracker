@@ -8,6 +8,8 @@ Job Tracker is a modern web application that allows users to track their interns
 
 ## Who it's for
 
+The target audience for Job Tracker is computer science students attempting to land internships and/or jobs as they complete their studies. However, the application user interface is non-technical and can easily accomodate by anyone seeking to organize their job seeking efforts.
+
 ## What the goal is
 
 ## Communincation
