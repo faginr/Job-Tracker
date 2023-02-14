@@ -1,6 +1,7 @@
 import { setUser } from '../components/User';
 import React from 'react';
 import icon from '../images/icon.png';
+import LogInSignUp from '../components/LoginSignup';
 
 function HomePage() {
   function updateUser(e, desiredUser) {
@@ -16,24 +17,21 @@ function HomePage() {
   }
 
   return (
-    <>
+    <div>
       <h1>Home Page</h1>
 
       <div>
-        <p>Select a button below to act as a certain user:</p>
-        <button onClick={(e)=> updateUser(e, 'user1')}>User 1</button>
-        <button onClick={(e)=> updateUser(e, 'user2')}>User 2</button>
-        <button onClick={(e)=> updateUser(e, '')}>Non-Existent</button>
         <p>Welcome to Job Tracker, this web app allows students to track their internship/job hunting efforts!</p>
       </div>
 
       <img src={icon} alt="Job Search"></img>
-      <>Source of the image:
+      <div>Source of the image:
         <br />https://eecs.engineering.oregonstate.edu 
         <br />from the Job Tracker project description
-      </>
+        <LogInSignUp />
+      </div>
       <br /><br />
-    </>
+    </div>
   );  
 }
 
