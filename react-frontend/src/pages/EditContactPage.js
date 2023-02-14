@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../components/Constants';
-import { MultiSelect } from "react-multi-select-component";
+import SelectMulti from '../components/SelectMulti';
 
 
 export const EditContactPage = ({ contactToEdit }) => {
@@ -37,6 +37,8 @@ export const EditContactPage = ({ contactToEdit }) => {
    ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
+    console.log('visible', visible)
+    console.log('selected', selected.length)
 
     if (selected.length > 0) {
       for (let element of selected) {
@@ -71,7 +73,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     // if application has changed for the contact, update the old and new applications
     if (originalApplication !== contact_at_app_id) {
 
-      // update the old application if existed
+      // update the old application by removing the contact id
       for (let app of originalApplication) {
         if (!(contact_at_app_id.includes(app))) {
           // GET the application to be updated
@@ -267,12 +269,11 @@ export const EditContactPage = ({ contactToEdit }) => {
           </div>
 
           <h5>or<br />Select new Applications releated to the contact:</h5>
-          <MultiSelect
-            options={apps}
-            value={selected}
-            onChange={setSelected}
-            filterOptions={filterOptions}
-          />
+          <SelectMulti
+            apps={apps}
+            selected={selected}
+            setSelected={setSelected}
+            />
 
           <h5>or<br />Leave as it is.</h5>
         </div> 

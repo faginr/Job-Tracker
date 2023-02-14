@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../components/Constants';
-import { MultiSelect } from "react-multi-select-component";
+import SelectMulti from '../components/SelectMulti';
 
 
 export const AddContactPage = () => {
@@ -197,12 +197,11 @@ export const AddContactPage = () => {
 
         <div>
           <h5>Select Applications releated to the contact</h5>
-          <MultiSelect
-            options={apps}
-            value={selected}
-            onChange={setSelected}
-            filterOptions={filterOptions}
-          />
+          <SelectMulti
+            apps={apps}
+            selected={selected}
+            setSelected={setSelected}
+            />
         </div>
 
         <p>
