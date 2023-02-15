@@ -91,7 +91,7 @@ Please note that these tests are in development and should be run only after gai
 
 ## How you can help
 
-Please submit any questions or comments using Gitter or the Support Request Form which can be found in the [Communication](##communication) section above.
+Please submit any questions or comments using Gitter or the Support Request Form which can be found in the Communication section above.
 
 ## Pull Requests
 
