@@ -4,8 +4,6 @@
 
 Job Tracker is a modern web application that allows users to track their internship/job hunting efforts. Users can use the appllication to track applications, contacts, and skills as well as the relationships between each. Skills can be added to applications from the existing skills database or created brand new on the fly. Users can also rate their proficiency in each skill. Applications can link to multiple contacts and vice versa. Links to external postings such as glassdoor can also be included in each application.
 
-## How it works
-
 ## Who it's for
 
 The target audience for Job Tracker is computer science students attempting to land internships and/or jobs as they complete their studies. However, the application user interface is non-technical and can easily accomodate by anyone seeking to organize their job seeking efforts.
@@ -30,13 +28,13 @@ For Technical Assistance/Troubleshooting, please submit a request using the foll
 
 The web application is hosted live on Gcloud, and can also be run locally for development purposes by cloning the repository. Please refer to the following sections depending on which version is appropriate.
 
-### Live Application
+#### Live Application
 
 The live application is deployed here:
 
 [Job Tracker](https://capstone-frontend-377023.uc.r.appspot.com)
 
-### Local Development Build
+#### Local Development Build
 
 The application can be built and run locally by cloning the repository and following the steps laid out in this section.
 
