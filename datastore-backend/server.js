@@ -3,6 +3,18 @@ const bodyParser = require('body-parser')
 const index = require('./index')
 const app = express();
 
+// manage CORS policy
+const cors = require('cors');
+const constants = require('./routes/constants');
+const FRONTEND_URL = constants.frontend_url;
+
+app.use(
+  cors({
+    //origin: `${FRONTEND_URL}`
+    origin: "*"
+  })
+);
+
 // tell express to parse all incoming bodies as JSON, send custom error message if not JSON
 app.use(bodyParser.json())
 app.use((err, req, res, next) => {

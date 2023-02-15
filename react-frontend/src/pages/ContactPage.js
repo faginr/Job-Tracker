@@ -1,49 +1,96 @@
-/**
- * Date 1/25/2023
- * Code Source for ContactPage:
- * The code is adapted from a code provided in CS290 Web Development:
- * Module 9 - Full Stack MERN Apps
- * Exploration — Implementing a Full-Stack MERN App - Part 1
- */
-
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ContactList from '../components/ContactList';
+import { datastore_url } from '../components/Constants';
 import { useState, useEffect } from 'react';
 
 function ContactPage({ setContactToEdit }) {
   
+  const navigate = useNavigate();   // hook to navigate among the pages
   const [contacts, setContacts] = useState([]);
-  const [order, setOrder] = useState("ASC");
+  const [order, setOrder] = useState("Ascending");
   const [apps, setApps] = useState([]);
+
   
-  // sorts the contact table by clicking on the name of the column
+  /************************************************************* 
+   * Function to allow the user to sort the contact table 
+   * by clicking on the name of the column
+   * Source: https://www.youtube.com/watch?v=g523Bj0y36Q
+   ************************************************************/
   const sorting = (col) => {
-    if (order === "ASC"){
+    if (order === "Ascending"){
       const sorted = [...contacts].sort((a,b) =>
         a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1
       );
       setContacts(sorted);
-      setOrder("DSC");
+      setOrder("Descending");
     };
 
-    if (order === "DSC"){
+    if (order === "Descending"){
       const sorted = [...contacts].sort((a,b) =>
         a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1
       );
       setContacts(sorted);
-      setOrder("ASC");
+      setOrder("Ascending");
     };
   }
 
-  const navigate = useNavigate();
 
-  const onDelete = async id => {
+  /************************************************************* 
+   * Function to DELETE a contact 
+   ************************************************************/
+  const onDelete = async (id, contact_at_app_id) => {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
-
     if (confirmed) {
-      const response = await fetch(`/contacts/${id}`, { method: 'DELETE' });
+
+      // update any application if releated to the contact 
+      if (Object.keys(contact_at_app_id).length > 0) {
+        for (let application of contact_at_app_id) {
+          // GET the application to be updated
+          const responseGetApp = await fetch(`${datastore_url}/applications/${application}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+          if (responseGetApp.status === 200) {
+            //alert("Successfully get the application!"); 
+          } else {
+            alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
+          };
+
+          const data = await responseGetApp.json();
+          const appContacts = [];
+          for (let contact of data.contacts) {
+            if (contact !== id) {
+              appContacts.push(contact)
+            }
+          };
+          const updatedApplication = { contacts: appContacts };
+
+          // PATCH the application
+          const responseUpdateApp = await fetch(`${datastore_url}/applications/${application}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updatedApplication),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          if (responseUpdateApp.status === 200) {
+            //alert("Successfully updated the application!"); 
+          } else {
+            alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+          }
+        }
+      };
+
+      // DELETE the contact
+      const response = await fetch(
+        `${datastore_url}/contacts/${id}`, 
+        { 
+          method: 'DELETE'
+        }
+      );
       if (response.status === 204) {
           setContacts(contacts.filter(contact => contact.id !== id));
           alert("Successfully deleted the contact! Click Ok to update the page.");
@@ -53,38 +100,72 @@ function ContactPage({ setContactToEdit }) {
     }
   };
 
+
+  /************************************************************* 
+   * Function to call the edit page 
+   ************************************************************/
   const onEdit = contact => {
     setContactToEdit(contact);
     navigate("/edit-contact");
   };
 
+
+  /************************************************************* 
+   * Function to fetch contacts 
+   ************************************************************/
   const loadContacts = async () => {
-    const response = await fetch('/contacts');
+    const response = await fetch(
+      `${datastore_url}/contacts`,
+      { 
+        method: "GET",
+        headers: {"Accept": "application/json"}
+      }
+    );
     const data = await response.json();
     setContacts(data);
   };
 
+  
+  /************************************************************* 
+   * Function to fetch applications 
+   ************************************************************/
   const getApps = async () => {
-    const response = await fetch('/applications');
+    const response = await fetch(`${datastore_url}/applications`);
     const data = await response.json();
     setApps(data);
   };
 
+
+  /************************************************************* 
+   * Hook to call the function above 
+   ************************************************************/
   useEffect(() => {
     loadContacts();
     getApps();
   }, []);
 
 
-  // iterate over contacts and applications, add name and link of application to contact
+  /************************************************************* 
+   * Iterate over contacts and applications, if a contact is related to an application, 
+   * add the name and link of this application to this contact 
+   ************************************************************/
+  let arrayAppsNames = [];
+  let objApps = {};
   for (let contact of contacts) {
-    for (let app of apps) {
-      if (contact.contact_at_id === app.id) {
-        contact.contact_at_name = app.title;
-        contact.contact_at_link = app.link;
-      } 
-    }
-  }
+    arrayAppsNames = [];
+    for (let app_id of contact.contact_at_app_id) {
+      for (let app of apps) {
+        if (app_id === app.id) {
+          objApps = {};
+          objApps['title'] = app.title;
+          objApps['link'] = app.link;
+          arrayAppsNames.push(objApps); 
+        } 
+      }
+    };
+    contact.arrayAppsNames = arrayAppsNames
+  };
+
 
   return (
     <>
