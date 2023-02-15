@@ -42,8 +42,9 @@ The application can be built and run locally by cloning the repository and follo
 
 Job Tracker requires two separate servers to run the backend/database and the frontend/ui portions of the application. It is recommended to clone the repository using git (Learn more about git [git](https://git-scm.com/)). Download and install the latest version of git before proceeding. You can verify that git is installed and what version you are using with the following command in a commnad line prompt:
 
+```
 git -v
-
+```
 To clone the repository to a local machine, navigate to an appropriate folder using the command prompt and use the following command:
 
 git clone https://github.com/faginr/Job-Tracker.git
