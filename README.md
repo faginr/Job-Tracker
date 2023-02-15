@@ -46,33 +46,33 @@ Job Tracker requires two separate servers to run the backend/database and the fr
 git -v
 ```
 To clone the repository to a local machine, navigate to an appropriate folder using the command prompt and use the following command:
-
+```
 git clone https://github.com/faginr/Job-Tracker.git
-
+```
 Please note that the datastore-backend folder and the react-frontend folder each contain seperate node-modules and both must be installed and running for the application to run properly.
 
 To install the proper packages for use of the datastore-backend, make sure you have installed npm and nodejs prior to the following directions (Learn more about [nodejs](https://nodejs.org/en/) and [npm](https://www.npmjs.com/)) 
 
 from the datastore-backend folder, run the following command:
-
+```
 npm install
-
+```
 This should effectively download all necessary libraries for starting the server. Once the installation is complete, the server can be started manually using the following command:
-
+```
 npm start
-
+```
 Note the default port the server listens to is port 8080. This can be changed by editing the port number in server.js
 
 To install the proper packages for use of the react-frontend, make sure you have installed npm and nodejs prior to the following directions (Learn more about [nodejs](https://nodejs.org/en/) and [npm](https://www.npmjs.com/))
 
 from the react-frontend folder, run the following command:
-
+```
 npm install
-
+```
 This should effectively download all necessary libraries for starting the server. Once the installation is complete, the server can be started manually using the following command:
-
+```
 npm start
-
+```
 Once started the react app should open a browser to the index route automatically. Please note that any CRUD operations run through the react-frontend app require the datastore-backend server to be running in parallel. It is recommended to run each in seperate command line prompts.
 
 ***Note***
