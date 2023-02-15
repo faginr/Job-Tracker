@@ -18,7 +18,7 @@ Job Tracker has its own Gitter channel (what is [Gitter](https://blog.gitter.im/
 
 If you would like to send a message through Gitter, click the link below:
 
-[Job Tracker Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/job-tracker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Job Tracker Gitter https://gitter.im/job-tracker](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/job-tracker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 For Technical Assistance/Troubleshooting, please submit a request using the following form:
 
