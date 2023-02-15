@@ -140,14 +140,38 @@ function checkIdExists (req, res, next) {
  ************************************************************/
 function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id) {
   var key = datastore.key(CONTACT);
+  
+  const default_values = {
+    'email': "",
+    'phone': "",
+    'notes': "",
+    'contact_at_app_id': []
+  }
+
+  // if optional values undefined, apply the default values
+  if (email === undefined) {
+    email = default_values["email"]
+  }
+  if (phone === undefined) {
+    phone = default_values["phone"]
+  }
+  if (notes === undefined) {
+    notes = default_values["notes"]
+  }
+  if (contact_at_app_id === undefined) {
+    contact_at_app_id = default_values["contact_at_app_id"]
+  };
+
+  // create object
   const new_contact = { 
-    "last_name": last_name, 
+    "last_name": last_name,
     "first_name": first_name, 
     "email": email, 
     "phone": phone, 
     "notes": notes, 
     "contact_at_app_id": contact_at_app_id 
   };
+
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
 };
 
@@ -188,7 +212,6 @@ function get_contact(id) {
     } else {
       // Use Array.map to call the function fromDatastore. This function
       // adds id attribute to every element in the array entity
-      //console.log('get', entity)
       return entity.map(ds.fromDatastore);
     }
   })
@@ -272,7 +295,7 @@ function delete_contact(id) {
  * GET all contacts
  ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
-  console.log("Get all request received!");
+  //console.log("Get all request received!");
   get_contacts()
     .then((contacts) => {
       res.status(200).json(contacts);
@@ -288,7 +311,7 @@ router.get('/', checkAcceptHeader, function (req, res) {
  * GET the contact_id
  ************************************************************/
 router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
-  console.log("Get request received!");
+  //console.log("Get request received!");
   get_contact(req.params.id)
     .then(contact => {
       res.status(200).json(contact[0]) 
@@ -304,7 +327,7 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
  * POST a new contact
  ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
-  console.log("Post request received!");
+  //console.log("Post request received!");
   post_contact(
     req.body.last_name, 
     req.body.first_name, 
@@ -327,7 +350,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
  * PUT: replace all values for this contact_id
  ************************************************************/
 router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
-  console.log("Put request received!");
+  //console.log("Put request received!");
   put_contact(
     req.params.id, 
     req.body.last_name, 
@@ -352,7 +375,7 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, func
  * do not change others for this contact_id
  ************************************************************/
 router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
-  console.log("Patch request received!");
+  //console.log("Patch request received!");
   patch_contact(
     req.params.id, 
     req.body.last_name, 
@@ -376,7 +399,7 @@ router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExist
  * DELETE this contact_id
  ************************************************************/
 router.delete('/:id', checkIdExists, function (req, res) {
-  console.log("Delete request received!");
+  //console.log("Delete request received!");
   delete_contact(req.params.id)
     .then(() => {
       res.status(204).end()
