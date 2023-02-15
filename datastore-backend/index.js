@@ -4,13 +4,13 @@ const contacts = require('./routes/contacts');
 const users = require('./routes/users');
 const generalSkills = require('./routes/skills')
 const userSkills = require('./routes/userSkills')
-const userAppSkills = require('./routes/userAppSkills')
+// const userAppSkills = require('./routes/userAppSkills')
 
 const router = express.Router()
 
 router.use('/applications', applications);
 router.use('/contacts', contacts);
-router.use('/users', users, userSkills, userAppSkills)
+router.use('/users', users, userSkills,) //userAppSkills)
 router.use('/skills', generalSkills)
 
 module.exports = {router}

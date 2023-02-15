@@ -131,6 +131,6 @@ function verifyJWTOnly(req, res, next) {
 }
 
 module.exports = {
-    verifyJWTWithUserParam: verifyJWTWithUserParam,
-    verifyJWTOnly: verifyJWTOnly
+    verifyJWTWithUserParam,
+    verifyJWTOnly
 }
