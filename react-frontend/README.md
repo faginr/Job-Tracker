@@ -28,6 +28,8 @@ For Technical Assistance/Troubleshooting, please submit a request using the foll
 
 ## How to run
 
+The web application is hosted live on Gcloud, and can also be run locally for development purposes by cloning the repository. Please refer to the following sections depending on which version is appropriate.
+
 ### Live Application
 
 The live application is deployed here:
@@ -40,7 +42,53 @@ The application can be built and run locally by cloning the repository and follo
 
 ## How to build
 
+Job Tracker requires two separate servers to run the backend/database and the frontend/ui portions of the application. It is recommended to clone the repository using git (Learn more about git [git](https://git-scm.com/)). Download and install the latest version of git before proceeding. You can verify that git is installed and what version you are using with the following command in a commnad line prompt:
+
+git -v
+
+To clone the repository to a local machine, navigate to an appropriate folder using the command prompt and use the following command:
+
+git clone https://github.com/faginr/Job-Tracker.git
+
+Please note that the datastore-backend folder and the react-frontend folder each contain seperate node-modules and both must be installed and running for the application to run properly.
+
+To install the proper packages for use of the datastore-backend, make sure you have installed npm and nodejs prior to the following directions (Learn more about [nodejs](https://nodejs.org/en/) and [npm](https://www.npmjs.com/)) 
+
+from the datastore-backend folder, run the following command:
+
+npm install
+
+This should effectively download all necessary libraries for starting the server. Once the installation is complete, the server can be started manually using the following command:
+
+npm start
+
+Note the default port the server listens to is port 8080. This can be changed by editing the port number in server.js
+
+To install the proper packages for use of the react-frontend, make sure you have installed npm and nodejs prior to the following directions (Learn more about [nodejs](https://nodejs.org/en/) and [npm](https://www.npmjs.com/))
+
+from the react-frontend folder, run the following command:
+
+npm install
+
+This should effectively download all necessary libraries for starting the server. Once the installation is complete, the server can be started manually using the following command:
+
+npm start
+
+Once started the react app should open a browser to the index route automatically. Please note that any CRUD operations run through the react-frontend app require the datastore-backend server to be running in parallel. It is recommended to run each in seperate command line prompts.
+
+***Note***
+Job Tracker is built using the following package versions:
+
+npm - 8.19.3
+react - 18.2.0
+
 ## How to test
+
+The datastore-backend portion of the application can be tested using the postman collection and environment included in the repository (Learn more about [Postman](https://www.postman.com/)).
+
+A guide for importing postman collections and environments can be found here: [Importing in Postman](https://docs.saucelabs.com/api-testing/import-postman-collection/)
+
+Please note that these tests are in development and should be run only after gaining familiarity with the backend routes. It is recommended to run collections with a delay of 1000ms to avoid latency issues when testing.
 
 ## How you can help
 
