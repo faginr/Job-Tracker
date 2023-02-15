@@ -137,6 +137,20 @@ export const AddContactPage = () => {
   }, []);
 
 
+  /************************************************************* 
+   * Function to add keys required by MultiSelect
+   * label and value keys are required
+   ***********************************************************/
+  function addKeys() {
+    apps = apps.map(function(obj) {
+        obj.label = obj.title;
+        obj.value = obj.title;
+        return obj;
+    })
+  };
+  addKeys();
+  
+
   return (
     <div>
       <form onSubmit={addContact}>
@@ -172,7 +186,7 @@ export const AddContactPage = () => {
         <div>
           <p>Select Applications releated to the contact</p>
           <SelectMulti
-            apps={apps}
+            items={apps}
             selected={selected}
             setSelected={setSelected}
             />

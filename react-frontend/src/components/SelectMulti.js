@@ -2,21 +2,8 @@ import React from 'react';
 import { MultiSelect } from "react-multi-select-component";
 
 
-function SelectMulti({ apps, selected, setSelected }) {
-
-  /************************************************************* 
-   * Function to add keys required by MultiSelect
-   * label and value keys are required
-   ************************************************************/
-  function addKeys() {
-    apps = apps.map(function(obj) {
-        obj.label = obj.title;
-        obj.value = obj.title;
-        return obj;
-    })
-  };
-  addKeys();
-
+// IMPORTANT:  MultiSelect requires objects to have properties: label and value
+function SelectMulti({ items, selected, setSelected }) {
 
   /************************************************************* 
    * Search option for MultiSelect 
@@ -32,7 +19,7 @@ function SelectMulti({ apps, selected, setSelected }) {
 
   return (
     <MultiSelect
-      options={apps}
+      options={items}
       value={selected}
       onChange={setSelected}
       filterOptions={filterOptions}

@@ -21,20 +21,28 @@ export const EditContactPage = ({ contactToEdit }) => {
   let contact_at_app_id = [];
   let contactAtNameStr = '';
   let contactAtNameArray = [];
-  const [visibleRemove, setVisibleRemove] = useState(true);
-  const [visibleUndo, setVisibleUndo] = useState(false);
 
-  let show = (e) => {
+
+  /************************************************************* 
+   * Function to show or hide the previously choosen application releated to a contact,
+   * if the variable 'visibleRemoveButton' is false, 
+   * it means the user deletes the applications from the contact
+   ************************************************************/
+  const [visibleRemoveButton, setVisibleRemoveButton] = useState(true);
+  const [visibleUndoButton, setVisibleUndoButton] = useState(false);
+
+  const show = (e) => {
     e.preventDefault();
-    setVisibleRemove(true);
-    setVisibleUndo(false);
+    setVisibleRemoveButton(true);
+    setVisibleUndoButton(false);
   };
 
-  let hide = (e) => {
+  const hide = (e) => {
     e.preventDefault();
-    setVisibleRemove(false);
-    setVisibleUndo(true);
+    setVisibleRemoveButton(false);
+    setVisibleUndoButton(true);
   };
+
 
   /************************************************************* 
    * Function to edit the contact 
@@ -43,7 +51,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     e.preventDefault();
 
     // if no changes, do nothing
-    if (visibleRemove === true
+    if (visibleRemoveButton === true
         && selected.length === 0
         && last_name === contactToEdit.last_name 
         && first_name === contactToEdit.first_name
@@ -54,8 +62,8 @@ export const EditContactPage = ({ contactToEdit }) => {
       return navigate(-1);
     };
 
-    // remove all applications
-    if (visibleRemove === false && selected.length === 0) {
+    // remove all applications if the button Remove clicked and no selected 
+    if (visibleRemoveButton === false && selected.length === 0) {
       contact_at_app_id = [];
     };
 
@@ -234,12 +242,26 @@ export const EditContactPage = ({ contactToEdit }) => {
   useEffect(() => {
     getApps();
     if (originalApplication.length === 0 ) {
-      setVisibleRemove(false);
-      setVisibleUndo(false);
+      setVisibleRemoveButton(false);
+      setVisibleUndoButton(false);
     };
   }, []);
 
-   
+
+  /************************************************************* 
+   * Function to add keys required by MultiSelect
+   * label and value keys are required
+   **********************************************************/
+  function addKeys() {
+    apps = apps.map(function(obj) {
+        obj.label = obj.title;
+        obj.value = obj.title;
+        return obj;
+    })
+  };
+  addKeys();
+
+
   return (
     <div>
       <form onSubmit={editContact}>
@@ -267,7 +289,7 @@ export const EditContactPage = ({ contactToEdit }) => {
           onChange={e => setNotes(e.target.value)} />
 
         <div>
-          {visibleRemove && 
+          {visibleRemoveButton && 
             <><br />
               <>Your previously selected Applications:</><br /><br />
               <>{contactAtNameStr}</>
@@ -275,21 +297,21 @@ export const EditContactPage = ({ contactToEdit }) => {
           }
 
           <div><br />
-            {visibleRemove &&
+            {visibleRemoveButton &&
               <button onClick={hide}>Remove all previous Applications</button>
             }
-            {visibleUndo &&
+            {visibleUndoButton &&
               <button onClick={show}>Undo</button>
             }
           </div>
 
-          {visibleRemove &&
+          {visibleRemoveButton &&
             <><br />or</>
           }
 
           <><br />Select new Applications releated to the contact:</><br /><br />
           <SelectMulti
-            apps={apps}
+            items={apps}
             selected={selected}
             setSelected={setSelected}
             />
