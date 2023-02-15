@@ -132,21 +132,27 @@ router.put(
     verifyUserOwnsApp,          
     verifyAppNotTiedToSkill,    // kills route and send 204 if app already tied to skill
     (req, res) => {
-        // add skill to user skills array if not there already
-        if (!userOwnsSkill(req.params.skill_id, req.body.user)){
-            let skillObject = {
-                "description": req.body.skill.description,
-                "proficiency": null,
-                "skill_id": req.params.skill_id,
-                }
-            addSkillToUser(skillObject, req.body.user)
+
+        try{
+            // add skill to user skills array if not there already
+            if (!userOwnsSkill(req.params.skill_id, req.body.user)){
+                let skillObject = {
+                    "description": req.body.skill.description,
+                    "proficiency": null,
+                    "skill_id": req.params.skill_id,
+                    }
+                addSkillToUser(skillObject, req.body.user)
+            }
+    
+            // add skill to app skills array
+            addSkillToApp(req.params.skill_id, req.body.app)
+    
+            // send back 204 status
+            res.status(204).end()
+        } catch(err) {
+            console.error(err)
+            res.status(500).end()
         }
-
-        // add skill to app skills array
-        addSkillToApp(req.params.skill_id, req.body.app)
-
-        // send back 204 status
-        res.status(204).end()
     }
 )
 router.delete(
@@ -157,10 +163,25 @@ router.delete(
     verifyUserOwnsApp,          
     (req, res) => {
         // update app skills array to not contain skill
+        updatedSkills = []
+        for(let skillID of req.body.app.skills){
+            if(skillID === req.params.skill_id) {
+                continue
+            }
+            updatedSkills.push(skillID)
+        }
+        req.body.app.skills = updatedSkills
 
-        // update datastore
-
-        // send back 204 status
+        try{
+            // update datastore
+            model.updateItem(req.body.app, 'applications')
+    
+            // send back 204 status
+            res.status(204).end()
+        } catch(err) {
+            console.error(err)
+            res.status(500).end()
+        }
     }
 )
 
