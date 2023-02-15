@@ -16,9 +16,11 @@ export const EditContactPage = ({ contactToEdit }) => {
   const [email, setEmail] = useState(contactToEdit.email);
   const [phone, setPhone] = useState(contactToEdit.phone);
   const [notes, setNotes] = useState(contactToEdit.notes);
-  let [apps, setApps] = useState([]);
-  const [selected, setSelected] = useState([]);
+  
   let contact_at_app_id = [];
+  const [selected, setSelected] = useState([]);
+
+  let [apps, setApps] = useState([]);
   let contactAtNameStr = '';
   let contactAtNameArray = [];
 

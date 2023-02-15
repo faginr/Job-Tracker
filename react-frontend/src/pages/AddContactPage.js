@@ -12,9 +12,11 @@ export const AddContactPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  let [apps, setApps] = useState([]);
-  const [selected, setSelected] = useState([]);
+  
   let contact_at_app_id = []
+  const [selected, setSelected] = useState([]);
+  
+  let [apps, setApps] = useState([]);
 
 
   /************************************************************* 
