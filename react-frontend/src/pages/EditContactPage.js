@@ -266,27 +266,38 @@ export const EditContactPage = ({ contactToEdit }) => {
     <div>
       <form onSubmit={editContact}>
         <h1>Edit Contact</h1>
-        <input
-          type="text"
-          value={first_name}
-          onChange={e => setFirstName(e.target.value)} />
-        <input
+        <label>First Name: <input
           required
           type="text"
+          value={first_name}
+          placeholder="Enter first name (required)"
+          onChange={e => setFirstName(e.target.value)} />
+        </label><br />
+        <label>Last Name: <input
+          required
+          type="text"
+          placeholder="Enter last name (required)"
           value={last_name}
           onChange={e => setLastName(e.target.value)} />
-        <input
+        </label><br />
+        <label>Email: <input
           type="text"
           value={email}
+          placeholder="Enter email"
           onChange={e => setEmail(e.target.value)} />
-        <input
+        </label><br />
+        <label>Phone: <input
           type="text"
+          placeholder="Enter phone"
           value={phone}
           onChange={e => setPhone(e.target.value)} />
-        <input
+        </label><br />
+        <label>Notes: <input
           type="text"
+          placeholder="Enter notes"
           value={notes}
           onChange={e => setNotes(e.target.value)} />
+        </label><br />
 
         <div>
           {visibleRemoveButton && 

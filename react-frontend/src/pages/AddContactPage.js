@@ -25,10 +25,8 @@ export const AddContactPage = () => {
   const addContact = async (e) => {
     e.preventDefault();
 
-    if (selected.length > 0) {
-      for (let element of selected) {
-        contact_at_app_id.push(element.id)
-      } 
+    for (let element of selected) {
+      contact_at_app_id.push(element.id)
     };  
 
     const newContact = { 
@@ -156,34 +154,39 @@ export const AddContactPage = () => {
   return (
     <div>
       <form onSubmit={addContact}>
-        <h1>Add Contact</h1>       
-        <input
+        <h1>Add Contact</h1>    
+        <label>First Name: <input
           required
           type="text"
           value={first_name}
           placeholder="Enter first name (required)"
           onChange={e => setFirstName(e.target.value)} />
-        <input
+        </label><br />
+        <label>Last Name: <input
           required
           type="text"
           placeholder="Enter last name (required)"
           value={last_name}
           onChange={e => setLastName(e.target.value)} />
-        <input
+        </label><br />
+        <label>Email: <input
           type="text"
           value={email}
           placeholder="Enter email"
           onChange={e => setEmail(e.target.value)} />
-        <input
+        </label><br />
+        <label>Phone: <input
           type="text"
           placeholder="Enter phone"
           value={phone}
           onChange={e => setPhone(e.target.value)} />
-        <input
+        </label><br />
+        <label>Notes: <input
           type="text"
           placeholder="Enter notes"
           value={notes}
           onChange={e => setNotes(e.target.value)} />
+        </label><br />
 
         <div>
           <p>Select Applications releated to the contact</p>
