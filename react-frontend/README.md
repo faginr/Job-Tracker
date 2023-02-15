@@ -1,4 +1,30 @@
-# Getting Started with Create React App
+# Job Tracker
+
+## Overview
+
+## How it works
+
+## Who it's for
+
+## What the goal is
+
+## Communincation
+
+## How to run
+
+## How to build
+
+## How to test
+
+## How you can help
+
+## Pull Requests
+
+## License
+
+## React Notes - 
+
+# Getting Started with React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
