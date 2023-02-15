@@ -69,12 +69,10 @@ export const EditContactPage = ({ contactToEdit }) => {
       contact_at_app_id = [];
     };
 
-    if (selected.length > 0) {
-      for (let element of selected) {
-        contact_at_app_id.push(element.id)
-      } 
+    for (let element of selected) {
+      contact_at_app_id.push(element.id)
     };
-
+    
     const editedContact = { 
       last_name, 
       first_name, 
