@@ -1,44 +1,19 @@
-/**
- * Date 1/25/2023
- * Code Source for Model and Control Functions:
- * The code is adapted from a code provided in CS493 Cloud Development:
- * Module 4: Intermediate Restful API
- * Exploration - Intermediate REST API Features with Node.js
- */
-
-
 const express = require('express');
-const bodyParser = require('body-parser');
 const router = express.Router();
-
 const ds = require('../datastore');
 const datastore = ds.datastore;
-
 const errorMessages = require('./errorMessages');
 
+// the name of the kind to be stored
 const CONTACT = "contact";
-
-
-/** 
- * Check if the request body is in the json format, if not, send an error message.
- */
-router.use(bodyParser.json());
-router.use((err, req, res, next) => {
-  if (err) {
-    //console.error(err)
-    res.status(400).send(errorMessages[400].jsonError)
-  } else {
-    next()
-  }
-});
 
 
 /*--------------- Begin Middleware Functions --------------- */
 
-/** 
+/************************************************************* 
  * Check if the user sends accepted Content-Type header, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkContentTypeHeader (req, res, next) {
   if (req.get('content-type') !== 'application/json') {
     res.status(415).send(errorMessages[415])
@@ -48,10 +23,10 @@ function checkContentTypeHeader (req, res, next) {
 };
 
 
-/** 
+/************************************************************* 
  * Check if the user sends accepted Accept header, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkAcceptHeader (req, res, next) {
   if (req.get('accept') !== 'application/json' && req.get('accept') !== '*/*') {
     res.status(406).send(errorMessages[406])
@@ -61,13 +36,28 @@ function checkAcceptHeader (req, res, next) {
 };
 
 
-/** 
+/************************************************************* 
  * Check if the user sends the body with valid object keys, 
- * if not, send an error message.
- */
+ * if not, send an error message (used by POST and PUT).
+ ************************************************************/
 function checkRequestBody (req, res, next) {
-  const allKeys = {"last_name": '', "first_name": '', "email": '', "phone": '', "notes": '', "contact_at_id": ''};
-  const requiredKeys = ["last_name", "first_name"];
+
+  // available keys
+  const allKeys = {
+    "last_name": '', 
+    "first_name": '', 
+    "email": '', 
+    "phone": '', 
+    "notes": '', 
+    "contact_at_app_id": ''
+  };
+
+  // required keys
+  const requiredKeys = [
+    "last_name", 
+    "first_name"
+  ];
+
   let keyError = false;
 
   // check if received keys are valid
@@ -92,10 +82,42 @@ function checkRequestBody (req, res, next) {
 };
 
 
-/** 
+/************************************************************* 
+ * Check if the user sends the body with valid object keys, 
+ * if not, send an error message (used by POST and PUT).
+ ************************************************************/
+function checkRequestBodyPatch (req, res, next) {
+
+  // available keys
+  const allKeys = {
+    "last_name": '', 
+    "first_name": '', 
+    "email": '', 
+    "phone": '', 
+    "notes": '', 
+    "contact_at_app_id": ''
+  };
+
+  // check if received keys are valid
+  Object.keys(req.body).forEach(key => {
+    if (!(key in allKeys)) {
+      res.status(400).send(errorMessages[400].keyError)
+    }    
+  });
+
+  // required keys cannot be empty strings, if so, send an error message
+  if (req.body.last_name === '' || req.body.first_name === '') {
+    res.status(400).send(errorMessages[400].requiredKey)
+  };
+
+  next()
+};
+
+
+/*************************************************************  
  * Check if the user sends a valid object's id, 
  * if not, send an error message.
- */
+ ************************************************************/
 function checkIdExists (req, res, next) {
   const key = datastore.key([CONTACT, parseInt(req.params.id, 10)]);
   return datastore.get(key).then((entity) => {
@@ -104,8 +126,7 @@ function checkIdExists (req, res, next) {
     } else {
       next()
     }
-  });
-
+  })
 };
 
 /*--------------- End Middleware Functions ----------------- */
@@ -113,7 +134,11 @@ function checkIdExists (req, res, next) {
 
 /* ------------- Begin Lodging Model Functions ------------- */
 
-function post_contact(last_name, first_name, email, phone, notes, contact_at_id) {
+/************************************************************* 
+ * The function sends a request to datastore to store the received data 
+ * and returns the status code and the key of new created object.
+ ************************************************************/
+function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id) {
   var key = datastore.key(CONTACT);
   const new_contact = { 
     "last_name": last_name, 
@@ -121,18 +146,17 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_id)
     "email": email, 
     "phone": phone, 
     "notes": notes, 
-    "contact_at_id": contact_at_id 
+    "contact_at_app_id": contact_at_app_id 
   };
-  // console.log(new_contact)
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
-}
+};
 
 
-/**
+/************************************************************* 
  * The function datastore.query returns an array, where the element at index 0
  * is itself an array. Each element in the array at element 0 is a JSON object
  * with an entity fromt the type "Contact".
- */
+ ************************************************************/
 function get_contacts() {
   const q = datastore.createQuery(CONTACT);
   return datastore.runQuery(q).then((entities) => {
@@ -140,11 +164,11 @@ function get_contacts() {
     // adds id attribute to every element in the array at element 0 of
     // the variable entities
     return entities[0].map(ds.fromDatastore);
-  });
-}
+  })
+};
 
 
-/**
+/************************************************************* 
  * Note that datastore.get returns an array where each element is a JSON object 
  * corresponding to an entity of the Type "Contact." If there are no entities
  * in the result, then the 0th element is undefined.
@@ -154,7 +178,7 @@ function get_contacts() {
  *           is that contact
  *      If no contact with the provided id exists, then the value of the 
  *          element is undefined
- */
+ ************************************************************/
 function get_contact(id) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   return datastore.get(key).then((entity) => {
@@ -164,13 +188,18 @@ function get_contact(id) {
     } else {
       // Use Array.map to call the function fromDatastore. This function
       // adds id attribute to every element in the array entity
+      //console.log('get', entity)
       return entity.map(ds.fromDatastore);
     }
-  });
-}
+  })
+};
 
 
-function put_contact(id, last_name, first_name, email, phone, notes, contact_at_id ) {
+/************************************************************* 
+ * The function sends a request to datastore to replace 
+ * old values with the new values and returns the status code.
+ ************************************************************/
+function put_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   const contact = { 
     "last_name": last_name, 
@@ -178,21 +207,70 @@ function put_contact(id, last_name, first_name, email, phone, notes, contact_at_
     "email": email, 
     "phone": phone, 
     "notes": notes, 
-    "contact_at_id": contact_at_id 
+    "contact_at_app_id": contact_at_app_id 
   };
   return datastore.save({ "key": key, "data": contact });
-}
+};
 
 
+/************************************************************* 
+ * The function sends a request to datastore to update some old values 
+ * with the new values and returns the status code.
+ ************************************************************/
+function patch_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
+  const key = datastore.key([CONTACT, parseInt(id, 10)]);
+  return datastore.get(key).then((entity) => {
+
+    if (last_name === undefined) {
+      last_name = entity[0].last_name
+    }
+    if (first_name === undefined) {
+      first_name = entity[0].first_name
+    }
+    if (email === undefined) {
+      email = entity[0].email
+    }
+    if (phone === undefined) {
+      phone = entity[0].phone
+    }
+    if (notes === undefined) {
+      notes = entity[0].notes
+    }
+    if (contact_at_app_id === undefined) {
+      contact_at_app_id = entity[0].contact_at_app_id
+    };
+
+    const contact = { 
+      "last_name": last_name, 
+      "first_name": first_name, 
+      "email": email, 
+      "phone": phone, 
+      "notes": notes, 
+      "contact_at_app_id": contact_at_app_id 
+    };
+    
+    return datastore.save({ "key": key, "data": contact });
+  })
+};
+
+
+/************************************************************* 
+ * The function sends a request to datastore to delete the object
+ * and returns the status code.
+ ************************************************************/
 function delete_contact(id) {
   const key = datastore.key([CONTACT, parseInt(id, 10)]);
   return datastore.delete(key);
-}
+};
 
-/* ------------- End Model Functions ------------- */
+/* ----------------- End Model Functions ---------------- */
 
 /* ------------- Begin Controller Functions ------------- */
 
+
+/************************************************************* 
+ * GET all contacts
+ ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
   console.log("Get all request received!");
   get_contacts()
@@ -201,29 +279,54 @@ router.get('/', checkAcceptHeader, function (req, res) {
     })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
-    });
+      res.status(500).send(errorMessages[500]);
+    })
 });
 
 
+/************************************************************* 
+ * GET the contact_id
+ ************************************************************/
+router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
+  console.log("Get request received!");
+  get_contact(req.params.id)
+    .then(contact => {
+      res.status(200).json(contact[0]) 
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+
+/************************************************************* 
+ * POST a new contact
+ ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   console.log("Post request received!");
   post_contact(
     req.body.last_name, 
     req.body.first_name, 
-    req.body.email, req.body.phone, 
+    req.body.email, 
+    req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_id
+    req.body.contact_at_app_id
     )
-    .then(key => { res.status(201).send('{ "id": ' + key.id + ' }') })
+    .then(key => { 
+      res.status(201).json(key.id) 
+    })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
-    });
+      res.status(500).send(errorMessages[500]);
+    })
 });
 
 
-router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res) {
+/************************************************************* 
+ * PUT: replace all values for this contact_id
+ ************************************************************/
+router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   console.log("Put request received!");
   put_contact(
     req.params.id, 
@@ -232,37 +335,89 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, function (req, res)
     req.body.email, 
     req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_id
+    req.body.contact_at_app_id
     )
-    .then(res.status(200).end())
+    .then(() => {
+      res.status(200).end()
+    })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
-    });
+      res.status(500).send(errorMessages[500]);
+    })
 });
 
 
+/************************************************************* 
+ * PATCH: update some values, the received values, 
+ * do not change others for this contact_id
+ ************************************************************/
+router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
+  console.log("Patch request received!");
+  patch_contact(
+    req.params.id, 
+    req.body.last_name, 
+    req.body.first_name, 
+    req.body.email, 
+    req.body.phone, 
+    req.body.notes, 
+    req.body.contact_at_app_id
+    )
+    .then(() => {
+      res.status(200).end()
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+
+/************************************************************* 
+ * DELETE this contact_id
+ ************************************************************/
 router.delete('/:id', checkIdExists, function (req, res) {
   console.log("Delete request received!");
   delete_contact(req.params.id)
-    .then(res.status(204).end())
+    .then(() => {
+      res.status(204).end()
+    })
     .catch(error => {
       console.error(error);
-      res.send({ error: "Request failed." })
-    });
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+/* -------------- End Controller Functions -------------- */
+
+/* -------------- Begin Not Allowed Routes -------------- */
+
+router.put('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405].all);
 });
 
 
-router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
-  console.log("Get request received!");
-  get_contact(req.params.id)
-    .then(contact => {res.status(200).json(contact[0]) })
-    .catch(error => {
-      console.error(error);
-      res.send({ error: "Request failed." })
-    });
+router.patch('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405].all);
 });
 
-/* ------------- End Controller Functions ------------- */
+
+router.delete('/', function (req, res) {
+  res.set('Accept', 'GET, POST');
+  res.status(405).send(errorMessages[405].all);
+});
+
+
+router.post('/:id', function (req, res) {
+  res.set('Accept', 'GET, PUT, PATCH, DELETE');
+  res.status(405).send(errorMessages[405].postWithId);
+});
+
+router.route('/null', function (reg, res) {
+  
+})
+
+/* --------------- End Not Allowed Routes --------------- */
 
 module.exports = router;
