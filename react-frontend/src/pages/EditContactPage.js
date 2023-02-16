@@ -61,7 +61,7 @@ export const EditContactPage = ({ contactToEdit }) => {
         && phone === contactToEdit.phone
         && notes === contactToEdit.notes) {
       console.log ('no changes');
-      return navigate(-1);
+      return navigate(0);
     };
 
     // remove all applications if the button Remove clicked and no selected 
@@ -183,7 +183,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     };
 
     // go back to Contact Page
-    navigate(-1);  
+    navigate(0);  
   };
 
 
@@ -332,8 +332,6 @@ export const EditContactPage = ({ contactToEdit }) => {
 
         <p>
         <input type="submit" value="Submit Changes" />
-        <> </>
-        <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
       </form>
     </div>

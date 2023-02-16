@@ -9,8 +9,6 @@ import AddApplicationPage from './pages/AddApplicationPage';
 import EditApplicationPage from './pages/EditApplicationPage';
 import SkillPage from './pages/SkillPage';
 import ContactPage from './pages/ContactPage';
-import AddContactPage from './pages/AddContactPage';
-import EditContactPage from './pages/EditContactPage';
 import NotFound from './pages/NotFound';
 
 import Navigation from './components/Navigation';
@@ -18,7 +16,6 @@ import FeaturePane from './components/FeaturePane';
 
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
-  const [contactToEdit, setContactToEdit] = useState();
   const [featureChild, setFeatureChild] = useState()
   const [featureClass, setFeatureClass] = useState("hidden")
 
@@ -59,12 +56,8 @@ function App() {
               
               <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
               
-              <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
-
-              <Route path="/add-contact" element={<AddContactPage />} />
-              
-              <Route path="/edit-contact" element={<EditContactPage contactToEdit={contactToEdit} />} />
-              
+              <Route path="/contacts" element={<ContactPage />} />
+             
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

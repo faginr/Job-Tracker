@@ -100,7 +100,7 @@ export const AddContactPage = () => {
       }
     }
     // go back to Application Page
-    navigate(-1);  
+    navigate(0);  
   };
 
 
@@ -189,7 +189,7 @@ export const AddContactPage = () => {
         </label><br />
 
         <div>
-          <p>Select Applications releated to the contact</p>
+          <p>Select Applications releated to the contact (optional):</p>
           <SelectMulti
             items={apps}
             selected={selected}
@@ -199,8 +199,6 @@ export const AddContactPage = () => {
 
         <p>
         <input type="submit" value="Add Contact" />
-        <> </>
-        <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
       </form>
       

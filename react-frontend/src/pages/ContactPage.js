@@ -1,16 +1,16 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import ContactList from '../components/ContactList';
 import { datastore_url } from '../components/Constants';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function ContactPage({ setContactToEdit }) {
+import AddContactPage from './AddContactPage';
+import SlidingWindow from '../components/SlidingWindow';
+
+
+function ContactPage() {
   
-  const navigate = useNavigate();   // hook to navigate among the pages
   const [contacts, setContacts] = useState([]);
   const [order, setOrder] = useState("Ascending");
   const [apps, setApps] = useState([]);
-
   
   /************************************************************* 
    * Function to allow the user to sort the contact table 
@@ -102,15 +102,6 @@ function ContactPage({ setContactToEdit }) {
 
 
   /************************************************************* 
-   * Function to call the edit page 
-   ************************************************************/
-  const onEdit = contact => {
-    setContactToEdit(contact);
-    navigate("/edit-contact");
-  };
-
-
-  /************************************************************* 
    * Function to fetch contacts 
    ************************************************************/
   const loadContacts = async () => {
@@ -177,12 +168,13 @@ function ContactPage({ setContactToEdit }) {
         <ContactList 
           contacts={contacts} 
           onDelete={onDelete}
-          onEdit={onEdit}
-          sorting={sorting}></ContactList>
-        <p>
-          <Link to="/add-contact">Add a New Contact</Link>
-        </p>
-      </div>
+          sorting={sorting} ></ContactList>
+      </div><br />
+      
+      <SlidingWindow 
+        Page={AddContactPage} 
+        buttonName="AddNewContact" />
+
     </>
   );
 }
