@@ -77,10 +77,10 @@ Once started the react app should open a browser to the index route automaticall
 
 ***Note***
 Job Tracker is built using the following package versions:
-
+```
 npm - 8.19.3
 react - 18.2.0
-
+```
 ## How to test
 
 The datastore-backend portion of the application can be tested using the postman collection and environment included in the repository (Learn more about [Postman](https://www.postman.com/)).
