@@ -27,7 +27,7 @@ function HomePage() {
         <p>Welcome to Job Tracker, this web app allows students to track their internship/job hunting efforts!</p>
       </div>
 
-      <img src={icon} alt="Job Search"></img>
+      <img src={icon} alt="Job Search"></img><br />
       <>Source of the image:
         <br />https://eecs.engineering.oregonstate.edu 
         <br />from the Job Tracker project description

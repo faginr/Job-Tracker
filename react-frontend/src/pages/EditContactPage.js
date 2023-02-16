@@ -266,43 +266,52 @@ export const EditContactPage = ({ contactToEdit }) => {
     <div>
       <form onSubmit={editContact}>
         <h1>Edit Contact</h1>
-        <label>First Name: <input
-          required
-          type="text"
-          value={first_name}
-          placeholder="Enter first name (required)"
-          onChange={e => setFirstName(e.target.value)} />
-        </label><br />
-        <label>Last Name: <input
-          required
-          type="text"
-          placeholder="Enter last name (required)"
-          value={last_name}
-          onChange={e => setLastName(e.target.value)} />
-        </label><br />
-        <label>Email: <input
-          type="text"
-          value={email}
-          placeholder="Enter email"
-          onChange={e => setEmail(e.target.value)} />
-        </label><br />
-        <label>Phone: <input
-          type="text"
-          placeholder="Enter phone"
-          value={phone}
-          onChange={e => setPhone(e.target.value)} />
-        </label><br />
-        <label>Notes: <input
-          type="text"
-          placeholder="Enter notes"
-          value={notes}
-          onChange={e => setNotes(e.target.value)} />
-        </label><br />
 
-        <div>
+        <div className='wrapper'>
+
+          <label className='one'>First Name:</label>
+          <input className='one-two'
+            required
+            type="text"
+            value={first_name}
+            placeholder="Enter first name (required)"
+            onChange={e => setFirstName(e.target.value)} /><br />
+
+          <label className='two'>Last Name:</label>
+          <input className='two-two'
+            required
+            type="text"
+            placeholder="Enter last name (required)"
+            value={last_name}
+            onChange={e => setLastName(e.target.value)} /><br />
+            
+          <label className='three'>Email:</label>
+          <input className='three-two'
+            type="text"
+            value={email}
+            placeholder="Enter email"
+            onChange={e => setEmail(e.target.value)} /><br />
+
+          <label className='four'>Phone:</label>
+          <input className='four-two'
+            type="text"
+            placeholder="Enter phone"
+            value={phone}
+            onChange={e => setPhone(e.target.value)} /><br />
+
+          <label className='five'>Notes:</label>
+          <input className='five-two'
+            type="text"
+            placeholder="Enter notes"
+            value={notes}
+            onChange={e => setNotes(e.target.value)} /><br />
+
+        </div>
+
+        <div  className='select'>
           {visibleRemoveButton && 
             <><br />
-              <>Your previously selected Applications:</><br /><br />
+              <><b>Your previously selected Application(s):</b></><br /><br />
               <>{contactAtNameStr}</>
             </>
           }
@@ -312,22 +321,23 @@ export const EditContactPage = ({ contactToEdit }) => {
               <button onClick={hide}>Remove all previous Applications</button>
             }
             {visibleUndoButton &&
-              <button onClick={show}>Undo</button>
+              <><button onClick={show}>Undo Remove</button><br /><br /></>
             }
           </div>
 
           {visibleRemoveButton &&
-            <><br />or</>
+            <><br /><b>or </b>
+            </>
           }
 
-          <><br />Select new Applications releated to the contact:</><br /><br />
+          <b>select new Applications releated to the contact:</b><br /><br />
           <SelectMulti
             items={apps}
             selected={selected}
             setSelected={setSelected}
             />
 
-          <>or<br />Leave as it is.</>
+          <b><br />or leave as it is.</b>
         </div> 
 
         <p>

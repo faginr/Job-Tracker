@@ -3,7 +3,6 @@
 
 import React, { useState } from "react";
 import SlidingPane from "react-sliding-pane";
-import './react-sliding-pane.css';
 import { MdEdit } from 'react-icons/md';
 
 function SlidingWindow({ Page, buttonName, contact }) {

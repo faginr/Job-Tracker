@@ -2,7 +2,6 @@ import React from 'react';
 import Application from './Application';
 
 function ApplicationList({ applications, onDelete, onEdit }) {
-  console.log(applications);
   return (
     <table id="applications">
       <thead>
