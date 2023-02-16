@@ -24,6 +24,9 @@ function fakeDecode(token, req) {
     // token is a JSON object as string like "Bearer <Token>"
     // so slice token to only get <Token> part
     req.body['auth'] = JSON.parse(token.slice(7))
+    if (req.body.auth.username === 'bad'){
+        throw TypeError
+    }
 }
 
 /**

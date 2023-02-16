@@ -40,7 +40,7 @@ async function addSkillToUser(skillObject, userObject) {
 
 async function addSkillToApp(skillID, appObject) {
     appObject.skills.push(skillID)
-    await model.updateItem(appObject, 'applications')
+    await model.updateItem(appObject, 'application')
 }
 
 /*************************************************************************************
@@ -51,7 +51,7 @@ async function addSkillToApp(skillID, appObject) {
  async function verifyAppExists(req, res, next) {
     const appID = req.params.app_id
     try {
-        const app = await model.getItemByID('applications', appID)
+        const app = await model.getItemByID('application', appID)
         if(app[0] == undefined) {
             return res.status(404).send(messages[404].apps)
         }
@@ -157,7 +157,7 @@ router.put(
 )
 router.delete(
     '/:user_id/applications/:app_id/skills/:skill_id',
-    verifyJWTWithUserParam,
+    verifyJWTWithUserParam,     // places user under req.body.user
     verifyAppExists,            // places app under req.body.app
     verifySkillExists,          // places skill under req.body.skill
     verifyUserOwnsApp,          
@@ -174,7 +174,7 @@ router.delete(
 
         try{
             // update datastore
-            model.updateItem(req.body.app, 'applications')
+            model.updateItem(req.body.app, 'application')
     
             // send back 204 status
             res.status(204).end()
