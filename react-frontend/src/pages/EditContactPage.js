@@ -306,16 +306,16 @@ export const EditContactPage = ({ contactToEdit }) => {
             type="text"
             placeholder="Enter notes"
             value={notes}
-            onChange={e => setNotes(e.target.value)} /><br />
+            onChange={e => setNotes(e.target.value)} />
 
         </div>
 
         <div  className='select'>
 
-          <div><br />
+          <div>
             {visibleRemoveButton &&
               <>
-                <br />Your previously selected application(s):<br />
+                <>Your previously selected application(s):<br /></>
                 <br />{contactAtNameStr}<br />
                 <br />There are several options here:
                 <br />You can remove all the selected application(s)<br />
@@ -326,16 +326,14 @@ export const EditContactPage = ({ contactToEdit }) => {
             }
             {visibleUndoButton &&
               <>
-                <br />Your previously selected application(s) were deleted.<br />
+                <>Your previously selected application(s) were deleted.<br /></>
                 <br /><button onClick={show}>Undo Delete</button><br />
                 <br />Select applications associated with the contact (optional):<br /><br />
               </>
             }
 
             {visibleText &&
-              <>
-                <br />Select applications associated with the contact (optional):<br /><br />
-              </>
+              <>Select applications associated with the contact (optional):<br /><br /></>
             }
           </div>
 
@@ -347,7 +345,7 @@ export const EditContactPage = ({ contactToEdit }) => {
 
         </div> 
 
-        <p>
+        <p><br />
         <input type="submit" value="Submit Changes" />
         </p>
       </form>

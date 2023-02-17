@@ -154,7 +154,7 @@ export const AddContactPage = () => {
   return (
     <div>
       <form onSubmit={addContact}>
-        <h1>Add Contact</h1>  
+        <h1>Add Contact</h1>
          
         <div className='wrapper'>
 
@@ -193,12 +193,12 @@ export const AddContactPage = () => {
             type="text"
             placeholder="Enter notes"
             value={notes}
-            onChange={e => setNotes(e.target.value)} /><br />
+            onChange={e => setNotes(e.target.value)} />
 
         </div>
 
         <div className='select'>
-          <br />Select applications associated with the contact (optional):<br /><br />
+          <>Select applications associated with the contact (optional):<br /><br /></>
           <SelectMulti
             items={apps}
             selected={selected}
@@ -206,7 +206,7 @@ export const AddContactPage = () => {
             />
         </div>
 
-        <p>
+        <p><br />
         <input type="submit" value="Add Contact" />
         </p>
       </form>
