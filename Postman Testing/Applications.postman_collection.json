@@ -1,0 +1,850 @@
+{
+	"info": {
+		"_postman_id": "af0bbc64-c2d7-4d6b-957c-04766231e454",
+		"name": "Applications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23541433"
+	},
+	"item": [
+		{
+			"name": "Get All Applications 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New Application 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"app_1\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"title\"]).to.eq(\"Junior Frontend Developer\");\r",
+							"    pm.expect(pm.response.json()[\"description\"]).to.eq(\"Blah Blah Blah\");\r",
+							"    pm.expect(pm.response.json()[\"posting date\"]).to.eq(\"2023-01-31\");\r",
+							"    pm.expect(pm.response.json()[\"status\"]).to.eq(\"Not Applied\");\r",
+							"    pm.expect(pm.response.json()[\"link\"]).to.eq(\"https://www.google.com\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Junior Frontend Developer\",\r\n    \"description\": \"Blah Blah Blah\",\r\n    \"posting_date\": \"2023-01-31\",\r\n    \"status\": \"Not Applied\",\r\n    \"link\": \"https://www.google.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New (second) Application 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"app_2\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"title\"]).to.eq(\"React Developer\");\r",
+							"    pm.expect(pm.response.json()[\"description\"]).to.eq(\"Remote Position\");\r",
+							"    pm.expect(pm.response.json()[\"posting date\"]).to.eq(\"2023-02-13\");\r",
+							"    pm.expect(pm.response.json()[\"status\"]).to.eq(\"Applied\");\r",
+							"    pm.expect(pm.response.json()[\"link\"]).to.eq(\"https://www.google.com\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"React Developer\",\r\n    \"description\": \"Remote Position\",\r\n    \"posting_date\": \"2023-02-13\",\r\n    \"status\": \"Applied\",\r\n    \"link\": \"https://www.google.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New App missing title 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"description\": \"Blah Blah Blah\",\r\n    \"posting_date\": \"1/26/23\",\r\n    \"status\": \"Not Applied\",\r\n    \"link\": \"https://www.google.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New App missing description 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"description\": \"Blah Blah Blah\",\r\n    \"posting_date\": \"1/26/23\",\r\n    \"status\": \"Not Applied\",\r\n    \"link\": \"https://www.google.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Applications 200 (at least two exist)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"At least two applications exist\", function(){\r",
+							"   pm.expect(Object.keys(pm.response.json()).length).to.be.at.least(2);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID (second application)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_2}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID Invalid ID 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application exists with this id\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{invalid_app_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{invalid_app_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Existing Application",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"title\"]).to.eq(\"Amazon Backend Developer\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Amazon Backend Developer\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Existing Application Invalid ID 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application with this id exists\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Amazon Backend Developer\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{invalid_app_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{invalid_app_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Application",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Application Invalid ID 404 (already deleted)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application with this id exists\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Application Invalid ID 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application with this id exists\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{invalid_app_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{invalid_app_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Existing Application Invalid ID 400 (already deleted)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application with this id exists\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Amazon Backend Developer\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Existing Application (second application)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"title\"]).to.eq(\"Amazon Backend Developer\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Amazon Backend Developer\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_2}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID (no longer exits)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application exists with this id\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_1}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Application (second application)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_2}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application By ID (second application no longer exists)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"404 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No application exists with this id\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications/{{app_2}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications",
+						"{{app_2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "405 DELETE All Applications -Route Not Allowed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 405\", function () {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "405 PUT All Applications -Route Not Allowed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 405\", function () {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "405 PATCH All Applications -Route Not Allowed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 405\", function () {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/applications",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"applications"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

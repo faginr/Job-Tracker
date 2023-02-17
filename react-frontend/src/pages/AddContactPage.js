@@ -25,10 +25,8 @@ export const AddContactPage = () => {
   const addContact = async (e) => {
     e.preventDefault();
 
-    if (selected.length > 0) {
-      for (let element of selected) {
-        contact_at_app_id.push(element.id)
-      } 
+    for (let element of selected) {
+      contact_at_app_id.push(element.id)
     };  
 
     const newContact = { 
@@ -102,7 +100,7 @@ export const AddContactPage = () => {
       }
     }
     // go back to Application Page
-    navigate(-1);  
+    navigate(0);  
   };
 
 
@@ -156,37 +154,51 @@ export const AddContactPage = () => {
   return (
     <div>
       <form onSubmit={addContact}>
-        <h1>Add Contact</h1>       
-        <input
-          required
-          type="text"
-          value={first_name}
-          placeholder="Enter first name (required)"
-          onChange={e => setFirstName(e.target.value)} />
-        <input
-          required
-          type="text"
-          placeholder="Enter last name (required)"
-          value={last_name}
-          onChange={e => setLastName(e.target.value)} />
-        <input
-          type="text"
-          value={email}
-          placeholder="Enter email"
-          onChange={e => setEmail(e.target.value)} />
-        <input
-          type="text"
-          placeholder="Enter phone"
-          value={phone}
-          onChange={e => setPhone(e.target.value)} />
-        <input
-          type="text"
-          placeholder="Enter notes"
-          value={notes}
-          onChange={e => setNotes(e.target.value)} />
+        <h1>Add Contact</h1>  
+         
+        <div className='wrapper'>
 
-        <div>
-          <p>Select Applications releated to the contact</p>
+          <label className='one'>First Name:</label>
+          <input className='one-two'
+            required
+            type="text"
+            value={first_name}
+            placeholder="Enter first name (required)"
+            onChange={e => setFirstName(e.target.value)} /><br />
+
+          <label className='two'>Last Name:</label>
+          <input className='two-two'
+            required
+            type="text"
+            placeholder="Enter last name (required)"
+            value={last_name}
+            onChange={e => setLastName(e.target.value)} /><br />
+            
+          <label className='three'>Email:</label>
+          <input className='three-two'
+            type="text"
+            value={email}
+            placeholder="Enter email"
+            onChange={e => setEmail(e.target.value)} /><br />
+
+          <label className='four'>Phone:</label>
+          <input className='four-two'
+            type="text"
+            placeholder="Enter phone"
+            value={phone}
+            onChange={e => setPhone(e.target.value)} /><br />
+
+          <label className='five'>Notes:</label>
+          <input className='five-two'
+            type="text"
+            placeholder="Enter notes"
+            value={notes}
+            onChange={e => setNotes(e.target.value)} /><br />
+
+        </div>
+
+        <div className='select'>
+          <p>Select Applications releated to the contact (optional):</p>
           <SelectMulti
             items={apps}
             selected={selected}
@@ -196,8 +208,6 @@ export const AddContactPage = () => {
 
         <p>
         <input type="submit" value="Add Contact" />
-        <> </>
-        <input type="button" value="Cancel" onClick={() => navigate(-1)} />
         </p>
       </form>
       
