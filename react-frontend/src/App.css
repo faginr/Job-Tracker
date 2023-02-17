@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  font-family: arial;
 }
 
 .App-main {
@@ -138,4 +139,151 @@ th {
   text-align: left;
   background-color: #04AA6D;
   color: white;
+}
+
+/* input display for add and edit*/
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(50, auto);
+  gap: 10px;
+  grid-auto-rows: minmax(30px, auto);
+}
+.one {
+  grid-column: 1/2;
+  grid-row: 1;
+}
+.one-two {
+  grid-column: 2/2;
+  grid-row: 1;
+}
+.two {
+  grid-column: 1/2;
+  grid-row: 2;
+}
+.two-two {
+  grid-column: 2/2;
+  grid-row: 2;
+}
+.three {
+  grid-column: 1/2;
+  grid-row: 3;
+}
+.three-two {
+  grid-column: 2/2;
+  grid-row: 3;
+}
+.four {
+  grid-column: 1/2;
+  grid-row: 4;
+}
+.four-two {
+  grid-column: 2/2;
+  grid-row: 4;
+}
+.five {
+  grid-column: 1/2;
+  grid-row: 5;
+}
+.five-two {
+  grid-column: 2/2;
+  grid-row: 5;
+}
+
+/* MultiSelect */
+.select {
+  width: 50%; 
+}
+
+/*
+Sliding pane 
+Source: https://www.npmjs.com/package/react-sliding-pane?activeTab=readme
+*/
+.slide-pane {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  min-width: 100px;
+  height: 100%;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 1s;
+  will-change: transform;
+
+  border-left:gray;
+  border-left-style: solid;
+  font-family: arial;
+}
+.slide-pane:focus {
+  outline-style: none;
+}
+.slide-pane_from_right {
+  margin-left: 50%;
+  transform: translateX(100%);
+}
+.slide-pane_from_right.content-after-open {
+  transform: translateX(0%);
+}
+.slide-pane_from_right.content-before-close {
+  transform: translateX(100%);
+}
+
+.slide-pane__overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: rgba(0, 0, 0, 0);
+}
+.slide-pane__overlay.overlay-after-open {
+  background-color: rgba(0, 0, 0, 0.3);
+  transition: background-color 0.5s;
+}
+.slide-pane__overlay.overlay-before-close {
+  background-color: rgba(0, 0, 0, 0);
+}
+.slide-pane__header {
+  display: flex;
+  flex: 0 0 64px;
+  align-items: center;
+  background: #ebebeb;
+  height: 64px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.slide-pane__title-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-left: 32px;
+  min-width: 0;
+}
+.slide-pane .slide-pane__title {
+  font-size: 18px;
+  font-weight: normal;
+  max-width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 0;
+}
+.slide-pane__close {
+  margin-left: 24px;
+  padding: 16px;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.slide-pane__close svg {
+  width: 12px;
+  padding: 0;
+}
+.slide-pane__content {
+  position: relative;
+  overflow-y: auto;
+  padding: 24px 32px;
+  flex: 1 1 auto;
+}
+.slide-pane__subtitle {
+  font-size: 12px;
+  margin-top: 2px;
 }
