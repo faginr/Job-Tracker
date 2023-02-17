@@ -198,7 +198,7 @@ export const AddContactPage = () => {
         </div>
 
         <div className='select'>
-          <p>Select Applications releated to the contact (optional):</p>
+          <br />Select applications associated with the contact (optional):<br /><br />
           <SelectMulti
             items={apps}
             selected={selected}

@@ -32,6 +32,7 @@ export const EditContactPage = ({ contactToEdit }) => {
    ************************************************************/
   const [visibleRemoveButton, setVisibleRemoveButton] = useState(true);
   const [visibleUndoButton, setVisibleUndoButton] = useState(false);
+  const [visibleText, setVisibleText] = useState(false);
 
   const show = (e) => {
     e.preventDefault();
@@ -244,6 +245,7 @@ export const EditContactPage = ({ contactToEdit }) => {
     if (originalApplication.length === 0 ) {
       setVisibleRemoveButton(false);
       setVisibleUndoButton(false);
+      setVisibleText(true);
     };
   }, []);
 
@@ -309,35 +311,40 @@ export const EditContactPage = ({ contactToEdit }) => {
         </div>
 
         <div  className='select'>
-          {visibleRemoveButton && 
-            <><br />
-              <><b>Your previously selected Application(s):</b></><br /><br />
-              <>{contactAtNameStr}</>
-            </>
-          }
 
           <div><br />
             {visibleRemoveButton &&
-              <button onClick={hide}>Remove all previous Applications</button>
+              <>
+                <br />Your previously selected application(s):<br />
+                <br />{contactAtNameStr}<br />
+                <br />There are several options here:
+                <br />You can remove all the selected application(s)<br />
+                <br /><button onClick={hide}>Delete all</button><br />
+                <br />or select new application(s) associated with the contact 
+                <br />or leave it as is.<br /><br />
+              </>
             }
             {visibleUndoButton &&
-              <><button onClick={show}>Undo Remove</button><br /><br /></>
+              <>
+                <br />Your previously selected application(s) were deleted.<br />
+                <br /><button onClick={show}>Undo Delete</button><br />
+                <br />Select applications associated with the contact (optional):<br /><br />
+              </>
+            }
+
+            {visibleText &&
+              <>
+                <br />Select applications associated with the contact (optional):<br /><br />
+              </>
             }
           </div>
 
-          {visibleRemoveButton &&
-            <><br /><b>or </b>
-            </>
-          }
-
-          <b>select new Applications releated to the contact:</b><br /><br />
           <SelectMulti
             items={apps}
             selected={selected}
             setSelected={setSelected}
             />
 
-          <b><br />or leave as it is.</b>
         </div> 
 
         <p>
