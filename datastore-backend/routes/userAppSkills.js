@@ -34,13 +34,23 @@ function userOwnsSkill(skillID, userData) {
 }
 
 async function addSkillToUser(skillObject, userObject) {
-    userObject.skills.push(skillObject)
-    await model.updateItem(userObject, 'users')
+    try {
+        userObject.skills.push(skillObject)
+        await model.updateItem(userObject, 'users')
+    } catch(err){
+        console.error(err)
+        console.error(`Error adding ${skillObject.skill_id} to ${userObject.id}`)
+    }
 }
 
 async function addSkillToApp(skillID, appObject) {
-    appObject.skills.push(skillID)
-    await model.updateItem(appObject, 'application')
+    try{
+        appObject.skills.push(skillID)
+        await model.updateItem(appObject, 'application')
+    } catch(err){
+        console.error(err)
+        console.error(`Error adding ${skillID} to ${appObject.id}`)
+    }
 }
 
 /*************************************************************************************
@@ -80,7 +90,7 @@ async function addSkillToApp(skillID, appObject) {
 
  function verifyUserOwnsApp(req, res, next) {
     // must have user info under req.body.user
-    for (let appID of req.body.user.apps) {
+    for (let appID of req.body.user.applications) {
         if (appID === req.params.app_id) {
             return next()
         }
@@ -129,7 +139,7 @@ router.put(
     verifyJWTWithUserParam,     // places user under req.body.user
     verifyAppExists,            // places app under req.body.app
     verifySkillExists,          // places skill under req.body.skill
-    verifyUserOwnsApp,          
+    // verifyUserOwnsApp, commenting out until apps are tied to users          
     verifyAppNotTiedToSkill,    // kills route and send 204 if app already tied to skill
     (req, res) => {
 
@@ -160,9 +170,11 @@ router.delete(
     verifyJWTWithUserParam,     // places user under req.body.user
     verifyAppExists,            // places app under req.body.app
     verifySkillExists,          // places skill under req.body.skill
-    verifyUserOwnsApp,          
+    // verifyUserOwnsApp, commenting out until users are tied to apps          
     (req, res) => {
         // update app skills array to not contain skill
+        // if skill not tied, this won't throw an error, it will just act
+        // as if process completed
         updatedSkills = []
         for(let skillID of req.body.app.skills){
             if(skillID === req.params.skill_id) {
