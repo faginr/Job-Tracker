@@ -12,7 +12,7 @@ function Application({ application, onDelete, onEdit }) {
       <td>{application.status}</td>
       <td><a href={application.link}>{application.link}</a></td>
       <td><MdEdit onClick={() => onEdit(application)} /></td>
-      <td><MdDeleteForever onClick={() => onDelete(application.id)} /></td>
+      <td><MdDeleteForever onClick={() => onDelete(application.id,application.contacts)} /></td>
     </tr>
   );
 }
