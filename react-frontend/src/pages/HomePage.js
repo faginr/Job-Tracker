@@ -4,17 +4,6 @@ import icon from '../images/icon.png';
 import LogInSignUp from '../components/LoginSignup';
 
 function HomePage() {
-  function updateUser(e, desiredUser) {
-    e.preventDefault()
-
-    if (desiredUser === "user1") {
-      setUser('{"username": "tester1", "sub": "1234567890"}')
-    } else if (desiredUser === "user2"){
-      setUser('{"username": "tester2", "sub": "2345678901"}')
-    } else {
-      setUser('{"username": "noexist", "sub": "1111111111"}')
-    }
-  }
 
   return (
     <div>
