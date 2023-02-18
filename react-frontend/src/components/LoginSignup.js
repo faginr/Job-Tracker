@@ -6,23 +6,14 @@ function LogInSignUp() {
 
     async function handleLogin(e){
         e.preventDefault()
-        console.log("logging in...")
-        await loginWithRedirect({
-            // tell Auth0 to take them from /callback to /applications
-            appState: {
-                returnTo: "/applications"
-            }
-        })
+        await loginWithRedirect()
+        // callback endpoint will conditionally render a page
+        // depending on if the user exists or not in datastore
     }
 
     async function handleSignup(e){
         e.preventDefault()
-        console.log("signing up...")
         await loginWithRedirect({
-            // tell Auth0 to take them from /callback to /applications
-            appState: {
-                returnTo: "/applications"
-            },
             // tell Auth0 that this is a signup event
             authorizationParams: {
                 screen_hint: "signup"
