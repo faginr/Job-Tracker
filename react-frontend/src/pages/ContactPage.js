@@ -1,5 +1,5 @@
 import ContactList from '../components/ContactList';
-import { datastore_url } from '../components/Constants';
+import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
 
 import AddContactPage from './AddContactPage';

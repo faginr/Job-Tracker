@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ApplicationList from '../components/ApplicationList';
 import { useState, useEffect } from 'react';
-import { datastore_url } from '../components/Constants';
+import { datastore_url } from '../utils/Constants';
 
 function ApplicationPage({ setApplicationToEdit }) {
   
