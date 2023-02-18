@@ -11,7 +11,8 @@ const errorMessages = {
   404: {
     contacts: {"Error": "No contact exists with this id."},
     users: {"404": "User does not exist"},
-    skills: {"404": "Skill does not exist"}
+    skills: {"404": "Skill does not exist"},
+    apps: {"404": "Application does not exist"}
     },
   405: {
     all: {"Error": "Only GET, POST requests allowed for all applications route."},
