@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { user } from "./User";
+import { user } from "../utils/User";
 
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
