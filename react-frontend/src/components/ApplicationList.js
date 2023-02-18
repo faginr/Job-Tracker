@@ -1,7 +1,7 @@
 import React from 'react';
 import Application from './Application';
 
-function ApplicationList({ applications, onDelete, onEdit }) {
+function ApplicationList({ applications, onDelete }) {
   return (
     <table id="applications">
       <thead>
@@ -20,7 +20,7 @@ function ApplicationList({ applications, onDelete, onEdit }) {
       <tbody>
         {applications.map((application, i) => <Application application={application}
           onDelete={onDelete}
-          onEdit={onEdit}
+          // onEdit={onEdit}
           key={i} />)}
       </tbody>
     </table>

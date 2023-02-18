@@ -16,9 +16,17 @@ function SlidingWindow({ Page, buttonName, contact }) {
                       AddNewContact
                     </button>);
   };
+
+  if (buttonName === "AddNewApplication") {
+    buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
+    Add New Application
+    </button>)
+  }
+
   if (buttonName === "EditIcon") {
     buttonElement = (<MdEdit onClick={() => setState({ isPaneOpen: true })} />);
   };
+  
 
   return (
     <div>

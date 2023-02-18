@@ -63,11 +63,12 @@ router.post("/", function (req, res) {
     'status': "",
     'link': "",
   }
+
   const new_application = {
     'title': req.body.title,
     'description': req.body.description,
-    'skills': [req.body.skills],
-    'contacts': [req.body.contacts],
+    'skills': req.body.skills,
+    'contacts': req.body.contacts,
     'posting_date': req.body.posting_date,
     'status': req.body.status,
     'link': req.body.link,
@@ -77,6 +78,11 @@ router.post("/", function (req, res) {
   if (req.body.skills === undefined){
     new_application["skills"] = default_values["skills"]
   }
+  // else {
+  //   for (let skill of req.body.skills){
+  //     new_application["skills"].push(skill)
+  //   }
+  // }
   if (req.body.contacts === undefined){
     new_application["contacts"] = default_values["contacts"]
   }
@@ -188,10 +194,10 @@ router.patch("/:id", function (req, res) {
         results[0]["description"] = req.body.description
       }
       if (req.body.skills !== undefined){
-        results[0]["skills"] = [req.body.skills]
+        results[0]["skills"] = req.body.skills
       }
       if (req.body.contacts !== undefined){
-        results[0]["contacts"] = [req.body.contacts]
+        results[0]["contacts"] = req.body.contacts
       }
       if (req.body.posting_date !== undefined){
         results[0]["posting_date"] = req.body.posting_date

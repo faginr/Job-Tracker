@@ -1,14 +1,17 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+// import { Link, useNavigate } from 'react-router-dom';
 import ApplicationList from '../components/ApplicationList';
 import { useState, useEffect } from 'react';
 import { datastore_url } from '../components/Constants';
 
-function ApplicationPage({ setApplicationToEdit }) {
+import AddApplicationPage from './AddApplicationPage';
+import SlidingWindow from '../components/SlidingWindow';
+
+function ApplicationPage() {
   
   const [applications, setApplications] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const onDelete = async (id, contacts) => {
     // Confirm Deletion
@@ -91,10 +94,10 @@ function ApplicationPage({ setApplicationToEdit }) {
     setContacts(data);
   }
 
-  const onEdit = application => {
-    setApplicationToEdit(application);
-    navigate("/edit-application");
-  };
+  // const onEdit = application => {
+  //   setApplicationToEdit(application);
+  //   navigate("/edit-application");
+  // };
 
   // Get applications and contacts data
   useEffect(() => {
@@ -112,11 +115,18 @@ function ApplicationPage({ setApplicationToEdit }) {
         <ApplicationList 
           applications={applications} 
           onDelete={onDelete}
-          onEdit={onEdit}></ApplicationList>
-        <p>
+          /*onEdit={onEdit}>*/
+          /* <p>
           <Link to="/add-application">Add a New Application</Link>
-        </p>
+            </p> */
+        ></ApplicationList>
       </div>
+      <br />
+      <SlidingWindow
+      Page={AddApplicationPage}
+      buttonName="AddNewApplication"
+      />
+
     </>
   );
 }
