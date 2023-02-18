@@ -1,7 +1,8 @@
 import React from 'react';
 import Contact from './Contact';
 
-function ContactList({ contacts, onDelete, onEdit, sorting }) {
+function ContactList({ contacts, onDelete, sorting }) {
+  
   return (
     <table id="contacts">
       <thead>
@@ -17,9 +18,9 @@ function ContactList({ contacts, onDelete, onEdit, sorting }) {
         </tr>
       </thead>
       <tbody>
-        {contacts.map((contact, i) => <Contact contact={contact}
+        {contacts.map((contact, i) => <Contact 
+          contact={contact}
           onDelete={onDelete}
-          onEdit={onEdit}
           key={i} />)}
       </tbody>
     </table>

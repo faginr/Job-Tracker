@@ -57,7 +57,7 @@ router.post("/", function (req, res) {
   
   // create object with new application data
   const default_values = {
-    'skills': "",
+    'skills': [],
     'contacts': "",
     'posting_date': "",
     'status': "",

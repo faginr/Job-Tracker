@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { datastore_url } from '../utils/Constants'
 
 export const AddApplicationPage = () => {
   
@@ -26,7 +27,7 @@ export const AddApplicationPage = () => {
       link 
     };
 
-    const response = await fetch('/applications', {
+    const response = await fetch(`${datastore_url}/applications`, {
       method: 'POST',
       body: JSON.stringify(newApplication),
       headers: {

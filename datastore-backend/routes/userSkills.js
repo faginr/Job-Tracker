@@ -35,14 +35,25 @@ async function addUserSkill(skillData, userData) {
         if (skill.skill_id === skillData.skill_id) {
             if (skillData.proficiency) {
                 skill.proficiency = skillData.proficiency
-                await model.updateItem(userData, 'users')
+                try{
+                    await model.updateItem(userData, 'users')
+                } catch(err){
+                    console.error(err)
+                    console.error(
+                        `Error in GCP updating user ${userData.id} to update skill ${skillData.skill_id}`
+                        )
+                }
             }
             return userData
         }
     }
     
     userData.skills.push(skillData)
-    await model.updateItem(userData, 'users')
+    try{
+        await model.updateItem(userData, 'users')
+    } catch(err){
+        console.error(`Error in GCP updating user ${userData.id} to add skill ${skillData.skill_id}`)
+    }
     return userData
 }
 
@@ -59,7 +70,12 @@ async function deleteSkillFromUser(skillID, userData) {
     }
 
     userData.skills = newUserSkills
-    await model.updateItem(userData, 'users')
+    try{
+        await model.updateItem(userData, 'users')
+    } catch(err){
+        console.error(err)
+        console.error(`Error in GCP updating user ${userData.id} to remove skill ${skillID}`)
+    }
     return userData
 }
 
@@ -74,16 +90,35 @@ async function deleteSkillFromApp(skillID, appData) {
         }
         newSkillIDs.push(id)
     }
-    return await model.updateItem(appData, 'applications')
+    appData.skills = newSkillIDs
+
+    try{
+        return await model.updateItem(appData, 'application')
+    } catch(err){
+        console.error(err)
+        console.error(
+            `Error in GCP updating applications to remove skill ${skillID} from app ${appData.id}`
+            )
+    }
 }
 
 async function deleteSkillFromApps(skillID, userID) {
     let deletedAppRelations = 0
-    const relatedApps = await model.getFilteredItems('applications', 'user_id', userID)
+    let relatedApps = []
+    
+    try{
+        // TODO: uncomment once apps are tied to skills
+        // const relatedApps = await model.getFilteredItems('application', 'user_id', userID)
+        relatedApps = await model.getItemsNoPaginate('application')
+    } catch(err){
+        console.error(err)
+        console.error('Error in GCP getting applications from DB')
+    }
+    
     for(let app of relatedApps) {
         for(let id of app.skills) {
             if(id === skillID) {
-                await deleteSkillFromApp(skillID, appData)
+                await deleteSkillFromApp(skillID, app)
                 deletedAppRelations++
                 break;
             }
@@ -94,10 +129,22 @@ async function deleteSkillFromApps(skillID, userID) {
 
 async function deleteUserSkill(skillID, userData) {
     // delete skill out of users array
-    const newUser = await deleteSkillFromUser(skillID, userData)
+    let newUser = {}
+    try{
+        newUser = await deleteSkillFromUser(skillID, userData)
+    } catch(err){
+        console.error(err)
+        console.error(`Error deleting skill ${skillID} from user ${userData.id}`)
+    }
 
     // delete skill out of all applications
-    const deletedAppRelations = await deleteSkillFromApps(skillID, userData.id)
+    let deletedAppRelations = 0
+    try{
+        deletedAppRelations = await deleteSkillFromApps(skillID, userData.id)
+    } catch(err){
+        console.error(err)
+        console.error(`Error deleting ${skillID} from user ${userData.id}`)
+    }
     return {"user": newUser, "deleted_app_relations": deletedAppRelations}
 }
 
@@ -110,7 +157,7 @@ async function deleteUserSkill(skillID, userData) {
 function createSkillMap(skillArray) {
     const skillMap = {}
     for(let skill of skillArray) {
-        skill['apps'] = []
+        skill['applications'] = []
         skillMap[skill.skill_id] = skill
     }
     return skillMap
@@ -138,13 +185,31 @@ function createSkillMap(skillArray) {
 async function bucketAppsBySkill(userData, skillMap) {
         
     // grab the apps associated with the user
-    const userApps = await model.getFilteredItems('applications', 'user_id', userData.id)
-    userApps.forEach((app) => {
-        app.skills.forEach((skill_id) => {
-            skillMap[skill_id].apps.push({'title': app.title, 'app_id': app.id})
-        })
-    })
+    let userApps = []
 
+    try{
+        // TODO: uncomment once user identification tied to apps
+        // const userApps = await model.getFilteredItems('application', 'user_id', userData.id)
+        userApps = await model.getItemsNoPaginate('application')
+    } catch(err) {
+        console.error(err)
+        console.error('Error in GCP getting user apps')
+    }
+
+    for(let app of userApps){
+        // TODO: delete once all apps have been converted to blank array for skills
+        if(typeof app.skills === 'string' || app.skills instanceof String){
+            continue
+        }
+        for(let skillID of app.skills){
+            try{
+                skillMap[skillID].applications.push({'title': app.title, 'app_id': app.id})
+            } catch(err){
+                console.error(err)
+                console.error('Error - skill exists in app that is not tied to user')
+            }
+        }
+    }
     return Object.values(skillMap)
 }
 
@@ -165,8 +230,14 @@ async function bucketAppsBySkill(userData, skillMap) {
  */
 async function verifySkillExists (req, res, next) {
     const resourceId = req.params.skill_id
-
-    const resource = await model.getItemByID('skills', resourceId)
+    let resource = []
+    
+    try{
+        resource = await model.getItemByID('skills', resourceId)
+    } catch(err){
+        console.error(err)
+        return res.status(500).end()
+    }
 
     if (resource[0] === null || resource[0] === undefined) {
         return res.status(404).send(errorMessages[404].skills)
@@ -186,11 +257,16 @@ async function verifySkillExists (req, res, next) {
  * @param {express.next} next 
  */
 async function verifyUserOwnsSkill (req, res, next) {
-    for(let skill of req.body.user.skills) {
-        if(skill.skill_id === req.params.skill_id){
-            req.body['userSkill'] = skill
-            return next()
+    try{
+        for(let skill of req.body.user.skills) {
+            if(skill.skill_id === req.params.skill_id){
+                req.body['userSkill'] = skill
+                return next()
+            }
         }
+    } catch(err) {
+        console.error(err)
+        return res.status(500).end()
     }
     return res.status(403).send(messages[403])
 }
@@ -237,16 +313,21 @@ function verifyAcceptHeader (req, res, next) {
  * @param {express.next} next 
  */
 function verifyRequestBodyKeys (req, res, next) {
-    // body can be either blank, or only proficiency passed
-    let keyLength = Object.keys(req.body).length
-    let profDefined = (req.body.proficiency !== undefined)
-
-    if (keyLength < 1) {
-        next()
-    } else if (keyLength === 1 && profDefined) {
-        next()
-    } else {
-        return res.status(400).send(messages[400].keyError)
+    try {
+        // body can be either blank, or only proficiency passed
+        let keyLength = Object.keys(req.body).length
+        let profDefined = (req.body.proficiency !== undefined)
+    
+        if (keyLength < 1) {
+            next()
+        } else if (keyLength === 1 && profDefined) {
+            next()
+        } else {
+            return res.status(400).send(messages[400].keyError)
+        }
+    } catch(err){
+        console.error(err)
+        return res.status(500).end()
     }
 }
 
@@ -343,7 +424,7 @@ router.delete('/:user_id/skills/:skill_id',
             const deleteInfo = await deleteUserSkill(req.body.skill.id, req.body.user)
             res.status(200).send(deleteInfo)
         } catch(err) {
-            console.err(err)
+            console.error(err)
             res.status(500).end()
         }
     }

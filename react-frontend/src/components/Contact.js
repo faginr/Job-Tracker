@@ -1,7 +1,12 @@
 import React from 'react';
-import { MdDeleteForever, MdEdit } from 'react-icons/md';
+import { MdDeleteForever } from 'react-icons/md';
+import AppsNamesLinks from './AppsNamesLinks';
+import EditContactPage from '../pages/EditContactPage';
+import SlidingWindow from './SlidingWindow';
 
-function Contact({ contact, onDelete, onEdit }) {
+
+function Contact({ contact, onDelete }) {
+
   return (
     <tr>
       <td>{contact.first_name}</td>
@@ -9,11 +14,18 @@ function Contact({ contact, onDelete, onEdit }) {
       <td>{contact.email}</td>
       <td>{contact.phone}</td>
       <td>{contact.notes}</td>
-      <td><a href={contact.contact_at_link}>{contact.contact_at_name}</a></td>
-      <td><MdEdit onClick={() => onEdit(contact)} /></td>
-      <td><MdDeleteForever onClick={() => onDelete(contact.id)} /></td>
+      <td>{contact.arrayAppsNames.map((application, i) => <AppsNamesLinks
+        application={application}
+        key={i} />)}</td>
+      <td>
+        <SlidingWindow 
+          Page={EditContactPage} 
+          buttonName="EditIcon"
+          contact={contact} />
+      </td>
+      <td><MdDeleteForever onClick={() => onDelete(contact.id, contact.contact_at_app_id)} /></td>
     </tr>
-  );
-}
+  )
+};
 
 export default Contact;

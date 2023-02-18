@@ -1,0 +1,778 @@
+{
+	"info": {
+		"_postman_id": "e1b5c48a-9a10-40cc-9bc0-55ad6997c09a",
+		"name": "Skills",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23541433"
+	},
+	"item": [
+		{
+			"name": "Get All Skills",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// set a num_skills variable to be able to track add/subtract\r",
+							"pm.collectionVariables.set(\"num_skills\", pm.response.json().length);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Skill",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"\r",
+							"// add skill_id to collection vars\r",
+							"pm.collectionVariables.set(\"skill_id\", res.id);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"description\": \"Go\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Skills - Skill Added",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Skill Added\", function () {\r",
+							"    pm.expect(pm.response.json().length).to.eql(pm.collectionVariables.get(\"num_skills\")+1)\r",
+							"})\r",
+							"\r",
+							"// update num_skills variable to be able to track add/subtract\r",
+							"pm.collectionVariables.set(\"num_skills\", pm.response.json().length);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Duplicate Skill",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// response will be same as if new skill is created, but it\r",
+							"// won't actually be posted to the database.\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Respond With Existing Skill\", function () {\r",
+							"    pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get(\"skill_id\"))\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"description\": \"Go\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Skills - Skill NOT Added",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Skill NOT Added\", function () {\r",
+							"    pm.expect(pm.response.json().length).to.eql(pm.collectionVariables.get(\"num_skills\"))\r",
+							"})\r",
+							"\r",
+							"// update num_skills variable to be able to track add/subtract\r",
+							"pm.collectionVariables.set(\"num_skills\", pm.response.json().length);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a User's Skills",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"pm.collectionVariables.set(\"user_skill_length\", res.length)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Assign Skill to User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a User's Skills Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"pm.test(\"Skill Added to User\", function () {\r",
+							"    pm.expect(res.length).to.eql(pm.collectionVariables.get(\"user_skill_length\")+1)\r",
+							"})\r",
+							"pm.collectionVariables.set(\"user_skill_length\", res.length)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Specific Skill for User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"pm.test(\"Skill ID Matches\", function () {\r",
+							"    pm.expect(res.id).to.eql(pm.collectionVariables.get(\"skill_id\"))\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Default Prof. is Null\", function () {\r",
+							"    pm.expect(res.proficiency).to.eql(null)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency Empty Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"proficiency\": 4\n}"
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency Invalid Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"proficiency\": 7\n}"
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency Invalid Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"proficiency\": \"7\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency Invalid Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"invalid\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User's Skill Proficiency Invalid Keys",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"can't change!\",\n    \"proficiency\": 3\n}"
+				},
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User's Skill - Didn't Change",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"pm.test(\"Skill ID Matches\", function () {\r",
+							"    pm.expect(res[0].skill_id).to.eql(pm.collectionVariables.get(\"skill_id\"))\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Default Prof. is Null\", function () {\r",
+							"    pm.expect(res[0].proficiency).to.eql(4)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user's skill",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let res = pm.response.json()\r",
+							"// TODO: look at returned user and count to see if correctly deleted"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url_local}}/users/{{user_id}}/skills/{{skill_id}}",
+					"host": [
+						"{{app_url_local}}"
+					],
+					"path": [
+						"users",
+						"{{user_id}}",
+						"skills",
+						"{{skill_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token_user1}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "skill_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "num_skills",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_skill_length",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

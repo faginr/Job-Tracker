@@ -9,8 +9,6 @@ import AddApplicationPage from './pages/AddApplicationPage';
 import EditApplicationPage from './pages/EditApplicationPage';
 import SkillPage from './pages/SkillPage';
 import ContactPage from './pages/ContactPage';
-import AddContactPage from './pages/AddContactPage';
-import EditContactPage from './pages/EditContactPage';
 import NotFound from './pages/NotFound';
 import CallBackPage from './pages/CallBackPage';
 
@@ -21,7 +19,6 @@ import Footer from './components/Footer';
 
 function App() {
   const [applicationToEdit, setApplicationToEdit] = useState();
-  const [contactToEdit, setContactToEdit] = useState();
   const [featureChild, setFeatureChild] = useState()
   const [featureClass, setFeatureClass] = useState("hidden")
 
