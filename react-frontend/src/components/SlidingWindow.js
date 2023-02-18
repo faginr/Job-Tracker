@@ -13,7 +13,7 @@ function SlidingWindow({ Page, buttonName, contact }) {
   // options when called by Contact Pages
   if (buttonName === "AddNewContact") {
     buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
-                      AddNewContact
+                      Add New Contact
                     </button>);
   };
   if (buttonName === "EditIcon") {
