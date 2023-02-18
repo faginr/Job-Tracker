@@ -84,7 +84,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                 <h2>
                     Tied to Applications:
                     <ul>
-                        {skillToEdit?.apps.map((app) => {
+                        {skillToEdit?.applications.map((app) => {
                             return (
                                 <li>{app.title ?? "missing title"}</li>
                                 )
