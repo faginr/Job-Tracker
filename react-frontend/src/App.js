@@ -52,9 +52,7 @@ function App() {
               <Route path="/add-application" element={<AddApplicationPage />} />
               <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
               <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
-              <Route path="/contacts" element={<ContactPage setContactToEdit={setContactToEdit} />} />
-              <Route path="/add-contact" element={<AddContactPage />} />
-              <Route path="/edit-contact" element={<EditContactPage contactToEdit={contactToEdit} />} />
+              <Route path="/contacts" element={<ContactPage />} />
               <Route path="/callback" element={<CallBackPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
