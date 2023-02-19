@@ -23,11 +23,11 @@ function LogInSignUp() {
 
     return(
         <div className="login-signup">
-            <button onClick={handleLogin}>
+            <button className="button-login" onClick={handleLogin}>
                 Log In
             </button>
 
-            <button onClick={handleSignup}>
+            <button className="button-signup" onClick={handleSignup}>
                 Sign Up
             </button>
         </div>
