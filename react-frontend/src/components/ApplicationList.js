@@ -18,8 +18,9 @@ function ApplicationList({ applications, onDelete }) {
         </tr>
       </thead>
       <tbody>
-        {applications.map((application, i) => <Application application={application}
-          onDelete={onDelete}
+        {applications.map((application, i) => <Application 
+        application={application}
+        onDelete={onDelete}
           // onEdit={onEdit}
           key={i} />)}
       </tbody>

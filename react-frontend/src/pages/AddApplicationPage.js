@@ -14,9 +14,9 @@ export const AddApplicationPage = () => {
   const [link, setLink] = useState('');
 
   let contacts = []
-  // const [selectedContacts, setSelectedContacts] = useState([]);
+  const [selectedContacts, setSelectedContacts] = useState([]);
   // let skills = []
-  const [selected, setSelected] = useState([]);
+  // const [selectedSkills, setSelectedSkills] = useState([]);
 
   let [buildContacts, setContacts] = useState([]);
   // let [buildSkills, setSkills] = useState([]);
@@ -28,13 +28,13 @@ export const AddApplicationPage = () => {
     e.preventDefault();
 
     // push each element id into skills
-    // for (let element of selected) {
+    // for (let element of selectedSkills) {
     //   console.log(element)
     //   skills.push(element.id)
     // }
 
-    // push each element id into contacts
-    for (let element of selected) {
+    // push each element id selected into contacts
+    for (let element of selectedContacts) {
       console.log(element)
       contacts.push(element.id)
     }
@@ -69,30 +69,50 @@ export const AddApplicationPage = () => {
     }
    
 
-    // update Contacts
+    // update - See if there is at least one contact added
     if (contacts.length > 0) {
 
-      const newContact = await response.json();
+      // get newly posted application by id
+      const newApp = await response.json();
 
+      // Loop through each contact
       for(let contact of contacts) {
 
+        // GET the contact
         const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
           },
         });
+        // See response status of GET
         if (contactResponse.status === 200) {
           console.log(`GET ${contact} success 200`);
         } else {
           console.log(`GET ${contact} failure ${contactResponse.status}`);
         }
 
+      // convert data to json
       const data = await contactResponse.json();
-      console.log(data);
-      // const newContacts = [];
-      // for (let contact of data.contact_at_)
 
+      // Put all previous app ids into new array, add newly posted app id
+      const updateContact = { contact_at_app_id: data.contact_at_app_id }
+      updateContact["contact_at_app_id"].push(`${newApp.id}`) 
+      
+      // alert(JSON.stringify(updateContact))
+      const responsePatch = await fetch(`${datastore_url}/contacts/${contact}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateContact),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      // See response status of GET
+      if (responsePatch.status === 200) {
+        console.log(`PATCH ${contact} success 200`);
+      } else {
+        console.log(`PATCH ${contact} failure ${responsePatch.status}`);
+      }
 
     }
 
@@ -108,8 +128,9 @@ const loadContacts = async () => {
 }
 
 // const loadSkills = async () => {
-//   const response = await fetch(`${datastore_url}/constants`);
+//   const response = await fetch(`${datastore_url}/skills`);
 //   const data = await response.json();
+//   console.log(data)
 //   setSkills(data);
 // }
 
@@ -169,16 +190,16 @@ useEffect(() => {
         <p>Skills:</p>
         <SelectMulti
         items={buildSkills}
-        selected={selected}
-        setSelectedSkills={setSelected}
+        selected={selectedSkills}
+        setSelected={setSelectedSkills}
         />
       </div> */}
       <div className="select">
         <p>Contacts:</p>
         <SelectMulti
         items={buildContacts}
-        selected={selected}
-        setSelected={setSelected}
+        selected={selectedContacts}
+        setSelected={setSelectedContacts}
         />
       </div>
       <input
