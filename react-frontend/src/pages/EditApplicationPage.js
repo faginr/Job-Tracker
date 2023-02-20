@@ -7,7 +7,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   
   const startingContacts = typeToEdit.contacts
 
-  console.log(typeToEdit);
+  // console.log(typeToEdit);
   const [title, setTitle] = useState(typeToEdit.title);
   const [description, setDescription] = useState(typeToEdit.description);
   const [skills, setSkill] = useState(typeToEdit.skills);
@@ -69,8 +69,9 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
     // push each element id selected into contacts
     for (let element of selectedContacts) {
-      console.log(element)
+      // console.log(element)
       contacts.push(element.id)
+
     }
 
     // define all values for edited app
@@ -204,12 +205,14 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
   function contactNames() {
     for (let contact of typeToEdit.contacts){
+      console.log(contact)
       for (let id of buildContacts){
         if (contact === id.id){
-          displayContacts.push(contact.first_name + " " + contact.last_name);
+          displayContacts.push(contact);
         }
       }
     };
+    // console.log(displayContacts)
 
     if (displayContacts.length === 0) {
       displayLabel = 'None';
@@ -217,6 +220,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       displayLabel = JSON.stringify(displayContacts);
       displayLabel = displayLabel.slice(1,-1);
     }
+    // console.log(displayLabel)
   }
   contactNames();
 
