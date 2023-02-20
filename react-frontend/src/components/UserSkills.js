@@ -42,7 +42,7 @@ function UserSkills({userSkills, handleClickAction}) {
                 {/* color RED if on more than 5 applications */}
                 <p>Medium Proficiency Skills</p>
                 {userSkills?.med?.map((skill) => {
-                    return (skill.apps.length > 5 ? alertSkill(skill) : normalSkill(skill))
+                    return (skill.applications.length > 5 ? alertSkill(skill) : normalSkill(skill))
                 })}
             </div>
             <hr />
@@ -52,7 +52,7 @@ function UserSkills({userSkills, handleClickAction}) {
                 {/* color RED if on more than 2 applications */}
                 <p>Low Proficiency Skills</p>
                 {userSkills?.low?.map((skill) => {
-                    return(skill.apps.length > 2 ? alertSkill(skill) : normalSkill(skill))
+                    return(skill.applications.length > 2 ? alertSkill(skill) : normalSkill(skill))
                 })}
             </div>
             <hr />

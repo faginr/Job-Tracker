@@ -1,5 +1,6 @@
 import React, {useState} from "react";
-import { user } from "./User";
+import { user } from "../utils/User";
+import { datastore_url } from "../utils/Constants";
 
 function SkillForm({skillToEdit, handleFormSubmittal}) {
     const [skill, setSkill] = useState(skillToEdit===undefined?{}:skillToEdit)
@@ -19,7 +20,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
 
     async function handleDelete(e) {
         e.preventDefault()
-        const response = await fetch(`users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
+        const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -32,7 +33,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
     }
 
     async function sendUpdate(skill) {
-        const response = await fetch(`users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
+        const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -46,7 +47,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
     }
 
     async function sendNew(skill) {
-        const response = await fetch(`/skills`, {
+        const response = await fetch(`${datastore_url}/skills`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -83,7 +84,7 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
                 <h2>
                     Tied to Applications:
                     <ul>
-                        {skillToEdit?.apps.map((app) => {
+                        {skillToEdit?.applications.map((app) => {
                             return (
                                 <li>{app.title ?? "missing title"}</li>
                                 )

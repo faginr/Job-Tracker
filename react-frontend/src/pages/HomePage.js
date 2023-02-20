@@ -1,4 +1,4 @@
-import { setUser } from '../components/User';
+import { setUser } from '../utils/User';
 import React from 'react';
 import icon from '../images/icon.png';
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { datastore_url } from '../components/Constants';
 import SelectMulti from '../components/SelectMulti';
+import { datastore_url } from '../utils/Constants'
+
 
 export const AddApplicationPage = () => {
   

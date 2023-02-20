@@ -13,7 +13,7 @@ function SlidingWindow({ Page, buttonName, type }) {
   // options when called by Contact Pages
   if (buttonName === "AddNewContact") {
     buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
-                      AddNewContact
+                      Add New Contact
                     </button>);
   };
 
@@ -38,6 +38,7 @@ function SlidingWindow({ Page, buttonName, type }) {
           overlayClassName="some-custom-overlay-class"
           isOpen={state.isPaneOpen}
           title="Close"
+          subtitle="to ignore any changes"
           onRequestClose={() => {
             // triggered on "<" on left top click or on outside click
             setState({ isPaneOpen: false });

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import UserSkills from '../components/UserSkills';
 import SkillForm from '../components/SkillForm';
 import DisplayButton from '../components/DisplayButton';
-import { user } from '../components/User';
+import { user } from '../utils/User';
 import AddSkill from '../components/AddSkill';
+import {datastore_url} from '../utils/Constants';
 
 function SkillPage({setFeatureChild}) {
   const [skills, setSkills] = useState({})
@@ -43,7 +44,7 @@ function SkillPage({setFeatureChild}) {
   }
 
   async function loadUserSkills() {
-    const response = await fetch(`/users/${JSON.parse(user).sub}/skills`, {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
       headers: {
         'Authorization': `Bearer ${user}`
       }
