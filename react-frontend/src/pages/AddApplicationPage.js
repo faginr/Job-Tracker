@@ -8,13 +8,13 @@ export const AddApplicationPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [skills, setSkill] = useState('');
-  // const [contacts, setContact] = useState('');
   const [posting_date, setPostingDate] = useState('');
   const [status, setStatus] = useState('');
   const [link, setLink] = useState('');
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
+  // Figure out auth with Philip
   // let skills = []
   // const [selectedSkills, setSelectedSkills] = useState([]);
 

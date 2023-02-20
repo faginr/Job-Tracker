@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import SlidingPane from "react-sliding-pane";
 import { MdEdit } from 'react-icons/md';
 
-function SlidingWindow({ Page, buttonName, contact }) {
+function SlidingWindow({ Page, buttonName, type }) {
 
   const [state, setState] = useState({isPaneOpen: false});
 
@@ -17,16 +17,17 @@ function SlidingWindow({ Page, buttonName, contact }) {
                     </button>);
   };
 
+  // applications
   if (buttonName === "AddNewApplication") {
     buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
     Add New Application
     </button>)
   }
 
+  // shared
   if (buttonName === "EditIcon") {
     buttonElement = (<MdEdit onClick={() => setState({ isPaneOpen: true })} />);
   };
-  
 
   return (
     <div>
@@ -42,7 +43,7 @@ function SlidingWindow({ Page, buttonName, contact }) {
             setState({ isPaneOpen: false });
           }} >
 
-          <Page contactToEdit={contact} />
+          <Page typeToEdit={type} />
           
         </SlidingPane>
       </div>

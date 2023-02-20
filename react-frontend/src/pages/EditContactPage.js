@@ -4,18 +4,18 @@ import { datastore_url } from '../components/Constants';
 import SelectMulti from '../components/SelectMulti';
 
 
-export const EditContactPage = ({ contactToEdit }) => {
+export const EditContactPage = ({ typeToEdit }) => {
   
   const navigate = useNavigate();   // hook to navigate among the pages
 
   // store the original application id's if replaced by new application
-  const originalApplication = contactToEdit.contact_at_app_id
+  const originalApplication = typeToEdit.contact_at_app_id
 
-  const [last_name, setLastName] = useState(contactToEdit.last_name);
-  const [first_name, setFirstName] = useState(contactToEdit.first_name);
-  const [email, setEmail] = useState(contactToEdit.email);
-  const [phone, setPhone] = useState(contactToEdit.phone);
-  const [notes, setNotes] = useState(contactToEdit.notes);
+  const [last_name, setLastName] = useState(typeToEdit.last_name);
+  const [first_name, setFirstName] = useState(typeToEdit.first_name);
+  const [email, setEmail] = useState(typeToEdit.email);
+  const [phone, setPhone] = useState(typeToEdit.phone);
+  const [notes, setNotes] = useState(typeToEdit.notes);
   
   let contact_at_app_id = [];
   const [selected, setSelected] = useState([]);
@@ -55,11 +55,11 @@ export const EditContactPage = ({ contactToEdit }) => {
     // if no changes, do nothing
     if (visibleRemoveButton === true
         && selected.length === 0
-        && last_name === contactToEdit.last_name 
-        && first_name === contactToEdit.first_name
-        && email === contactToEdit.email
-        && phone === contactToEdit.phone
-        && notes === contactToEdit.notes) {
+        && last_name === typeToEdit.last_name 
+        && first_name === typeToEdit.first_name
+        && email === typeToEdit.email
+        && phone === typeToEdit.phone
+        && notes === typeToEdit.notes) {
       console.log ('no changes');
       return navigate(0);
     };
@@ -84,7 +84,7 @@ export const EditContactPage = ({ contactToEdit }) => {
 
     // PUT the contact
     const response = await fetch(
-      `${datastore_url}/contacts/${contactToEdit.id}`, 
+      `${datastore_url}/contacts/${typeToEdit.id}`, 
       {
         method: 'PUT',
         body: JSON.stringify(editedContact),
@@ -119,7 +119,7 @@ export const EditContactPage = ({ contactToEdit }) => {
           const data = await responseGetApp.json();
           const appContacts = [];
           for (let contact of data.contacts) {
-            if (contact !== contactToEdit.id) {
+            if (contact !== typeToEdit.id) {
               appContacts.push(contact)
             }
           };
@@ -161,7 +161,7 @@ export const EditContactPage = ({ contactToEdit }) => {
 
           const data = await responseGetApp.json();
           const appContacts = data.contacts;
-          appContacts.push(contactToEdit.id)
+          appContacts.push(typeToEdit.id)
           const updatedNewApplication = { contacts: appContacts };
 
           // PATCH the new application
@@ -217,7 +217,7 @@ export const EditContactPage = ({ contactToEdit }) => {
    * and get the name of applications related to the contact
    ************************************************************/
   function applicationNames() {
-    for (let contactApp of contactToEdit.contact_at_app_id) {
+    for (let contactApp of typeToEdit.contact_at_app_id) {
       for (let app of apps) {
         if (contactApp === app.id) {
           contactAtNameArray.push(app.title);

@@ -21,7 +21,7 @@ function Contact({ contact, onDelete }) {
         <SlidingWindow 
           Page={EditContactPage} 
           buttonName="EditIcon"
-          contact={contact} />
+          type={contact} />
       </td>
       <td><MdDeleteForever onClick={() => onDelete(contact.id, contact.contact_at_app_id)} /></td>
     </tr>

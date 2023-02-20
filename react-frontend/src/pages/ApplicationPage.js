@@ -95,7 +95,7 @@ function ApplicationPage() {
   }
 
   // const onEdit = application => {
-  //   setApplicationToEdit(application);
+  //   settypeToEdit(application);
   //   navigate("/edit-application");
   // };
 

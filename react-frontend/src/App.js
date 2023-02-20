@@ -15,7 +15,7 @@ import Navigation from './components/Navigation';
 import FeaturePane from './components/FeaturePane';
 
 function App() {
-  const [applicationToEdit, setApplicationToEdit] = useState();
+  const [typeToEdit, settypeToEdit] = useState();
   const [featureChild, setFeatureChild] = useState()
   const [featureClass, setFeatureClass] = useState("hidden")
 
@@ -48,11 +48,11 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               
-              <Route path="/applications" element={<ApplicationPage setApplicationToEdit={setApplicationToEdit} />} />
+              <Route path="/applications" element={<ApplicationPage settypeToEdit={settypeToEdit} />} />
               
               <Route path="/add-application" element={<AddApplicationPage />} />
               
-              <Route path="/edit-application" element={<EditApplicationPage applicationToEdit={applicationToEdit} />} />
+              <Route path="/edit-application" element={<EditApplicationPage typeToEdit={typeToEdit} />} />
               
               <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
               

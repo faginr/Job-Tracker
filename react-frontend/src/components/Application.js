@@ -17,7 +17,7 @@ function Application({ application, onDelete, onEdit }) {
         <SlidingWindow
         Page={EditApplicationPage}
         buttonName="EditIcon"
-        application={application}
+        type={application}
         />
       </td>
       {/* <td><MdEdit onClick={() => onEdit(application)} /></td> */}
