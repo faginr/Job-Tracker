@@ -195,6 +195,26 @@ th {
   width: 50%; 
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-app{
+  max-width: 20rem;
+  min-width: 20rem;
+}
+
+.edit-app{
+  max-width: 20rem;
+  min-width: 20rem;
+}
+
+.edit-description {
+  max-width: 30rem;
+}
+
+
 /*
 Sliding pane 
 Source: https://www.npmjs.com/package/react-sliding-pane?activeTab=readme

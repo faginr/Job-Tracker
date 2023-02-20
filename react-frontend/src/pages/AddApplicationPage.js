@@ -168,16 +168,21 @@ useEffect(() => {
 
   
   return (
-    <div>
+    <div className="container">
       <form onSubmit={addApplication}>
       <h1>Add Application</h1>
+      <label>Title:</label>
+      <br />
       <input
+      className='add-app'
         required
         type="text"
         placeholder="Enter Title (required)"
         value={title}
         onChange={e => setTitle(e.target.value)} />
         <br />
+      <label>Description:</label>
+      <br />
       <textarea
         required
         type="text"
@@ -195,14 +200,18 @@ useEffect(() => {
         />
       </div> */}
       <div className="select">
-        <p>Contacts:</p>
+        <label>Contacts:</label>
+        <br />
         <SelectMulti
         items={buildContacts}
         selected={selectedContacts}
         setSelected={setSelectedContacts}
         />
       </div>
+      <label>Skills:</label>
+      <br />
       <input
+      className='add-app'
         type="text"
         placeholder="Enter Skill"
         value={skills}
@@ -212,16 +221,27 @@ useEffect(() => {
         placeholder="Enter Contact"
         value={contacts}
         onChange={e => setContact(e.target.value)} /> */}
+        <br />
+      <label>Posting Date:</label>
+      <br />
       <input
+      className='add-app'
         type="date"
         placeholder="Enter Posting Date"
         value={posting_date}
         onChange={e => setPostingDate(e.target.value)} />
-      <select onChange={e => setStatus(e.target.value)}>
+        <br />
+      <label>Status:</label>
+      <br />
+      <select className="status" onChange={e => setStatus(e.target.value)}>
           <option>Applied</option>
           <option>Not Applied</option>
       </select>
+      <br />
+      <label>External Link:</label>
+      <br />
       <input
+      className='add-app'
         type="url"
         placeholder="Enter Link"
         value={link}

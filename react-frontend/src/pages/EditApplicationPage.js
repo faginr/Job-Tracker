@@ -249,9 +249,10 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       <form onSubmit={editApplication}>
       <h1>Edit Application</h1>
 
-      <div className="wrapper">
-      <label className="one">Title:</label>
+      <div className="container">
+      <label className="">Title:</label>
       <input
+        className="edit-app"
         required
         type="text"
         placeholder="Enter Title (required)"
@@ -259,6 +260,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         onChange={e => setTitle(e.target.value)} />
       <label className="">Description:</label>
       <textarea
+      className='edit-description'
         required
         type="text"
         rows="25"
@@ -268,23 +270,28 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         onChange={e => setDescription(e.target.value)} />
       <label className="">Skills:</label>
       <input
+      className="edit-app"
         type="text"
         placeholder="Enter Skill"
         value={skills}
         onChange={e => setSkill(e.target.value)} />
       <label className="">Posting Date:</label>
       <input
+      className="edit-app"
         type="date"
         placeholder="Enter Posting Date"
         value={posting_date}
         onChange={e => setPostingDate(e.target.value)} />
       <label className="">Status:</label>
-      <select onChange={e => setStatus(e.target.value)}>
+      <select 
+      className="edit-app"
+      onChange={e => setStatus(e.target.value)}>
           <option>Applied</option>
           <option>Not Applied</option>
       </select>
       <label className="">Link:</label>
       <input
+      className="edit-app"
         type="url"
         placeholder="Enter Link"
         value={link}
