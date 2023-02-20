@@ -50,10 +50,11 @@ function ContactUserInputs({
         onChange={e => setPhone(e.target.value)} /><br />
 
       <label className='five'>Notes:</label>
-      <input className='five-two'
+      <textarea className='five-two'
         type="text"
-        maxLength="250"
-        placeholder="optional field (max 250 characters)"
+        rows="8"
+        maxLength="500"
+        placeholder="optional field (max 500 characters)"
         value={notes}
         onChange={e => setNotes(e.target.value)} />
 
