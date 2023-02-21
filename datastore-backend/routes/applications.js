@@ -58,11 +58,12 @@ router.post("/", function (req, res) {
   // create object with new application data
   const default_values = {
     'skills': [],
-    'contacts': "",
+    'contacts': [],
     'posting_date': "",
     'status': "",
     'link': "",
   }
+
   const new_application = {
     'title': req.body.title,
     'description': req.body.description,
@@ -77,6 +78,11 @@ router.post("/", function (req, res) {
   if (req.body.skills === undefined){
     new_application["skills"] = default_values["skills"]
   }
+  // else {
+  //   for (let skill of req.body.skills){
+  //     new_application["skills"].push(skill)
+  //   }
+  // }
   if (req.body.contacts === undefined){
     new_application["contacts"] = default_values["contacts"]
   }

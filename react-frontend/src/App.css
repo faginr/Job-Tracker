@@ -145,9 +145,9 @@ th {
 
 .wrapper {
   display: grid;
-  grid-template-columns: repeat(50, auto);
+  grid-template-columns: 100px 400px;
   gap: 10px;
-  grid-auto-rows: minmax(30px, auto);
+  grid-auto-rows: auto auto auto auto auto;
 }
 .one {
   grid-column: 1/2;
@@ -188,12 +188,33 @@ th {
 .five-two {
   grid-column: 2/2;
   grid-row: 5;
+  font-family: arial;
 }
 
 /* MultiSelect */
 .select {
   width: 50%; 
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-app{
+  max-width: 20rem;
+  min-width: 20rem;
+}
+
+.edit-app{
+  max-width: 20rem;
+  min-width: 20rem;
+}
+
+.edit-description {
+  max-width: 30rem;
+}
+
 
 /*
 Sliding pane 
