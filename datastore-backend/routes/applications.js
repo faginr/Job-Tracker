@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const model = require('../model')
+const verifyUser = require('./middleware/verifyUser')
 
 const ds = require('../datastore');
 
@@ -116,7 +117,7 @@ router.post("/", function (req, res) {
 
 // GET all applications route
 
-router.get("/", function (req, res) {
+router.get("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , function (req, res) {
   console.log("Get all requests received!");
 
   // Get all entities by kind 'application'
@@ -127,20 +128,20 @@ router.get("/", function (req, res) {
 
 // GET application by id route
 
-router.get("/:id", function (req, res) {
+router.get("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserParam, function (req, res) {
   console.log("Get request received!");
   
   // Test for invalid request 
   if (
-    verify_id(req.params.id) 
-    || verify_not_blank(req.params.id)
+    verify_id(req.params.app_id) 
+    || verify_not_blank(req.params.app_id)
     ){
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
 
   // Get entity by kind and id
-  model.getItemByID('application', req.params.id)
+  model.getItemByID('application', req.params.app_id)
   .then((application) => {
 
     // Check if application data is blank (doesn't exist)

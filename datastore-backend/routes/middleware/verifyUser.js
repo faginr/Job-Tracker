@@ -12,18 +12,38 @@ const model = require("../../model")
  * @returns 
  */
 function extractUserInfo (decodedJWT) {
-    const userInfo = {
-        "username": decodedJWT.username,
-        "id": parseInt(decodedJWT.sub, 10)
+    const blankUserInfo = {
+        "username": null,
+        "id": null
+    }
+    if (decodedJWT !== undefined && decodedJWT !== null){
+        const userInfo = {
+            "username": decodedJWT.username,
+            "id": parseInt(decodedJWT.sub, 10)
+        }
+        return userInfo
     }
 
-    return userInfo
+    return blankUserInfo
 }
 
 function fakeDecode(token, req) {
     // token is a JSON object as string like "Bearer <Token>"
     // so slice token to only get <Token> part
-    req.body['auth'] = JSON.parse(token.slice(7))
+    // try{
+    //     JSON.parse(token);
+    if (token !== undefined && token !== null){
+        req.body['auth'] = JSON.parse(token.slice(7))
+    }
+    // }
+    // catch (err) {
+    //     if (err instanceof SyntaxError){
+    //         console.error('Invalid JSON:', err.message);
+    //     } else {
+    //         throw err;
+    //     }
+    // }
+    
 }
 
 /**
