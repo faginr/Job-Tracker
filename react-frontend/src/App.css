@@ -145,9 +145,9 @@ th {
 
 .wrapper {
   display: grid;
-  grid-template-columns: repeat(50, auto);
+  grid-template-columns: 100px 400px;
   gap: 10px;
-  grid-auto-rows: minmax(30px, auto);
+  grid-auto-rows: auto auto auto auto auto;
 }
 .one {
   grid-column: 1/2;

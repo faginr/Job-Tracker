@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { datastore_url } from '../components/Constants';
+import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
-
+import ContactUserInputs from '../components/ContactUserInputs';
 
 export const EditContactPage = ({ typeToEdit }) => {
   
@@ -32,6 +32,7 @@ export const EditContactPage = ({ typeToEdit }) => {
    ************************************************************/
   const [visibleRemoveButton, setVisibleRemoveButton] = useState(true);
   const [visibleUndoButton, setVisibleUndoButton] = useState(false);
+  const [visibleText, setVisibleText] = useState(false);
 
   const show = (e) => {
     e.preventDefault();
@@ -244,6 +245,7 @@ export const EditContactPage = ({ typeToEdit }) => {
     if (originalApplication.length === 0 ) {
       setVisibleRemoveButton(false);
       setVisibleUndoButton(false);
+      setVisibleText(true);
     };
   }, []);
 
@@ -267,80 +269,55 @@ export const EditContactPage = ({ typeToEdit }) => {
       <form onSubmit={editContact}>
         <h1>Edit Contact</h1>
 
-        <div className='wrapper'>
-
-          <label className='one'>First Name:</label>
-          <input className='one-two'
-            required
-            type="text"
-            value={first_name}
-            placeholder="Enter first name (required)"
-            onChange={e => setFirstName(e.target.value)} /><br />
-
-          <label className='two'>Last Name:</label>
-          <input className='two-two'
-            required
-            type="text"
-            placeholder="Enter last name (required)"
-            value={last_name}
-            onChange={e => setLastName(e.target.value)} /><br />
-            
-          <label className='three'>Email:</label>
-          <input className='three-two'
-            type="text"
-            value={email}
-            placeholder="Enter email"
-            onChange={e => setEmail(e.target.value)} /><br />
-
-          <label className='four'>Phone:</label>
-          <input className='four-two'
-            type="text"
-            placeholder="Enter phone"
-            value={phone}
-            onChange={e => setPhone(e.target.value)} /><br />
-
-          <label className='five'>Notes:</label>
-          <input className='five-two'
-            type="text"
-            placeholder="Enter notes"
-            value={notes}
-            onChange={e => setNotes(e.target.value)} /><br />
-
-        </div>
+        <ContactUserInputs 
+          last_name={last_name}
+          setLastName={setLastName}
+          first_name={first_name}
+          setFirstName={setFirstName}
+          email={email}
+          setEmail={setEmail}
+          phone={phone}
+          setPhone={setPhone}
+          notes={notes}
+          setNotes={setNotes}
+        />
 
         <div  className='select'>
-          {visibleRemoveButton && 
-            <><br />
-              <><b>Your previously selected Application(s):</b></><br /><br />
-              <>{contactAtNameStr}</>
-            </>
-          }
 
-          <div><br />
+          <div>
             {visibleRemoveButton &&
-              <button onClick={hide}>Remove all previous Applications</button>
+              <>
+                <>Your previously selected application(s):<br /></>
+                <br />{contactAtNameStr}<br />
+                <br />There are several options here:
+                <br />You can remove all the selected application(s)<br />
+                <br /><button onClick={hide}>Delete all</button><br />
+                <br />or select new application(s) associated with the contact 
+                <br />or leave it as is.<br /><br />
+              </>
             }
             {visibleUndoButton &&
-              <><button onClick={show}>Undo Remove</button><br /><br /></>
+              <>
+                <>Your previously selected application(s) were deleted.<br /></>
+                <br /><button onClick={show}>Undo Delete</button><br />
+                <br />Select applications associated with the contact (optional):<br /><br />
+              </>
+            }
+
+            {visibleText &&
+              <>Select applications associated with the contact (optional):<br /><br /></>
             }
           </div>
 
-          {visibleRemoveButton &&
-            <><br /><b>or </b>
-            </>
-          }
-
-          <b>select new Applications releated to the contact:</b><br /><br />
           <SelectMulti
             items={apps}
             selected={selected}
             setSelected={setSelected}
             />
 
-          <b><br />or leave as it is.</b>
         </div> 
 
-        <p>
+        <p><br />
         <input type="submit" value="Submit Changes" />
         </p>
       </form>

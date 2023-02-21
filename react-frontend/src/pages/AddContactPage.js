@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { datastore_url } from '../components/Constants';
+import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
-
+import ContactUserInputs from '../components/ContactUserInputs';
 
 export const AddContactPage = () => {
   
@@ -154,51 +154,23 @@ export const AddContactPage = () => {
   return (
     <div>
       <form onSubmit={addContact}>
-        <h1>Add Contact</h1>  
+        <h1>Add Contact</h1>
          
-        <div className='wrapper'>
-
-          <label className='one'>First Name:</label>
-          <input className='one-two'
-            required
-            type="text"
-            value={first_name}
-            placeholder="Enter first name (required)"
-            onChange={e => setFirstName(e.target.value)} /><br />
-
-          <label className='two'>Last Name:</label>
-          <input className='two-two'
-            required
-            type="text"
-            placeholder="Enter last name (required)"
-            value={last_name}
-            onChange={e => setLastName(e.target.value)} /><br />
-            
-          <label className='three'>Email:</label>
-          <input className='three-two'
-            type="text"
-            value={email}
-            placeholder="Enter email"
-            onChange={e => setEmail(e.target.value)} /><br />
-
-          <label className='four'>Phone:</label>
-          <input className='four-two'
-            type="text"
-            placeholder="Enter phone"
-            value={phone}
-            onChange={e => setPhone(e.target.value)} /><br />
-
-          <label className='five'>Notes:</label>
-          <input className='five-two'
-            type="text"
-            placeholder="Enter notes"
-            value={notes}
-            onChange={e => setNotes(e.target.value)} /><br />
-
-        </div>
+        <ContactUserInputs 
+          last_name={last_name}
+          setLastName={setLastName}
+          first_name={first_name}
+          setFirstName={setFirstName}
+          email={email}
+          setEmail={setEmail}
+          phone={phone}
+          setPhone={setPhone}
+          notes={notes}
+          setNotes={setNotes}
+        />
 
         <div className='select'>
-          <p>Select Applications releated to the contact (optional):</p>
+          <>Select applications associated with the contact (optional):<br /><br /></>
           <SelectMulti
             items={apps}
             selected={selected}
@@ -206,7 +178,7 @@ export const AddContactPage = () => {
             />
         </div>
 
-        <p>
+        <p><br />
         <input type="submit" value="Add Contact" />
         </p>
       </form>

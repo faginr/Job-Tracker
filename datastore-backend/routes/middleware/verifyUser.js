@@ -30,20 +30,12 @@ function extractUserInfo (decodedJWT) {
 function fakeDecode(token, req) {
     // token is a JSON object as string like "Bearer <Token>"
     // so slice token to only get <Token> part
-    // try{
-    //     JSON.parse(token);
-    if (token !== undefined && token !== null){
-        req.body['auth'] = JSON.parse(token.slice(7))
+
+    req.body['auth'] = JSON.parse(token.slice(7))
+    if (req.body.auth.username === 'bad'){
+        throw TypeError
     }
-    // }
-    // catch (err) {
-    //     if (err instanceof SyntaxError){
-    //         console.error('Invalid JSON:', err.message);
-    //     } else {
-    //         throw err;
-    //     }
-    // }
-    
+
 }
 
 /**
@@ -151,6 +143,6 @@ function verifyJWTOnly(req, res, next) {
 }
 
 module.exports = {
-    verifyJWTWithUserParam: verifyJWTWithUserParam,
-    verifyJWTOnly: verifyJWTOnly
+    verifyJWTWithUserParam,
+    verifyJWTOnly
 }
