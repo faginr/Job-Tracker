@@ -120,7 +120,7 @@ function checkRequestBodyPatch (req, res, next) {
  * if not, send an error message.
  ************************************************************/
 function checkIdExists (req, res, next) {
-  const key = datastore.key([CONTACT, parseInt(req.params.id, 10)]);
+  const key = datastore.key([CONTACT, parseInt(req.params.contact_id, 10)]);
   return datastore.get(key).then((entity) => {
     if (entity[0] === undefined || entity[0] === null) {
       res.status(404).send(errorMessages[404].contacts);
@@ -139,7 +139,7 @@ function checkIdExists (req, res, next) {
  * The function sends a request to datastore to store the received data 
  * and returns the status code and the key of new created object.
  ************************************************************/
-function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id) {
+function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id, user_id) {
   var key = datastore.key(CONTACT);
   
   const default_values = {
@@ -170,7 +170,8 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_app
     "email": email, 
     "phone": phone, 
     "notes": notes, 
-    "contact_at_app_id": contact_at_app_id 
+    "contact_at_app_id": contact_at_app_id,
+    "user_id": user_id
   };
 
   return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
@@ -309,11 +310,11 @@ router.get('/', checkAcceptHeader, function (req, res) {
 
 
 /************************************************************* 
- * GET the contact_id
+ * GET a contact
  ************************************************************/
-router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
+router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res) {
   //console.log("Get request received!");
-  get_contact(req.params.id)
+  get_contact(req.params.contact_id)
     .then(contact => {
       res.status(200).json(contact[0]) 
     })
@@ -329,13 +330,17 @@ router.get('/:id', checkAcceptHeader, checkIdExists, function (req, res) {
  ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   //console.log("Post request received!");
+  const tempArray = req.baseUrl.split("/");
+  const user_id = tempArray[2];
+
   post_contact(
     req.body.last_name, 
     req.body.first_name, 
     req.body.email, 
     req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_app_id
+    req.body.contact_at_app_id,
+    user_id
     )
     .then(key => { 
       res.status(201).json(key.id) 
@@ -350,10 +355,10 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 /************************************************************* 
  * PUT: replace all values for this contact_id
  ************************************************************/
-router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
+router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   //console.log("Put request received!");
   put_contact(
-    req.params.id, 
+    req.params.contact_id, 
     req.body.last_name, 
     req.body.first_name, 
     req.body.email, 
@@ -375,10 +380,10 @@ router.put('/:id', checkContentTypeHeader, checkRequestBody, checkIdExists, func
  * PATCH: update some values, the received values, 
  * do not change others for this contact_id
  ************************************************************/
-router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
+router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
   //console.log("Patch request received!");
   patch_contact(
-    req.params.id, 
+    req.params.contact_id, 
     req.body.last_name, 
     req.body.first_name, 
     req.body.email, 
@@ -397,11 +402,11 @@ router.patch('/:id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExist
 
 
 /************************************************************* 
- * DELETE this contact_id
+ * DELETE a contact
  ************************************************************/
-router.delete('/:id', checkIdExists, function (req, res) {
+router.delete('/:contact_id', checkIdExists, function (req, res) {
   //console.log("Delete request received!");
-  delete_contact(req.params.id)
+  delete_contact(req.params.contact_id)
     .then(() => {
       res.status(204).end()
     })
@@ -433,7 +438,7 @@ router.delete('/', function (req, res) {
 });
 
 
-router.post('/:id', function (req, res) {
+router.post('/:contact_id', function (req, res) {
   res.set('Accept', 'GET, PUT, PATCH, DELETE');
   res.status(405).send(errorMessages[405].postWithId);
 });
