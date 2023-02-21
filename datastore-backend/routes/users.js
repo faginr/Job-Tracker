@@ -1,11 +1,12 @@
 const express = require('express')
 const model = require('../model')
 const errorMessages = require('./errorMessages')
-const verifyUser = require('./middleware/verifyUser')
+const {verifyJWTWithUserParam, verifyJWTOnly} = require('./middleware/verifyUser')
 
 const router = express.Router()
 
 // body-parser already used at the top app level
+// JWT verifier already used at the top app level
 
 /**
  * Verifies the requester can recieve application/json through the 
@@ -78,7 +79,7 @@ function methodNotAllowed (req, res) {
 /*------------------ USERS ROUTES --------------------------- */
 router.post('/', 
     verifyAcceptHeader,
-    verifyUser.verifyJWTOnly,       // adds username, id under req.body.auth         
+    verifyJWTOnly,       // adds id under req.body.auth         
     verifyUserDoesNotExist,
     async (req, res) => {
         const today = new Date()
@@ -106,7 +107,7 @@ router.delete('/', methodNotAllowed)
 
 router.get('/:user_id', 
     verifyAcceptHeader,
-    verifyUser.verifyJWTWithUserParam,  // adds username, id under req.body.auth   
+    verifyJWTWithUserParam,             // adds id under req.body.auth   
     verifyResourceExists,               // adds user data under req.body.existResource
     async(req, res) => {
         res.status(200).send(req.body.existResource)
@@ -114,7 +115,7 @@ router.get('/:user_id',
 
 router.delete('/:user_id', 
     verifyResourceExists,               // adds user data under req.body.existResource
-    verifyUser.verifyJWTWithUserParam,
+    verifyJWTWithUserParam,
     async (req, res) => {
         const user_id = req.body.existResource.id
         
