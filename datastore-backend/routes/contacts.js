@@ -3,6 +3,7 @@ const router = express.Router();
 const ds = require('../datastore');
 const datastore = ds.datastore;
 const errorMessages = require('./errorMessages');
+const verifyUser = require('./middleware/verifyUser')
 
 // the name of the kind to be stored
 const CONTACT = "contact";
