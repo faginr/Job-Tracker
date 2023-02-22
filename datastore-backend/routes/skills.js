@@ -119,15 +119,16 @@ router.post('/', verifyRequestBodyKeys,
     
     try {
         // check if skill already exists
-        let skill = await model.getFilteredItems('skills', 'description', req.body.description)
-        
-        //  if it does, just send the info back to avoid duplicates
-        if (skill[0] !== null && skill[0] !== undefined) {
-            return res.status(201).send(skill[0])
+        let skills = await model.getItemsNoPaginate('skills')
+        for (let skill of skills){
+            if (skill.description.toLowerCase() === req.body.description.toLowerCase()){
+                //  if it does, just send the info back to avoid duplicates
+                return res.status(201).send(skill)
+            }
         }
-
+        
         // otherwise create it
-        skill = await model.postItem({"description": req.body.description}, 'skills')
+        let skill = await model.postItem({"description": req.body.description}, 'skills')
         return res.status(201).send(skill)
     } catch (err) {
         console.error(err)
