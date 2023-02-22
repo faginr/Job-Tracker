@@ -123,12 +123,10 @@ function ApplicationPage() {
         ></ApplicationList>
       </div>
       <br />
-      <SlidingWindow
-      Page={AddApplicationPage}
-      ClickableComponent={ReactButton}
-      ClickableComponentLabel="Add Application"
-      />
-
+      <SlidingWindow 
+        Page={<AddApplicationPage />}
+        ClickableComponent={<ReactButton label="Add Application"/>}
+        />
     </>
   );
 }

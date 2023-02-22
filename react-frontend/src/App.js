@@ -1,7 +1,6 @@
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React from 'react';
 
 import HomePage from './pages/HomePage';
 import ApplicationPage from './pages/ApplicationPage';
@@ -14,8 +13,6 @@ import NotFound from './pages/NotFound';
 import Navigation from './components/Navigation';
 
 function App() {
-  const [typeToEdit, settypeToEdit] = useState();
-
   return (
     <div>
       <header className="App-header">
@@ -30,13 +27,13 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               
-              <Route path="/applications" element={<ApplicationPage settypeToEdit={settypeToEdit} />} />
+              <Route path="/applications" element={<ApplicationPage />} />
               
               <Route path="/add-application" element={<AddApplicationPage />} />
               
-              <Route path="/edit-application" element={<EditApplicationPage typeToEdit={typeToEdit} />} />
+              <Route path="/edit-application" element={<EditApplicationPage />} />
               
-              <Route path="/skills" element={<SkillPage typeToEdit={typeToEdit} settypeToEdit={settypeToEdit}/>} />
+              <Route path="/skills" element={<SkillPage />} />
               
               <Route path="/contacts" element={<ContactPage />} />
              

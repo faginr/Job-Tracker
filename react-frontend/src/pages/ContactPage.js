@@ -169,12 +169,10 @@ function ContactPage() {
           onDelete={onDelete}
           sorting={sorting} ></ContactList>
       </div><br />
-      
       <SlidingWindow 
-        Page={AddContactPage} 
-        ClickableComponent={ReactButton}
-        ClickableComponentLabel="Add Contact" />
-
+        Page={<AddContactPage />}
+        ClickableComponent={<ReactButton label="Add Contact"/>}
+        />
     </>
   );
 }

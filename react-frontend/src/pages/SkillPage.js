@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {MdEdit} from 'react-icons/md'
 import UserSkills from '../components/UserSkills';
 import AddSkill from '../components/AddSkill';
 import SlidingWindow from '../components/SlidingWindow';
@@ -7,10 +6,13 @@ import { user } from '../utils/User';
 import {datastore_url} from '../utils/Constants';
 import ReactButton from '../components/ReactButton';
 
-function SkillPage({typeToEdit, setTypeToEdit}) {
-  const [skills, setSkills] = useState({})
+function SkillPage() {
+  const [groupedSkills, setGroupedSkills] = useState({})
+  const [skills, setSkills] = useState([])
+  const [skillsModified, setSkillsModified] = useState(0)
 
   function splitSkillsByProf(userSkills) {
+    console.log("bucketing")
     const skillsMap = {"high": [], "med": [], "low": []}
     for(let skill of userSkills) {
         switch (skill.proficiency) {
@@ -39,24 +41,24 @@ function SkillPage({typeToEdit, setTypeToEdit}) {
     if (response.status !== 200) {
       // show error page??
       console.log("Whoops! Fetch to skills failed")
-      return setSkills({})
+      return setSkills([])
     }
     const data = await response.json();
-    setSkills(splitSkillsByProf(data));
+    setSkills(data)
   }
 
-  useEffect(() => {loadUserSkills()}, [])
+  useEffect(() => {loadUserSkills()}, [skillsModified])
+  useEffect(() => setGroupedSkills(splitSkillsByProf(skills)), [skills])
 
   return (
     <div id="skills-page">
       <h1>Your current skills:</h1>
-      <UserSkills userSkills={skills}  />
+      <UserSkills userSkills={groupedSkills} skillsModified={skillsModified} setSkillsModified={setSkillsModified} />
       
       <div>
         <SlidingWindow 
-          Page={AddSkill} 
-          ClickableComponent={ReactButton}
-          ClickableComponentLabel="Add New Skill" />
+          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified}/>}
+          ClickableComponent={<ReactButton label={"Add New Skill"}/>} />
       </div>
     </div>
   );

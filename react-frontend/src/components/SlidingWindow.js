@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import SlidingPane from "react-sliding-pane";
 
-function SlidingWindow({ Page, ClickableComponent, ClickableComponentLabel }) {
+function SlidingWindow({ Page, ClickableComponent }) {
 
   const [state, setState] = useState({isPaneOpen: false});
   
@@ -15,8 +15,10 @@ function SlidingWindow({ Page, ClickableComponent, ClickableComponentLabel }) {
 
 
   return (
-    <div>
-        <ClickableComponent onClick={handleClick} label={ClickableComponentLabel}/>
+    <div className="sliding-window">
+        <span className="window-children" onClick={handleClick}>
+          {ClickableComponent}
+        </span>
 
         <SlidingPane
           className="some-custom-class"
@@ -29,7 +31,7 @@ function SlidingWindow({ Page, ClickableComponent, ClickableComponentLabel }) {
             setState({ isPaneOpen: false });
           }} >
 
-          <Page />
+          {Page}
           
         </SlidingPane>
       </div>

@@ -19,8 +19,9 @@ function Contact({ contact, onDelete }) {
         key={i} />)}</td>
       <td>
         <SlidingWindow 
-          Page={() => <EditContactPage typeToEdit={contact}/>} 
-          ClickableComponent={MdEdit} />
+          Page={<EditContactPage typeToEdit={contact} />}
+          ClickableComponent={<MdEdit />} 
+          />
       </td>
       <td><MdDeleteForever onClick={() => onDelete(contact.id, contact.contact_at_app_id)} /></td>
     </tr>
