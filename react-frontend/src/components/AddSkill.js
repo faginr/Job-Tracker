@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from "react";
 import { user } from "../utils/User";
-
-const datastore_url = process.env.REACT_APP_API_SERVER_URL
+import fetchRequests from "../data_model/fetchRequests";
 
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
@@ -26,64 +25,54 @@ function AddSkill({skillAdded, setSkillAdded}) {
         )
     }
 
-    async function createNewSkillInAPI(){
-        let response = await fetch(`${datastore_url}/skills`, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-type': 'application/json'
-            }, 
-            // only send the description to POST
-            body: JSON.stringify({'description': newSkill.description}),
-        })
-        if (response.status !== 201) {
-            alert(`Uh-oh, I couldn't create ${newSkill.description} in DS!`)
-            return
-        }
-        return await response.json()
-    }
+    /**
+     * Creates a new skill in datastore and ties new skill to the user
+     * with the defined proficiency
+     * @param {*} e 
+     */
+    async function createSkill (e) {
+        e.preventDefault()
 
-    async function tieSkillToUser(skill){
-        let putResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.id}`, {
-            method: "PUT",
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-type': 'application/json',
-            }, 
-            // PUT method expect only proficiency in body
-            // and form auto-formats prof as string, so need to conver to num
-            body: JSON.stringify({'proficiency': parseInt(skill.proficiency)})
-        })
-        if (putResponse.status !== 204) {
-            alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
+        // handles case where description is blank
+        if(newSkill.description == undefined || newSkill.description === "") {
+            return alert('Sorry, it looks like you haven\'t provided a description... Please try again')
         }
-        updateUserSkillsInReact()
-    }
 
-    function updateUserSkillsInReact() {
+        // send the skill to the backend for creation
+        let createdSkill = await fetchRequests.createSkill(user, {'description': newSkill.description})
+
+        // tie the skill to the user
+        await fetchRequests.tieSkillToUser(user, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+        
+        // perform cleanup after skill created
+        setNewSkillFormClass("hidden")
+        loadAllSkills()
+        setQuery("")
+        setNewSkill({'description': undefined, 'proficiency': undefined})
         setSkillAdded(skillAdded+1)
     }
 
-    async function createSkill (e) {
-        e.preventDefault()
-        
-        newSkill.description ?? (newSkill['description'] = query)
 
-        // send the skill to the backend for creation
-        let createdSkill = await createNewSkillInAPI()
+    /**
+     * Ties a skill to a user with default proficiency
+     * @param {*} skill 
+     */
+    async function tieSkillToUser(skill){
+        await fetchRequests.tieSkillToUser(user, {'proficiency': undefined}, skill.id)
 
-        // format the created skill to be the same as all the other skills
-        createdSkill['proficiency'] = newSkill.proficiency
+        // perform cleanup after skill tied
+        setSkillAdded(skillAdded+1)
+    }
 
-        // tie the skill to the user
-        await tieSkillToUser(createdSkill)
+    function handleQuery(e){
+        // update the new skill to have the same value as query
+        setNewSkill({
+            ...newSkill,
+            'description': e.target.value
+        })
 
-        // hide the form
-        setNewSkillFormClass("hidden")
-
-        // reload all skills to reflect new item and reset query
-        loadAllSkills()
-        setQuery("")
+        // update query to reflect the target value
+        setQuery(e.target.value)
     }
 
     function handleFormChange(e, identifier) {
@@ -99,22 +88,8 @@ function AddSkill({skillAdded, setSkillAdded}) {
     }
 
     async function loadAllSkills() {
-        const response = await fetch(`${datastore_url}/skills`, {
-            headers: {
-                'Authorization': `Bearer ${user}`
-            }
-        })
-        if (response.status !== 200) {
-            alert('Uh-oh, I couldn\'t load all the skills in DS!')
-            return
-        }
-
-        const data = await response.json()
+        const data = await fetchRequests.getAllSkills(user)
         setAllSkills(data)
-    }
-
-    async function handleSkillSelection(skill) {
-        await tieSkillToUser(skill)
     }
 
     useEffect(()=>{loadAllSkills()}, [])
@@ -124,13 +99,13 @@ function AddSkill({skillAdded, setSkillAdded}) {
             <h2>
                 Add Skill to Your Profile
             </h2>
-            <input type="search" placeholder="Search..." onChange={(e)=>setQuery(e.target.value)}/>
+            <input type="search" placeholder="Search..." onChange={handleQuery}/>
             <ul>
                 {/* List all skills in database */}
                 {filterdSkills.map((skill) => {
                     return(
                         <li key={skill.id} 
-                            onClick={() => handleSkillSelection(skill)}>
+                            onClick={() => tieSkillToUser(skill)}>
                                 {skill.description}
                         </li>
                     )}
@@ -144,13 +119,13 @@ function AddSkill({skillAdded, setSkillAdded}) {
                     <div>
                         <label>
                             Description:
-                            <input type="text" value={query} onChange={(e)=>handleFormChange(e, 'description')}/>
+                            <input type="text" defaultValue={query} onChange={(e)=>handleFormChange(e, 'description')}/>
                         </label>
                     </div>
                     <div>
                         <label>
                             Proficiency:
-                            <input type="number" max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
+                            <input type="number" value={undefined} max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
                         </label>
                     </div>
                     <div>
