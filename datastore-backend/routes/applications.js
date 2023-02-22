@@ -36,6 +36,28 @@ function verify_id (id) {
   } 
 }
 
+// Verify keys passed to post/patch an application are valid
+function verify_keys (body_keys) {
+  const allowed_keys = {
+    title: "title",
+    description: "description",
+    posting_date: "posting_date",
+    status: "status",
+    link: "link",
+    auth: "auth",
+    user: "user"
+  }
+
+  for (let item of Object.keys(body_keys)){
+    if (!(item in allowed_keys)){
+      return {valid: false, message: `Key ${item} not allowed`}
+    }
+  }
+
+  return {valid: true}
+
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              /
 //                                         Routes                                               /
@@ -55,7 +77,14 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     // Failure, reject
     return res.status(400).json({Error:  "The request object is missing at least one of the required attributes"});
   }
-  
+
+  valid_keys = verify_keys(req.body)
+  if (valid_keys["valid"] === false) {
+    return res.status(400).json({'Error': `${valid_keys["message"]}`})
+  }
+
+
+
   // create object with new application data
   const default_values = {
     'skills': [],
@@ -176,6 +205,11 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
+
+  valid_keys = verify_keys(req.body)
+  if (valid_keys["valid"] === false) {
+    return res.status(400).json({'Error': `${valid_keys["message"]}`})
+  }
   
   // get application by id
   model.getItemByID('application', req.params.app_id)
