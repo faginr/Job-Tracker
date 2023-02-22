@@ -44,7 +44,7 @@ function verify_id (id) {
 
 // POST application route
 
-router.post("/", function (req, res) {
+router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , function (req, res) {
   console.log("Post request received!");
 
   // Test for invalid request
@@ -164,13 +164,13 @@ router.get("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserP
 
 // PATCH application by id route
 
-router.patch("/:id", function (req, res) {
+router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserParam, function (req, res) {
   console.log("Patch request received!");
 
   // Test for invalid request
   if (
-    verify_id(req.params.id) 
-    || verify_not_blank(req.params.id)
+    verify_id(req.params.app_id) 
+    || verify_not_blank(req.params.app_id)
     ){
       console.log("here")
       // Failure, reject
@@ -178,7 +178,7 @@ router.patch("/:id", function (req, res) {
   } 
   
   // get application by id
-  model.getItemByID('application', req.params.id)
+  model.getItemByID('application', req.params.app_id)
   .then(application => {
 
     // if application doesn't exist reject with 404 error
@@ -212,7 +212,7 @@ router.patch("/:id", function (req, res) {
       // Update application in datastore, return updated object in response body
       return model.updateItem(results[0], 'application')
       .then(res.status(200).json({
-        'id': req.params.id,
+        'id': req.params.app_id,
         // 'user': results["user"],
         'skills': results[0]["skills"],
         'contacts': results[0]["contacts"],
@@ -221,7 +221,7 @@ router.patch("/:id", function (req, res) {
         'posting_date': results[0]["posting_date"],
         'status': results[0]["status"],
         'link': results[0]["link"],
-        'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.id
+        'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
       }))
     }
   })
@@ -232,20 +232,20 @@ router.patch("/:id", function (req, res) {
 
 // DELETE application by id route
 
-router.delete("/:id", function (req, res) {
+router.delete("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserParam, function (req, res) {
   console.log("Delete request received!");
   
   // Test for invalid request
   if (
-    verify_id(req.params.id) 
-    || verify_not_blank(req.params.id)
+    verify_id(req.params.app_id) 
+    || verify_not_blank(req.params.app_id)
     ){
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
 
   // Get application by id
-  model.getItemByID('application', req.params.id)
+  model.getItemByID('application', req.params.app_id)
   .then(application => {
     
     // if applcation doesn't exist, reject with 404
@@ -254,27 +254,27 @@ router.delete("/:id", function (req, res) {
     }
 
     // TODO implement all necessary checks and removals before delete
-    return model.deleteItem('application', req.params.id).then(res.status(204).end());
+    return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
   })
 });
 
 // DELETE 405 applications route reject
 
-router.delete('/', function (req, res){
+router.delete('/users/:user_id/applications', function (req, res){
   res.set('Accept', 'GET, POST');
   res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });
 
 // PUT 405 applications route reject
 
-router.put('/', function (req, res){
+router.put('/users/:user_id/applications', function (req, res){
   res.set('Accept', 'GET, POST');
   res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });
 
 // PATCH 405 applications route reject
 
-router.patch('/', function (req, res){
+router.patch('/users/:user_id/applications', function (req, res){
   res.set('Accept', 'GET, POST');
   res.status(405).json({'Error': 'Only GET, POST requests allowed for all applications route'});
 });

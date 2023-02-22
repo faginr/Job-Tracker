@@ -97,7 +97,9 @@ function userMatchesJWT(req) {
 async function userExists(req) {
     let user;
     try {
+        // console.log(req.params.user_id)
         user = await model.getItemByID('users', req.params.user_id)
+        // console.log(`user ${user}`)
         req.body['user'] = user[0]
     } catch(err) {
         console.error(err)
