@@ -9,6 +9,15 @@ const verifyUser = require('./middleware/verifyUser')
 const CONTACT = "contact";
 
 
+/************************************************************* 
+ * Function to get a user_id from the url
+ ************************************************************/
+function getUserId(req) {
+  const tempArray = req.baseUrl.split("/");
+  return tempArray[2];
+};
+
+
 /*--------------- Begin Middleware Functions --------------- */
 
 /************************************************************* 
@@ -140,7 +149,7 @@ function checkIdExists (req, res, next) {
  * and returns the status code and the key of new created object.
  ************************************************************/
 function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id, user_id) {
-  var key = datastore.key(CONTACT);
+  let key = datastore.key(CONTACT);
   
   const default_values = {
     'email': "",
@@ -179,114 +188,132 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_app
 
 
 /************************************************************* 
- * The function datastore.query returns an array, where the element at index 0
- * is itself an array. Each element in the array at element 0 is a JSON object
- * with an entity fromt the type "Contact".
+ * The function returns the arry of contacts that belongs to the user
  ************************************************************/
-function get_contacts() {
-  const q = datastore.createQuery(CONTACT);
-  return datastore.runQuery(q).then((entities) => {
-    // Use Array.map to call the function fromDatastore. This function
-    // adds id attribute to every element in the array at element 0 of
-    // the variable entities
-    return entities[0].map(ds.fromDatastore);
-  })
+async function get_contacts(user_id) {
+  const query = datastore.createQuery(CONTACT);
+  let contacts = await datastore.runQuery(query);
+  // array.map adds id attribute to every element in the array at element 0 of
+  // the variable contacts
+  contacts = contacts[0].map(ds.fromDatastore);
+  let userContacts = [];
+  // get only contacts that belongs to the user
+  for (let contact of contacts) {
+    if (user_id === contact.user_id) {
+      userContacts.push(contact)
+    }
+  };
+  return userContacts;
 };
 
 
 /************************************************************* 
- * Note that datastore.get returns an array where each element is a JSON object 
- * corresponding to an entity of the Type "Contact." If there are no entities
- * in the result, then the 0th element is undefined.
- * @param {number} id Int ID value
- * @returns An array of length 1.
- *      If a contact with the provided id exists, then the element in the array
- *           is that contact
- *      If no contact with the provided id exists, then the value of the 
- *          element is undefined
+ * The function returns the arry with the requested contact 
+ * if the contact belongs to the user
  ************************************************************/
-function get_contact(id) {
-  const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  return datastore.get(key).then((entity) => {
-    if (entity[0] === undefined || entity[0] === null) {
-      // No entity found. Don't try to add the id attribute
-      return entity;
-    } else {
-      // Use Array.map to call the function fromDatastore. This function
-      // adds id attribute to every element in the array entity
-      return entity.map(ds.fromDatastore);
-    }
-  })
+async function get_contact(contact_id, user_id) {
+  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
+  let contact = await datastore.get(key);
+  // array.map adds id attribute
+  contact = contact.map(ds.fromDatastore);
+  // check if the contact belongs to the user
+  if (user_id === contact[0].user_id) {
+    return contact;
+  } else {
+    return false;
+  };
 };
 
 
 /************************************************************* 
  * The function sends a request to datastore to replace 
- * old values with the new values and returns the status code.
+ * old values with the new values and returns the status code
+ * if the contact belongs to the user
  ************************************************************/
-function put_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
-  const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  const contact = { 
-    "last_name": last_name, 
-    "first_name": first_name, 
-    "email": email, 
-    "phone": phone, 
-    "notes": notes, 
-    "contact_at_app_id": contact_at_app_id 
-  };
-  return datastore.save({ "key": key, "data": contact });
-};
-
-
-/************************************************************* 
- * The function sends a request to datastore to update some old values 
- * with the new values and returns the status code.
- ************************************************************/
-function patch_contact(id, last_name, first_name, email, phone, notes, contact_at_app_id ) {
-  const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  return datastore.get(key).then((entity) => {
-
-    if (last_name === undefined) {
-      last_name = entity[0].last_name
-    }
-    if (first_name === undefined) {
-      first_name = entity[0].first_name
-    }
-    if (email === undefined) {
-      email = entity[0].email
-    }
-    if (phone === undefined) {
-      phone = entity[0].phone
-    }
-    if (notes === undefined) {
-      notes = entity[0].notes
-    }
-    if (contact_at_app_id === undefined) {
-      contact_at_app_id = entity[0].contact_at_app_id
-    };
-
-    const contact = { 
+async function put_contact(contact_id, last_name, first_name, email, phone, notes, contact_at_app_id, user_id ) {
+  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
+  let contact = await datastore.get(key);
+  // check if the contact belongs to the user
+  if (user_id !== contact[0].user_id) {
+    return false;
+  } else {
+    contact = { 
       "last_name": last_name, 
       "first_name": first_name, 
       "email": email, 
       "phone": phone, 
       "notes": notes, 
-      "contact_at_app_id": contact_at_app_id 
+      "contact_at_app_id": contact_at_app_id,
+      "user_id": user_id
     };
-    
-    return datastore.save({ "key": key, "data": contact });
-  })
+    let result = await datastore.save({ "key": key, "data": contact });
+    return result;
+  }
+};
+
+
+/************************************************************* 
+ * The function sends a request to datastore to update some old values 
+ * with the new values and returns the status code
+ * if the contact belongs to the user
+ ************************************************************/
+async function patch_contact(contact_id, last_name, first_name, email, phone, notes, contact_at_app_id, user_id ) {
+  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
+  let contact = await datastore.get(key);
+  // check if the contact belongs to the user
+  if (user_id !== contact[0].user_id) {
+    return false;
+  } else {
+    if (last_name === undefined) {
+      last_name = contact[0].last_name
+    }
+    if (first_name === undefined) {
+      first_name = contact[0].first_name
+    }
+    if (email === undefined) {
+      email = contact[0].email
+    }
+    if (phone === undefined) {
+      phone = contact[0].phone
+    }
+    if (notes === undefined) {
+      notes = contact[0].notes
+    }
+    if (contact_at_app_id === undefined) {
+      contact_at_app_id = contact[0].contact_at_app_id
+    };
+    // created the contact
+    contact = { 
+      "last_name": last_name, 
+      "first_name": first_name, 
+      "email": email, 
+      "phone": phone, 
+      "notes": notes, 
+      "contact_at_app_id": contact_at_app_id,
+      "user_id": user_id
+    };
+    let result = await datastore.save({ "key": key, "data": contact });
+    return result;
+  }
 };
 
 
 /************************************************************* 
  * The function sends a request to datastore to delete the object
- * and returns the status code.
+ * and returns the status code if the contact belongs to the user
  ************************************************************/
-function delete_contact(id) {
-  const key = datastore.key([CONTACT, parseInt(id, 10)]);
-  return datastore.delete(key);
+async function delete_contact(contact_id, user_id) {
+  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
+
+  let contact = await datastore.get(key);
+  // check if the contact belongs to the user
+  if (user_id !== contact[0].user_id) {
+    return false;
+  } else {
+    return datastore.delete(key);
+  }
 };
+
 
 /* ----------------- End Model Functions ---------------- */
 
@@ -294,44 +321,11 @@ function delete_contact(id) {
 
 
 /************************************************************* 
- * GET all contacts
- ************************************************************/
-router.get('/', checkAcceptHeader, function (req, res) {
-  //console.log("Get all request received!");
-  get_contacts()
-    .then((contacts) => {
-      res.status(200).json(contacts);
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).send(errorMessages[500]);
-    })
-});
-
-
-/************************************************************* 
- * GET a contact
- ************************************************************/
-router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res) {
-  //console.log("Get request received!");
-  get_contact(req.params.contact_id)
-    .then(contact => {
-      res.status(200).json(contact[0]) 
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).send(errorMessages[500]);
-    })
-});
-
-
-/************************************************************* 
  * POST a new contact
  ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   //console.log("Post request received!");
-  const tempArray = req.baseUrl.split("/");
-  const user_id = tempArray[2];
+  const user_id = getUserId(req);
 
   post_contact(
     req.body.last_name, 
@@ -353,10 +347,53 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 
 
 /************************************************************* 
+ * GET all contacts
+ ************************************************************/
+router.get('/', checkAcceptHeader, function (req, res) {
+  //console.log("Get all request received!");
+  const user_id = getUserId(req);
+
+  get_contacts(user_id)
+    .then((contacts) => {
+      res.status(200).json(contacts);
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+
+/************************************************************* 
+ * GET a contact
+ ************************************************************/
+router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res) {
+  //console.log("Get request received!");
+  const user_id = getUserId(req);
+
+  get_contact(req.params.contact_id, user_id)
+    .then(contact => {
+      if (contact === false) {
+        // user does not own the contact
+        res.status(403).send(errorMessages[403]);
+      } else {
+        res.status(200).json(contact[0]) 
+      };
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send(errorMessages[500]);
+    })
+});
+
+
+/************************************************************* 
  * PUT: replace all values for this contact_id
  ************************************************************/
 router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   //console.log("Put request received!");
+  const user_id = getUserId(req);
+
   put_contact(
     req.params.contact_id, 
     req.body.last_name, 
@@ -364,10 +401,16 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
     req.body.email, 
     req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_app_id
+    req.body.contact_at_app_id,
+    user_id
     )
-    .then(() => {
-      res.status(200).end()
+    .then((contact) => {
+      if (contact === false) {
+        // user does not own the contact
+        res.status(403).send(errorMessages[403]);
+      } else {
+        res.status(200).end() 
+      };
     })
     .catch(error => {
       console.error(error);
@@ -382,6 +425,8 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
  ************************************************************/
 router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
   //console.log("Patch request received!");
+  const user_id = getUserId(req);
+
   patch_contact(
     req.params.contact_id, 
     req.body.last_name, 
@@ -389,10 +434,16 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
     req.body.email, 
     req.body.phone, 
     req.body.notes, 
-    req.body.contact_at_app_id
+    req.body.contact_at_app_id,
+    user_id
     )
-    .then(() => {
-      res.status(200).end()
+    .then((contact) => {
+      if (contact === false) {
+        // user does not own the contact
+        res.status(403).send(errorMessages[403]);
+      } else {
+        res.status(200).end() 
+      };
     })
     .catch(error => {
       console.error(error);
@@ -406,10 +457,17 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
  ************************************************************/
 router.delete('/:contact_id', checkIdExists, function (req, res) {
   //console.log("Delete request received!");
-  delete_contact(req.params.contact_id)
-    .then(() => {
-      res.status(204).end()
-    })
+  const user_id = getUserId(req);
+
+  delete_contact(req.params.contact_id, user_id)
+  .then((contact) => {
+    if (contact === false) {
+      // user does not own the contact
+      res.status(403).send(errorMessages[403]);
+    } else {
+      res.status(204).end() 
+    };
+  })
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
@@ -442,10 +500,6 @@ router.post('/:contact_id', function (req, res) {
   res.set('Accept', 'GET, PUT, PATCH, DELETE');
   res.status(405).send(errorMessages[405].postWithId);
 });
-
-router.route('/null', function (reg, res) {
-  
-})
 
 /* --------------- End Not Allowed Routes --------------- */
 
