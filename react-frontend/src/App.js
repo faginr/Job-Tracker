@@ -12,27 +12,9 @@ import ContactPage from './pages/ContactPage';
 import NotFound from './pages/NotFound';
 
 import Navigation from './components/Navigation';
-import FeaturePane from './components/FeaturePane';
 
 function App() {
   const [typeToEdit, settypeToEdit] = useState();
-  const [featureChild, setFeatureChild] = useState()
-  const [featureClass, setFeatureClass] = useState("hidden")
-
-  function toggleFeatureClass() {
-    // if featureChild is not null, then display feature-pane
-    if (featureChild) {
-      setFeatureClass("feature-pane")
-    } else {
-      setFeatureClass("hidden")
-    }
-  }
-
-  useEffect(() => {
-    // toggle between displaying feature pane and not
-    // every time featureChild is updated
-    toggleFeatureClass()
-  }, [featureChild])
 
   return (
     <div>
@@ -41,7 +23,7 @@ function App() {
       </header>
       
       <div className="App">
-        <Navigation setFeatureChild={setFeatureChild}/>
+        <Navigation />
 
         <main className="App-main">
           <div id='main-display'>
@@ -54,7 +36,7 @@ function App() {
               
               <Route path="/edit-application" element={<EditApplicationPage typeToEdit={typeToEdit} />} />
               
-              <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
+              <Route path="/skills" element={<SkillPage typeToEdit={typeToEdit} settypeToEdit={settypeToEdit}/>} />
               
               <Route path="/contacts" element={<ContactPage />} />
              
@@ -64,9 +46,6 @@ function App() {
           
         </main>
       </div>
-
-      {/* This area controls hiding/unhiding pane on right */}
-      <FeaturePane featureClass={featureClass} setFeatureChild={setFeatureChild} child={featureChild} />
 
       <footer className="App-footer">
         <h4><a href="https://forms.gle/3W7bCuVhibz82q6W6">Request Support</a></h4>

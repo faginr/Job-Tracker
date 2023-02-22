@@ -3,6 +3,7 @@ import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
 import AddContactPage from './AddContactPage';
 import SlidingWindow from '../components/SlidingWindow';
+import ReactButton from '../components/ReactButton';
 
 function ContactPage() {
   
@@ -171,7 +172,8 @@ function ContactPage() {
       
       <SlidingWindow 
         Page={AddContactPage} 
-        buttonName="AddNewContact" />
+        ClickableComponent={ReactButton}
+        ClickableComponentLabel="Add Contact" />
 
     </>
   );

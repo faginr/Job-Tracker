@@ -6,6 +6,7 @@ import { datastore_url } from '../utils/Constants';
 
 import AddApplicationPage from './AddApplicationPage';
 import SlidingWindow from '../components/SlidingWindow';
+import ReactButton from '../components/ReactButton';
 
 function ApplicationPage() {
   
@@ -124,7 +125,8 @@ function ApplicationPage() {
       <br />
       <SlidingWindow
       Page={AddApplicationPage}
-      buttonName="AddNewApplication"
+      ClickableComponent={ReactButton}
+      ClickableComponentLabel="Add Application"
       />
 
     </>

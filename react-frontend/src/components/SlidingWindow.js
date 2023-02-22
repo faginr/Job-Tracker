@@ -3,35 +3,20 @@
 
 import React, { useState } from "react";
 import SlidingPane from "react-sliding-pane";
-import { MdEdit } from 'react-icons/md';
 
-function SlidingWindow({ Page, buttonName, type }) {
+function SlidingWindow({ Page, ClickableComponent, ClickableComponentLabel }) {
 
   const [state, setState] = useState({isPaneOpen: false});
-
-  let buttonElement;
-  // options when called by Contact Pages
-  if (buttonName === "AddNewContact") {
-    buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
-                      Add New Contact
-                    </button>);
-  };
-
-  // applications
-  if (buttonName === "AddNewApplication") {
-    buttonElement = (<button onClick={() => setState({ isPaneOpen: true })}>
-    Add New Application
-    </button>)
+  
+  function handleClick(e){
+    e.preventDefault()
+    setState({ isPaneOpen: true })
   }
 
-  // shared
-  if (buttonName === "EditIcon") {
-    buttonElement = (<MdEdit onClick={() => setState({ isPaneOpen: true })} />);
-  };
 
   return (
     <div>
-        {buttonElement}
+        <ClickableComponent onClick={handleClick} label={ClickableComponentLabel}/>
 
         <SlidingPane
           className="some-custom-class"
@@ -44,7 +29,7 @@ function SlidingWindow({ Page, buttonName, type }) {
             setState({ isPaneOpen: false });
           }} >
 
-          <Page typeToEdit={type} />
+          <Page />
           
         </SlidingPane>
       </div>

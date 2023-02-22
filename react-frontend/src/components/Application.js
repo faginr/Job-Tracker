@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdDeleteForever } from 'react-icons/md';
+import { MdDeleteForever, MdEdit } from 'react-icons/md';
 import EditApplicationPage from '../pages/EditApplicationPage'
 import SlidingWindow from './SlidingWindow';
 
@@ -15,9 +15,8 @@ function Application({ application, onDelete, onEdit }) {
       <td><a href={application.link}>{application.link}</a></td>
       <td>
         <SlidingWindow
-        Page={EditApplicationPage}
-        buttonName="EditIcon"
-        type={application}
+        Page={() => <EditApplicationPage typeToEdit={application}/>}
+        ClickableComponent={MdEdit}
         />
       </td>
       {/* <td><MdEdit onClick={() => onEdit(application)} /></td> */}

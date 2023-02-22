@@ -6,7 +6,7 @@ import { user } from "../utils/User";
 // is clicked adds that skill to the user.
 // Requires handleSkillClick function to control what happens with
 // the parent component when a skill is clicked.
-function AddSkill({handleSkillClick}) {
+function AddSkill() {
     const [allSkills, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
@@ -24,13 +24,7 @@ function AddSkill({handleSkillClick}) {
         )
     }
 
-    async function createSkill (e) {
-        e.preventDefault()
-        console.log(newSkill)
-        newSkill.description ?? (newSkill['description'] = query)
-        console.log(newSkill)
-
-        // send the skill to the backend for creation
+    async function createNewSkillInAPI(){
         let response = await fetch(`/skills`, {
             method: "POST",
             headers: {
@@ -44,11 +38,11 @@ function AddSkill({handleSkillClick}) {
             alert(`Uh-oh, I couldn't create ${newSkill.description} in DS!`)
             return
         }
+        return await response.json()
+    }
 
-        let data = await response.json()
-
-        // tie the skill to the user
-        let putResponse = await fetch(`/users/${JSON.parse(user).sub}/skills/${data.id}`, {
+    async function tieSkillToUser(newSkill){
+        let putResponse = await fetch(`/users/${JSON.parse(user).sub}/skills/${newSkill.id}`, {
             method: "PUT",
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -59,14 +53,28 @@ function AddSkill({handleSkillClick}) {
             body: JSON.stringify({'proficiency': parseInt(newSkill.proficiency)})
         })
         if (putResponse.status !== 204) {
-            alert(`Uh-oh, I couldn't tie ${data.description} to user!`)
+            alert(`Uh-oh, I couldn't tie ${newSkill.description} to user!`)
         }
-        
-        // hide the feature pane
-        handleSkillClick()
     }
 
-    function handleForm(e, identifier) {
+    async function createSkill (e) {
+        e.preventDefault()
+        
+        newSkill.description ?? (newSkill['description'] = query)
+
+        // send the skill to the backend for creation
+        let newSkill = await createNewSkillInAPI()
+
+        // tie the skill to the user
+        await tieSkillToUser(newSkill)
+
+        // hide the form
+        setNewSkillFormClass("hidden")
+
+        // TODO: add the skill to the list of user skills
+    }
+
+    function handleFormChange(e, identifier) {
         setNewSkill({
             ...newSkill,
             [identifier]: e.target.value
@@ -93,7 +101,7 @@ function AddSkill({handleSkillClick}) {
         setAllSkills(data)
     }
 
-    async function addSkillToUser(skill) {
+    async function tieSkillToUser(skill) {
         const response = await fetch(`/users/${JSON.parse(user).sub}/skills/${skill.id}`, {
             method: "PUT",
             headers: {
@@ -106,8 +114,9 @@ function AddSkill({handleSkillClick}) {
     }
 
     async function handleSkillSelection(skill) {
-        await addSkillToUser(skill)
-        handleSkillClick()
+        await tieSkillToUser(skill)
+
+        // TODO: update skill to show as tied to user
     }
 
     useEffect(()=>{loadAllSkills()}, [])
@@ -136,11 +145,11 @@ function AddSkill({handleSkillClick}) {
                 <form>
                     <label>
                         Description:
-                        <input type="text" value={query} onChange={(e)=>handleForm(e, 'description')}/>
+                        <input type="text" value={query} onChange={(e)=>handleFormChange(e, 'description')}/>
                     </label>
                     <label>
                         Proficiency:
-                        <input type="number" max={5} min={1} onChange={(e)=>handleForm(e, 'proficiency')}/>
+                        <input type="number" max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
                     </label>
                     <button onClick={(e) => createSkill(e)}>Create New</button>
                 </form>

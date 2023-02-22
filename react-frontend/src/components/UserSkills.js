@@ -1,27 +1,25 @@
 import React from "react";
-import DisplayButton from "./DisplayButton";
+import UserSkillBubble from "./UserSkillBubble";
 
-function UserSkills({userSkills, handleClickAction}) {
+function UserSkills({userSkills}) {
 
     function alertSkill(skill) {
         return (
-            <DisplayButton 
+            <UserSkillBubble 
                 className="alert-skill"
                 key={skill.skill_id}
-                displayObject={skill}
-                displayTitle={skill.description}
-                handleClickAction={handleClickAction} />
+                skill={skill}
+                 />
         )
     }
 
     function normalSkill(skill) {
         return (
-            <DisplayButton
+            <UserSkillBubble 
                 className="regular-skill"
                 key={skill.skill_id}
-                displayObject={skill}
-                displayTitle={skill.description}
-                handleClickAction={handleClickAction} />
+                skill={skill}
+                 />
         )
     }
 

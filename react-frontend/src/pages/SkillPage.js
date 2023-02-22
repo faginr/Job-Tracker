@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import {MdEdit} from 'react-icons/md'
 import UserSkills from '../components/UserSkills';
-import SkillForm from '../components/SkillForm';
-import DisplayButton from '../components/DisplayButton';
-import { user } from '../utils/User';
 import AddSkill from '../components/AddSkill';
+import SlidingWindow from '../components/SlidingWindow';
+import { user } from '../utils/User';
 import {datastore_url} from '../utils/Constants';
+import ReactButton from '../components/ReactButton';
 
-function SkillPage({setFeatureChild}) {
+function SkillPage({typeToEdit, setTypeToEdit}) {
   const [skills, setSkills] = useState({})
 
   function splitSkillsByProf(userSkills) {
@@ -28,20 +29,6 @@ function SkillPage({setFeatureChild}) {
     return skillsMap
 }
 
-  function handleFormSubmit() {
-    // on form submission, close the feature pane and update your list of 
-    // existing skills to match what you just submitted
-    setFeatureChild()
-    loadUserSkills()
-  }
-
-  function setSkillFormAsFeature(skillToEdit) {
-    setFeatureChild(<SkillForm skillToEdit={skillToEdit} handleFormSubmittal={handleFormSubmit}/>)
-  }
-
-  function setAddSkillAsFeature() {
-    setFeatureChild(<AddSkill handleSkillClick={handleFormSubmit}/>)
-  }
 
   async function loadUserSkills() {
     const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
@@ -63,10 +50,14 @@ function SkillPage({setFeatureChild}) {
   return (
     <div id="skills-page">
       <h1>Your current skills:</h1>
-      <UserSkills userSkills={skills} handleClickAction={setSkillFormAsFeature} />
+      <UserSkills userSkills={skills}  />
       
-      <div>------------------</div>
-      <DisplayButton displayTitle={"Add New Skill"} handleClickAction={setAddSkillAsFeature} />
+      <div>
+        <SlidingWindow 
+          Page={AddSkill} 
+          ClickableComponent={ReactButton}
+          ClickableComponentLabel="Add New Skill" />
+      </div>
     </div>
   );
 }
