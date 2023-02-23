@@ -1,7 +1,6 @@
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React from 'react';
 
 import HomePage from './pages/HomePage';
 import ApplicationPage from './pages/ApplicationPage';
@@ -13,49 +12,28 @@ import NotFound from './pages/NotFound';
 import CallBackPage from './pages/CallBackPage';
 
 import Navigation from './components/Navigation';
-import Header from './components/Header';
-import FeaturePane from './components/FeaturePane';
-import Footer from './components/Footer';
 
 function App() {
-  const [typeToEdit, settypeToEdit] = useState();
-  const [featureChild, setFeatureChild] = useState()
-  const [featureClass, setFeatureClass] = useState("hidden")
-
-  function toggleFeatureClass() {
-    // if featureChild is not null, then display feature-pane
-    if (featureChild) {
-      setFeatureClass("feature-pane")
-    } else {
-      setFeatureClass("hidden")
-    }
-  }
-
-  useEffect(() => {
-    // toggle between displaying feature pane and not
-    // every time featureChild is updated
-    toggleFeatureClass()
-  }, [featureChild])
-
   return (
     <div>
       <Header />
       
       <div className="App">
-        <Navigation setFeatureChild={setFeatureChild}/>
+        <Navigation />
 
         <main className="App-main">
           <div id='main-display'>
             <Routes>
               <Route path="/" element={<HomePage />} />
               
-              <Route path="/applications" element={<ApplicationPage settypeToEdit={settypeToEdit} />} />
+              <Route path="/applications" element={<ApplicationPage />} />
               
               <Route path="/add-application" element={<AddApplicationPage />} />
               
-              <Route path="/edit-application" element={<EditApplicationPage typeToEdit={typeToEdit} />} />
+              <Route path="/edit-application" element={<EditApplicationPage />} />
               
-              <Route path="/skills" element={<SkillPage setFeatureChild={setFeatureChild}/>} />
+              <Route path="/skills" element={<SkillPage />} />
+              
               <Route path="/contacts" element={<ContactPage />} />
               <Route path="/callback" element={<CallBackPage />} />
               <Route path="*" element={<NotFound />} />
@@ -64,10 +42,10 @@ function App() {
         </main>
       </div>
 
-      {/* This area controls hiding/unhiding pane on right */}
-      <FeaturePane featureClass={featureClass} setFeatureChild={setFeatureChild} child={featureChild} />
-
-      <Footer />
+      <footer className="App-footer">
+        <h4><a href="https://forms.gle/3W7bCuVhibz82q6W6">Request Support</a></h4>
+        <h5>©2023 Rex Fagin, Philip Peiffer, Patrycjusz Bachleda</h5>
+      </footer>
     </div>
   );
 }

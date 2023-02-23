@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import UserSkills from '../components/UserSkills';
-import SkillForm from '../components/SkillForm';
-import DisplayButton from '../components/DisplayButton';
 import AddSkill from '../components/AddSkill';
-import LoadingPage from './LoadingPage';
+import SlidingWindow from '../components/SlidingWindow';
+import ReactButton from '../components/ReactButton';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useAPI } from '../utils/Auth0Functions';
 
 const apiURL = process.env.REACT_APP_API_SERVER_URL
 
-function SkillPage({setFeatureChild}) {
+function SkillPage() {
+  const [groupedSkills, setGroupedSkills] = useState({})
+  const [skillsModified, setSkillsModified] = useState(0)
   const [skills, setSkills] = useState({})
   const {user, isAuthenticated} = useAuth0()
   const {getTokenFromAuth0} = useAPI()
 
   function splitSkillsByProf(userSkills) {
+    console.log("bucketing")
     const skillsMap = {"high": [], "med": [], "low": []}
     for(let skill of userSkills) {
         switch (skill.proficiency) {
@@ -33,20 +35,6 @@ function SkillPage({setFeatureChild}) {
     return skillsMap
 }
 
-  function handleFormSubmit() {
-    // on form submission, close the feature pane and update your list of 
-    // existing skills to match what you just submitted
-    setFeatureChild()
-    loadUserSkills()
-  }
-
-  function setSkillFormAsFeature(skillToEdit) {
-    setFeatureChild(<SkillForm skillToEdit={skillToEdit} handleFormSubmittal={handleFormSubmit}/>)
-  }
-
-  function setAddSkillAsFeature() {
-    setFeatureChild(<AddSkill handleSkillClick={handleFormSubmit}/>)
-  }
 
   async function loadUserSkills() {
 
@@ -65,33 +53,31 @@ function SkillPage({setFeatureChild}) {
       } catch(err){
         alert("Uh oh... looks like the server is in-communicado!")
       }
-      
-      if (response.status !== 200) {
-        alert("Whoops! I failed to get your skills")
-        return setSkills({})
-      }
-      const data = await response.json();
-      setSkills(splitSkillsByProf(data));
+    };
+    if (response.status !== 200) {
+      // show error page??
+      console.log("Whoops! Fetch to skills failed")
+      return setSkills([])
     }
+    const data = await response.json();
+    setSkills(data)
   }
 
-  useEffect(() => {
-    loadUserSkills()
-  }, [])
+  useEffect(() => {loadUserSkills()}, [skillsModified])
+  useEffect(() => setGroupedSkills(splitSkillsByProf(skills)), [skills])
 
-  if (isAuthenticated){
-    return (
-      <div id="skills-page">
-        <h1>Your current skills:</h1>
-        <UserSkills userSkills={skills} handleClickAction={setSkillFormAsFeature} />
-        
-        <div>------------------</div>
-        <DisplayButton displayTitle={"Add New Skill"} handleClickAction={setAddSkillAsFeature} />
+  return (
+    <div id="skills-page">
+      <h1>Your current skills:</h1>
+      <UserSkills userSkills={groupedSkills} skillsModified={skillsModified} setSkillsModified={setSkillsModified} />
+      
+      <div>
+        <SlidingWindow 
+          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified}/>}
+          ClickableComponent={<ReactButton label={"Add New Skill"}/>} />
       </div>
-    );
-  } else{
-    return <LoadingPage />
-  }
+    </div>
+  );
 }
 
 export default SkillPage;

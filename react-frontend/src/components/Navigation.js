@@ -5,26 +5,22 @@ import React from "react";
 import { NavLink } from 'react-router-dom';
 import { LogoutButton } from "./LogOut";
 
-function Navigation ({setFeatureChild}) {
+function Navigation () {
 
   const {isAuthenticated} = useAuth0()
 
-  function handleClick() {
-    setFeatureChild()
-  }
-
   return (
     <nav className="navigation-bar">
-        <div className="App-link" onClick={handleClick}>
+        <div className="App-link" >
           <NavLink to="/">Home</NavLink>
         </div>
-        <div className="App-link" onClick={handleClick}>
+        <div className="App-link" >
           <NavLink to="/applications">Applications</NavLink>
         </div>
-        <div className="App-link" onClick={handleClick}>
+        <div className="App-link" >
           <NavLink to="/skills">Skills</NavLink>
         </div>
-        <div className="App-link" onClick={handleClick}>
+        <div className="App-link" >
           <NavLink to="/contacts">Contacts</NavLink>
         </div>
 
