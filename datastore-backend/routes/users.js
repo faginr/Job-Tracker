@@ -35,8 +35,14 @@ function verifyAcceptHeader (req, res, next) {
  */
 async function verifyResourceExists (req, res, next) {
     const resourceId = req.params.user_id
-
-    const resource = await model.getItemByManualID('users', resourceId)
+    let resource = []
+    try{
+        resource = await model.getItemByManualID('users', resourceId)
+    } catch(e){
+        console.error(e)
+        console.error("Problem looking up user!")
+        return res.status(500).end()
+    }
 
     if (resource[0] === null || resource[0] === undefined) {
         res.status(404).send(errorMessages[404].users)
@@ -57,8 +63,14 @@ async function verifyResourceExists (req, res, next) {
  */
 async function verifyUserDoesNotExist (req, res, next) {
     const resourceId = req.body.auth.id
-
-    const resource = await model.getItemByManualID('users', resourceId)
+    let resource = []
+    try{
+        resource = await model.getItemByManualID('users', resourceId)
+    } catch(e){
+        console.error(e)
+        console.error("Problem looking up user!")
+        return res.status(500).end()
+    }
     if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
@@ -91,8 +103,14 @@ router.post('/',
         req.body.auth.date_created = `${month}/${day}/${year}`
         const id = req.body.auth.id
         delete req.body.auth.id
-        const response = await model.postItemManualId(req.body.auth, id, 'users')
-        res.status(201).send(response)
+        try{
+            const response = await model.postItemManualId(req.body.auth, id, 'users')
+            res.status(201).send(response)
+        } catch(e){
+            console.error(e)
+            console.error("Problem creating user!")
+            res.status(500).end()
+        }
 })
 
 router.get('/', methodNotAllowed)
@@ -131,6 +149,7 @@ router.delete('/:user_id',
             res.status(200).send({"deletedApps": deletedApps.length, "deletedContacts": deletedContacts.length})
         } catch (error) {
             console.error(error)
+            console.error("Problem deleting user!")
             res.status(500).end()
         }
 })
