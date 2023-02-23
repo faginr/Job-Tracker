@@ -13,15 +13,24 @@ function AddSkill({skillAdded, setSkillAdded}) {
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
     const [query, setQuery] = useState("")
 
-    const filterdSkills = allSkills.filter((skill) => {
+    const filteredSkills = allSkills.filter((skill) => {
         return (skill.description.toLowerCase().includes(query.toLowerCase()))
     })
 
+    function allowSearchAndCreateNew() {
+        return(
+            <div>
+                <input type="search" placeholder="Search..." onChange={handleQuery}/>
+                {createNew()}
+            </div>
+        )
+    }
+
     function createNew() {
         return (
-            <li onClick={() => setNewSkillFormClass("new-skill-form")}>
-                Create New
-            </li>
+        <button onClick={() => setNewSkillFormClass("new-skill-form")}>
+            Create New
+        </button>
         )
     }
 
@@ -52,6 +61,12 @@ function AddSkill({skillAdded, setSkillAdded}) {
         setSkillAdded(skillAdded+1)
     }
 
+    function cancleCreate(e) {
+        e.preventDefault()
+        setNewSkillFormClass("hidden")
+        setQuery("")
+        setNewSkill({'description': '', 'proficiency': ''})
+    }
 
     /**
      * Ties a skill to a user with default proficiency
@@ -96,30 +111,19 @@ function AddSkill({skillAdded, setSkillAdded}) {
 
     return(
         <div className="add-skill">
+            
             <h2>
                 Add Skill to Your Profile
             </h2>
-            <input type="search" placeholder="Search..." onChange={handleQuery}/>
-            <ul>
-                {/* List all skills in database */}
-                {filterdSkills.map((skill) => {
-                    return(
-                        <li key={skill.id} 
-                            onClick={() => tieSkillToUser(skill)}>
-                                {skill.description}
-                        </li>
-                    )}
-                )}
+            
+            {allSkills.length<3?createNew():allowSearchAndCreateNew()}
 
-                {/* Add ability to create new skill if less than 4 skills on screen */}
-                {filterdSkills.length<4?createNew():<div/>}
-            </ul>
             <div className={newSkillFormClass}>
                 <form>
                     <div>
                         <label>
                             Description:
-                            <input type="text" defaultValue={query} onChange={(e)=>handleFormChange(e, 'description')}/>
+                            <input type="text" value={query} onChange={(e)=>handleFormChange(e, 'description')}/>
                         </label>
                     </div>
                     <div>
@@ -129,10 +133,24 @@ function AddSkill({skillAdded, setSkillAdded}) {
                         </label>
                     </div>
                     <div>
-                        <button onClick={createSkill}>Create New</button>
+                        <button onClick={createSkill}>Submit</button>
+                        <button onClick={cancleCreate}>Cancel</button>
                     </div>
                 </form>
             </div>
+
+            <ul>
+                {/* List all skills in database */}
+                {filteredSkills.map((skill) => {
+                    return(
+                        <li key={skill.id} 
+                            onClick={() => tieSkillToUser(skill)}>
+                                {skill.description}
+                        </li>
+                    )}
+                )}
+
+            </ul>
         </div>
     )
 }
