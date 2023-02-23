@@ -15,6 +15,23 @@ export default class fetchRequests {
             const data = await response.json()
             return data
         }
+    
+
+    static getUserSkills = async function loadUserSkills(user, accessToken) {
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/skills`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        if (response.status !== 200) {
+          // show error page??
+          alert(`Whoops! Fetch to skills failed! Got response ${response.status}`)
+          return []
+        }
+        const data = await response.json();
+        return data
+    }
+
 
     static createSkill = async function (accessToken, requestBody){
         let response = await fetch(`${this.DATASTORE_URL}/skills`, {

@@ -3,8 +3,8 @@ import UserSkills from '../components/UserSkills';
 import AddSkill from '../components/AddSkill';
 import SlidingWindow from '../components/SlidingWindow';
 import { user } from '../utils/User';
-import {datastore_url} from '../utils/Constants';
 import ReactButton from '../components/ReactButton';
+import fetchRequests from '../data_model/fetchRequests';
 
 function SkillPage() {
   const [groupedSkills, setGroupedSkills] = useState({})
@@ -32,17 +32,7 @@ function SkillPage() {
 
 
   async function loadUserSkills() {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
-      headers: {
-        'Authorization': `Bearer ${user}`
-      }
-    });
-    if (response.status !== 200) {
-      // show error page??
-      console.log("Whoops! Fetch to skills failed")
-      return setSkills([])
-    }
-    const data = await response.json();
+    const data = await fetchRequests.getUserSkills(user, user)
     setSkills(data)
   }
 
