@@ -85,6 +85,7 @@
   background-color: maroon;
 }
 
+
 button {
   padding: 5px;
 }
@@ -136,6 +137,13 @@ hr {
   border:rgb(50, 50, 122);
   border-radius: 5px;
   border-style: solid;
+}
+
+.add-skill .user-skill {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-color: rgb(21, 135, 69);
 }
 
 td, th {

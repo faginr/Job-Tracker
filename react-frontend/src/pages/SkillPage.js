@@ -12,7 +12,6 @@ function SkillPage() {
   const [skillsModified, setSkillsModified] = useState(0)
 
   function splitSkillsByProf(userSkills) {
-    console.log("bucketing")
     const skillsMap = {"high": [], "med": [], "low": []}
     for(let skill of userSkills) {
         switch (skill.proficiency) {
@@ -57,7 +56,7 @@ function SkillPage() {
       
       <div>
         <SlidingWindow 
-          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified}/>}
+          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified} userSkills={skills}/>}
           ClickableComponent={<ReactButton label={"Add New Skill"}/>} />
       </div>
     </div>

@@ -28,8 +28,14 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     }
 
     async function sendUpdate(skill) {
+        // send update on proficiency
         let requestBody = {'proficiency': parseInt(skill.proficiency, 10)}
         await fetchRequests.updateSkillProficiency(user, user, requestBody, skill.skill_id)
+
+        // send update on tying apps to skills
+        tieToApps()
+
+        // TODO: send update on removing apps
 
         // call setSkillsModified to refresh the skills page
         setSkillsModified(skillsModified+1)
@@ -68,7 +74,6 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                         onChange={(e) => {updateSkill(e, 'proficiency')}}/>
                 </label>
             </div>
-            <button onClick={()=>sendUpdate(skill)}>Submit</button>
             <div>
                 <h2>
                     Tied to Applications:
@@ -93,8 +98,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                     })}
                     selected={selectedApps}
                     setSelected={setSelectedApps}/>
-                {selectedApps.length>0?<button onClick={tieToApps}>Add Applications</button>:<div/>}
-                
+                <button onClick={()=>sendUpdate(skill)}>Confirm Updates</button>
             </div>
         </div>
     )

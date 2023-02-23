@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from "react";
+import {MdOutlineCheckCircleOutline} from "react-icons/md"
 import { user } from "../utils/User";
 import fetchRequests from "../data_model/fetchRequests";
 
@@ -7,13 +8,13 @@ import fetchRequests from "../data_model/fetchRequests";
 // is clicked adds that skill to the user.
 // Requires handleSkillClick function to control what happens with
 // the parent component when a skill is clicked.
-function AddSkill({skillAdded, setSkillAdded}) {
-    const [allSkills, setAllSkills] = useState([])
+function AddSkill({skillAdded, setSkillAdded, userSkills}) {
+    const [allSkillList, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
     const [query, setQuery] = useState("")
 
-    const filteredSkills = allSkills.filter((skill) => {
+    const filteredSkills = allSkillList.filter((skill) => {
         return (skill.description.toLowerCase().includes(query.toLowerCase()))
     })
 
@@ -55,7 +56,7 @@ function AddSkill({skillAdded, setSkillAdded}) {
         
         // perform cleanup after skill created
         setNewSkillFormClass("hidden")
-        loadAllSkills()
+        loadAllSkills().then((data) => highlightUsersSkills(data))
         setQuery("")
         setNewSkill({'description': undefined, 'proficiency': undefined})
         setSkillAdded(skillAdded+1)
@@ -77,6 +78,7 @@ function AddSkill({skillAdded, setSkillAdded}) {
 
         // perform cleanup after skill tied
         setSkillAdded(skillAdded+1)
+        skill.userOwns = true
     }
 
     function handleQuery(e){
@@ -102,12 +104,32 @@ function AddSkill({skillAdded, setSkillAdded}) {
         }
     }
 
+    function highlightUsersSkills(allSkillList) {
+        let allSkillIndex = 0
+        let userSkillIndex = 0
+        while (allSkillIndex < allSkillList.length && userSkillIndex < userSkills.length){
+            let allSkillDesc = allSkillList[allSkillIndex].description.toLowerCase()
+            let userSkillDesc = userSkills[userSkillIndex].description.toLowerCase()
+            
+            if(allSkillDesc > userSkillDesc){
+                userSkillIndex++
+                continue;
+            } else if(allSkillDesc === userSkillDesc){
+                allSkillList[allSkillIndex].userOwns = true
+                userSkillIndex++
+            } 
+            allSkillIndex++
+        }
+        setAllSkills(allSkillList)
+    }
+
     async function loadAllSkills() {
         const data = await fetchRequests.getAllSkills(user)
         setAllSkills(data)
+        return data
     }
 
-    useEffect(()=>{loadAllSkills()}, [])
+    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [])
 
     return(
         <div className="add-skill">
@@ -116,7 +138,7 @@ function AddSkill({skillAdded, setSkillAdded}) {
                 Add Skill to Your Profile
             </h2>
             
-            {allSkills.length<3?createNew():allowSearchAndCreateNew()}
+            {allSkillList.length<3?createNew():allowSearchAndCreateNew()}
 
             <div className={newSkillFormClass}>
                 <form>
@@ -140,12 +162,21 @@ function AddSkill({skillAdded, setSkillAdded}) {
             </div>
 
             <ul>
-                {/* List all skills in database */}
+                {/* List all skills in database, display user owned skills as different
+                color with checkmark */}
                 {filteredSkills.map((skill) => {
-                    return(
-                        <li key={skill.id} 
-                            onClick={() => tieSkillToUser(skill)}>
+                    return (
+                        skill.userOwns ? 
+                            <li key={skill.id} 
+                                className='user-skill'>
                                 {skill.description}
+                                <MdOutlineCheckCircleOutline />
+                            </li>
+                        :
+                        <li key={skill.id} 
+                            className='all-skill'
+                            onClick={() => tieSkillToUser(skill)}>
+                            {skill.description}
                         </li>
                     )}
                 )}
