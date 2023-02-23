@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import { user } from "../utils/User";
 import { datastore_url } from "../utils/Constants";
 
-function SkillForm({skillToEdit, handleFormSubmittal}) {
+function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [skill, setSkill] = useState(skillToEdit===undefined?{}:skillToEdit)
 
     function updateSkill(e, identifier) {
@@ -15,7 +15,9 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
     async function handleSubmit(e) {
         e.preventDefault()
         skillToEdit ?  await sendUpdate(skill) : await sendNew(skill)
-        handleFormSubmittal()
+
+        // call setSkillsModified to refresh the skills page
+        setSkillsModified(skillsModified+1)
     }
 
     async function handleDelete(e) {
@@ -29,7 +31,9 @@ function SkillForm({skillToEdit, handleFormSubmittal}) {
         if (response.status !== 200) {
             alert("Uh-oh, I had trouble deleting this skill")
         }
-        handleFormSubmittal()
+
+        // call setSkillsModified to refresh the skills page
+        setSkillsModified(skillsModified+1)
     }
 
     async function sendUpdate(skill) {
