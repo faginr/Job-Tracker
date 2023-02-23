@@ -6,7 +6,10 @@ import fetchRequests from "../data_model/fetchRequests";
 
 function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [skill, setSkill] = useState(skillToEdit)
+    // used by selectMulti to keep track of what's selected, pushes app objects to
+    // the array
     const [selectedApps, setSelectedApps] = useState([])
+    // used by selectMulti to display list of apps
     const [applications, setApplications] = useState([])
 
     function updateSkill(e, identifier) {
