@@ -36,7 +36,7 @@ function verifyAcceptHeader (req, res, next) {
 async function verifyResourceExists (req, res, next) {
     const resourceId = req.params.user_id
 
-    const resource = await model.getItemByID('users', resourceId)
+    const resource = await model.getItemByManualID('users', resourceId)
 
     if (resource[0] === null || resource[0] === undefined) {
         res.status(404).send(errorMessages[404].users)
@@ -58,7 +58,7 @@ async function verifyResourceExists (req, res, next) {
 async function verifyUserDoesNotExist (req, res, next) {
     const resourceId = req.body.auth.id
 
-    const resource = await model.getItemByID('users', resourceId)
+    const resource = await model.getItemByManualID('users', resourceId)
     if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
@@ -79,7 +79,7 @@ function methodNotAllowed (req, res) {
 /*------------------ USERS ROUTES --------------------------- */
 router.post('/', 
     verifyAcceptHeader,
-    verifyJWTOnly,       // adds id under req.body.auth         
+    verifyJWTOnly,                   // adds id under req.body.auth         
     verifyUserDoesNotExist,
     async (req, res) => {
         const today = new Date()
@@ -91,7 +91,7 @@ router.post('/',
         req.body.auth.date_created = `${month}/${day}/${year}`
         const id = req.body.auth.id
         delete req.body.auth.id
-        const response = await model.postItemManId(req.body.auth, id, 'users')
+        const response = await model.postItemManualId(req.body.auth, id, 'users')
         res.status(201).send(response)
 })
 
@@ -127,7 +127,7 @@ router.delete('/:user_id',
             const deletedContacts = await model.deleteMatchingItemsFromKind('contacts', 'user_id', user_id)
 
             // delete user
-            await model.deleteItem('users', user_id)
+            await model.deleteItemManualID('users', user_id)
             res.status(200).send({"deletedApps": deletedApps.length, "deletedContacts": deletedContacts.length})
         } catch (error) {
             console.error(error)
