@@ -33,8 +33,8 @@ export default class fetchRequests {
         return await response.json()
     }
 
-    static tieSkillToUser = async function (accessToken, requestBody, skillID){
-        let putResponse = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(accessToken).sub}/skills/${skillID}`, {
+    static tieSkillToUser = async function (user, accessToken, requestBody, skillID){
+        let putResponse = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/skills/${skillID}`, {
             method: "PUT",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -47,5 +47,44 @@ export default class fetchRequests {
         if (putResponse.status !== 204) {
             alert(`Uh-oh, I couldn't tie ${skillID} to user!`)
         }
+    }
+
+    static updateSkillProficiency = async function(user, accessToken, requestBody, skillID) {
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/skills/${skillID}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        })
+        if (response.status !== 204) {
+            alert("Uh-oh, something went wrong with updating the skill")
+        }
+    }
+
+    static deleteSkillFromUser = async function(user, accessToken, skillID) {
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/skills/${skillID}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            }
+        })
+        if (response.status !== 200) {
+            alert("Uh-oh, I had trouble deleting this skill")
+        }
+    }
+
+    static getAllApplications = async function(user, accessToken){
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/applications`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+        if (response.status !== 200) {
+            alert("Uh-oh, I had trouble getting applications")
+        }
+        return await response.json()
     }
 }

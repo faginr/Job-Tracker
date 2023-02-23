@@ -51,7 +51,7 @@ function AddSkill({skillAdded, setSkillAdded}) {
         let createdSkill = await fetchRequests.createSkill(user, {'description': newSkill.description})
 
         // tie the skill to the user
-        await fetchRequests.tieSkillToUser(user, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+        await fetchRequests.tieSkillToUser(user, user, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
         
         // perform cleanup after skill created
         setNewSkillFormClass("hidden")
@@ -73,7 +73,7 @@ function AddSkill({skillAdded, setSkillAdded}) {
      * @param {*} skill 
      */
     async function tieSkillToUser(skill){
-        await fetchRequests.tieSkillToUser(user, {'proficiency': undefined}, skill.id)
+        await fetchRequests.tieSkillToUser(user, user, {'proficiency': undefined}, skill.id)
 
         // perform cleanup after skill tied
         setSkillAdded(skillAdded+1)
