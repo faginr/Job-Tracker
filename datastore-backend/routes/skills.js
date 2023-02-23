@@ -103,8 +103,8 @@ function methodNotAllowedSkillID (req, res) {
 router.get('/', verifyUser.verifyJWTOnly,
                 verifyAcceptHeader, async (req, res) => {
     try {
-        const skills = await model.getItemsNoPaginate('skills')
-        res.status(200).send(skills)
+        const sortedSkills = await model.getItemsSorted('skills', 'description')
+        res.status(200).send(sortedSkills)
     } catch (err) {
         console.error(err)
         res.status(500).end()

@@ -386,7 +386,17 @@ router.get('/:user_id/skills',
     verifyAcceptHeader, 
     async (req, res) => {
         const skillMap = createSkillMap(req.body.user.skills)
-        const skills = await bucketAppsBySkill(req.body.user, skillMap)
+        let skills = await bucketAppsBySkill(req.body.user, skillMap)
+
+        // sort the skills before sending them back
+        skills = skills.sort((a, b) => {
+            a = a.description.toUpperCase()
+            b = b.description.toUpperCase()
+            if(a < b) return -1
+            if(a > b) return 1
+            return 0
+        })
+
         res.status(200).send(skills)
 })
 
