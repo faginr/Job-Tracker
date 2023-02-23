@@ -3,6 +3,7 @@ import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
 import AddContactPage from './AddContactPage';
 import SlidingWindow from '../components/SlidingWindow';
+import ReactButton from '../components/ReactButton';
 
 function ContactPage() {
   
@@ -168,11 +169,10 @@ function ContactPage() {
           onDelete={onDelete}
           sorting={sorting} ></ContactList>
       </div><br />
-      
       <SlidingWindow 
-        Page={AddContactPage} 
-        buttonName="AddNewContact" />
-
+        Page={<AddContactPage />}
+        ClickableComponent={<ReactButton label="Add Contact"/>}
+        />
     </>
   );
 }
