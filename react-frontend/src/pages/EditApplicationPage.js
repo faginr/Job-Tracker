@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants';
 
@@ -86,10 +87,11 @@ export const EditApplicationPage = ({ typeToEdit }) => {
      };
 
     // PATCH application
-    const response = await fetch(`${datastore_url}/applications/${typeToEdit.id}`, {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
       method: 'PATCH',
       body: JSON.stringify(editedApplication),
       headers: {
+        'Authorization': `Bearer ${user}`,
         'Content-Type': 'application/json',
       },
     });

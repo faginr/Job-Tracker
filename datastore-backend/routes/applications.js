@@ -42,6 +42,8 @@ function verify_keys (body_keys) {
     title: "title",
     description: "description",
     posting_date: "posting_date",
+    contacts: "contacts",
+    skills: "skills",
     status: "status",
     link: "link",
     auth: "auth",
@@ -50,6 +52,7 @@ function verify_keys (body_keys) {
 
   for (let item of Object.keys(body_keys)){
     if (!(item in allowed_keys)){
+      // console.log(item)
       return {valid: false, message: `Key ${item} not allowed`}
     }
   }
