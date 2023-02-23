@@ -1,12 +1,14 @@
 import React, {useState, useEffect} from "react";
 import { user } from "../utils/User";
 
+const datastore_url = process.env.REACT_APP_API_SERVER_URL
+
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
 // is clicked adds that skill to the user.
 // Requires handleSkillClick function to control what happens with
 // the parent component when a skill is clicked.
-function AddSkill({handleSkillClick}) {
+function AddSkill({skillAdded, setSkillAdded}) {
     const [allSkills, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
@@ -24,14 +26,8 @@ function AddSkill({handleSkillClick}) {
         )
     }
 
-    async function createSkill (e) {
-        e.preventDefault()
-        console.log(newSkill)
-        newSkill.description ?? (newSkill['description'] = query)
-        console.log(newSkill)
-
-        // send the skill to the backend for creation
-        let response = await fetch(`/skills`, {
+    async function createNewSkillInAPI(){
+        let response = await fetch(`${datastore_url}/skills`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -44,11 +40,11 @@ function AddSkill({handleSkillClick}) {
             alert(`Uh-oh, I couldn't create ${newSkill.description} in DS!`)
             return
         }
+        return await response.json()
+    }
 
-        let data = await response.json()
-
-        // tie the skill to the user
-        let putResponse = await fetch(`/users/${JSON.parse(user).sub}/skills/${data.id}`, {
+    async function tieSkillToUser(skill){
+        let putResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.id}`, {
             method: "PUT",
             headers: {
                 'Authorization': `Bearer ${user}`,
@@ -56,17 +52,41 @@ function AddSkill({handleSkillClick}) {
             }, 
             // PUT method expect only proficiency in body
             // and form auto-formats prof as string, so need to conver to num
-            body: JSON.stringify({'proficiency': parseInt(newSkill.proficiency)})
+            body: JSON.stringify({'proficiency': parseInt(skill.proficiency)})
         })
         if (putResponse.status !== 204) {
-            alert(`Uh-oh, I couldn't tie ${data.description} to user!`)
+            alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
         }
-        
-        // hide the feature pane
-        handleSkillClick()
+        updateUserSkillsInReact()
     }
 
-    function handleForm(e, identifier) {
+    function updateUserSkillsInReact() {
+        setSkillAdded(skillAdded+1)
+    }
+
+    async function createSkill (e) {
+        e.preventDefault()
+        
+        newSkill.description ?? (newSkill['description'] = query)
+
+        // send the skill to the backend for creation
+        let createdSkill = await createNewSkillInAPI()
+
+        // format the created skill to be the same as all the other skills
+        createdSkill['proficiency'] = newSkill.proficiency
+
+        // tie the skill to the user
+        await tieSkillToUser(createdSkill)
+
+        // hide the form
+        setNewSkillFormClass("hidden")
+
+        // reload all skills to reflect new item and reset query
+        loadAllSkills()
+        setQuery("")
+    }
+
+    function handleFormChange(e, identifier) {
         setNewSkill({
             ...newSkill,
             [identifier]: e.target.value
@@ -79,7 +99,7 @@ function AddSkill({handleSkillClick}) {
     }
 
     async function loadAllSkills() {
-        const response = await fetch('/skills', {
+        const response = await fetch(`${datastore_url}/skills`, {
             headers: {
                 'Authorization': `Bearer ${user}`
             }
@@ -93,21 +113,8 @@ function AddSkill({handleSkillClick}) {
         setAllSkills(data)
     }
 
-    async function addSkillToUser(skill) {
-        const response = await fetch(`/users/${JSON.parse(user).sub}/skills/${skill.id}`, {
-            method: "PUT",
-            headers: {
-                'Authorization': `Bearer ${user}`
-            }, 
-        })
-        if (response.status !== 204) {
-            alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
-        }
-    }
-
     async function handleSkillSelection(skill) {
-        await addSkillToUser(skill)
-        handleSkillClick()
+        await tieSkillToUser(skill)
     }
 
     useEffect(()=>{loadAllSkills()}, [])
@@ -134,15 +141,21 @@ function AddSkill({handleSkillClick}) {
             </ul>
             <div className={newSkillFormClass}>
                 <form>
-                    <label>
-                        Description:
-                        <input type="text" value={query} onChange={(e)=>handleForm(e, 'description')}/>
-                    </label>
-                    <label>
-                        Proficiency:
-                        <input type="number" max={5} min={1} onChange={(e)=>handleForm(e, 'proficiency')}/>
-                    </label>
-                    <button onClick={(e) => createSkill(e)}>Create New</button>
+                    <div>
+                        <label>
+                            Description:
+                            <input type="text" value={query} onChange={(e)=>handleFormChange(e, 'description')}/>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Proficiency:
+                            <input type="number" max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
+                        </label>
+                    </div>
+                    <div>
+                        <button onClick={createSkill}>Create New</button>
+                    </div>
                 </form>
             </div>
         </div>

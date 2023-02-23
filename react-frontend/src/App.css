@@ -59,8 +59,26 @@
   max-width: 20%;
 }
 
-.regular-skill {
+.user-skills > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.skills {
+  text-align: start;
+  padding: 10px;
   margin: 5px;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: grey;
+}
+
+.skills > .skill-description{
+  font-weight: 800;
+}
+
+.skill-app-count, .skill-proficiency{
+  font-size: smaller;
 }
 
 .alert-skill {
@@ -108,10 +126,6 @@ hr {
     margin-left: 0%;
     width: 50%;
   }
-}
-
-.user-skills .display-button{
-  margin: 1%;
 }
 
 .add-skill li {
