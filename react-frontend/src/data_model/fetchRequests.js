@@ -76,7 +76,7 @@ export default class fetchRequests {
     }
 
     static getAllApplications = async function(user, accessToken){
-        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/applications`, {
+        const response = await fetch(`${this.DATASTORE_URL}/applications`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${accessToken}`

@@ -35,6 +35,10 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         setSkillsModified(skillsModified+1)
     }
 
+    async function tieToApps(){
+        console.log(selectedApps)
+    }
+
     async function getAllApps() {
         const apps = await fetchRequests.getAllApplications(user, user) 
         setApplications(apps)
@@ -89,6 +93,8 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                     })}
                     selected={selectedApps}
                     setSelected={setSelectedApps}/>
+                {selectedApps.length>0?<button onClick={tieToApps}>Add Applications</button>:<div/>}
+                
             </div>
         </div>
     )
