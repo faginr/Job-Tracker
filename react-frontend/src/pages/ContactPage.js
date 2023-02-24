@@ -1,6 +1,7 @@
 import ContactList from '../components/ContactList';
 import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
+import { user } from '../utils/User';
 import AddContactPage from './AddContactPage';
 import SlidingWindow from '../components/SlidingWindow';
 import ReactButton from '../components/ReactButton';
@@ -46,9 +47,10 @@ function ContactPage() {
       if (Object.keys(contact_at_app_id).length > 0) {
         for (let application of contact_at_app_id) {
           // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/applications/${application}`, {
+          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, {
             method: 'GET',
             headers: {
+              'Authorization': `Bearer ${user}`,
               'Accept': 'application/json',
             },
           });
@@ -68,10 +70,11 @@ function ContactPage() {
           const updatedApplication = { contacts: appContacts };
 
           // PATCH the application
-          const responseUpdateApp = await fetch(`${datastore_url}/applications/${application}`, {
+          const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, {
             method: 'PATCH',
             body: JSON.stringify(updatedApplication),
             headers: {
+              'Authorization': `Bearer ${user}`,
               'Content-Type': 'application/json',
             },
           });
@@ -120,7 +123,11 @@ function ContactPage() {
    * Function to fetch applications 
    ************************************************************/
   const getApps = async () => {
-    const response = await fetch(`${datastore_url}/applications`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
     const data = await response.json();
     setApps(data);
   };
