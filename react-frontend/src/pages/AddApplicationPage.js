@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants'
 
@@ -54,10 +55,11 @@ export const AddApplicationPage = () => {
 
     // POST new application
     const response = await fetch(
-      `${datastore_url}/applications`, {
+      `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
       method: 'POST',
       body: JSON.stringify(newApplication),
       headers: {
+        'Authorization': `Bearer ${user}`,
         'Content-Type': 'application/json',
       },
     });
@@ -66,10 +68,10 @@ export const AddApplicationPage = () => {
     if(response.status === 201){
       console.log("Successfully added the application 201"); 
     } else {
-      console.log(`Failed to add application, status code = ${response.status}`);
+      alert(`Failed to add application, status code = ${response.status}`);
     }
    
-
+    
     // update - See if there is at least one contact added
     if (contacts.length > 0) {
 
@@ -117,8 +119,9 @@ export const AddApplicationPage = () => {
 
     }
 
-    navigate(0);  // goes back to Application Page
+    
   };
+  navigate(0);  // goes back to Application Page
 }
 
 const loadContacts = async () => {
