@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
+import { user } from '../utils/User';
 
 export const AddContactPage = () => {
   
@@ -39,18 +40,19 @@ export const AddContactPage = () => {
     };
 
     // POST a new contact
-    const responseContactId = await fetch(
-      `${datastore_url}/contacts`, 
+    const responseContactId = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, 
       {
         method: 'POST',
         body: JSON.stringify(newContact),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user}`},
       }
     );
     if (responseContactId.status === 201) {
       alert("Successfully added the contact!"); 
     } else {
-      alert(`Failed to add the contact, status code = ${responseContactId.status}`);
+      console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
     };
 
     // update an application if added to the contact
@@ -63,16 +65,18 @@ export const AddContactPage = () => {
       for (let application of contact_at_app_id) {
 
         // GET the application to be updated
-        const responseGetApp = await fetch(`${datastore_url}/applications/${application}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
+        const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${user}`}
+          }
+        );
         if (responseGetApp.status === 200) {
-          //alert("Successfully get the application!"); 
+          //console.log("Successfully fetched the application!"); 
         } else {
-          alert(`Failed to get the application, status code = ${responseGetApp.status}`);
+          console.log(`Failed to fetch the application, status code = ${responseGetApp.status}`);
         };
 
         const data = await responseGetApp.json();
@@ -85,30 +89,45 @@ export const AddContactPage = () => {
         const updateApplication = { contacts: appContacts };
 
         // PATCH the application with contact_id
-        const responseUpdateApp = await fetch(`${datastore_url}/applications/${application}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updateApplication),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updateApplication),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user}`}
+          }
+        );
         if (responseUpdateApp.status === 200) {
-          //alert("Successfully updated the application!"); 
+          //console.log("Successfully updated the application!"); 
         } else {
-          alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
+          console.log(`Failed to update the application, status code = ${responseUpdateApp.status}`);
         }
       }
-    }
+    };
+
     // go back to Application Page
     navigate(0);  
   };
 
 
   /************************************************************* 
-   * Function to fetch applications 
+   * Function to get applications 
    ************************************************************/
   const getApps = async () => {
-    const response = await fetch(`${datastore_url}/applications`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`,
+      { 
+        method: "GET",
+        headers: {
+          'Accept': 'application/json', 
+          'Authorization': `Bearer ${user}`}
+      }
+    );
+    if (response.status === 200) {
+      //console.log("Successfully fetched the applications!"); 
+    } else {
+      console.log(`Failed to fetch the applications, status code = ${response.status}`);
+    };
     const data = await response.json();
 
     // sort by title

@@ -9,7 +9,7 @@ const userAppSkills = require('./routes/userAppSkills')
 const router = express.Router()
 
 router.use('/', applications);
-router.use('/contacts', contacts);
+router.use('/users/:user_id/contacts', contacts);
 router.use('/users', users, userSkills, userAppSkills)
 router.use('/skills', generalSkills)
 
