@@ -11,6 +11,7 @@ import ContactPage from './pages/ContactPage';
 import NotFound from './pages/NotFound';
 import CallBackPage from './pages/CallBackPage';
 
+import Header from './components/Header'
 import Navigation from './components/Navigation';
 
 function App() {
