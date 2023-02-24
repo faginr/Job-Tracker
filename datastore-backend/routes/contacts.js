@@ -3,6 +3,7 @@ const router = express.Router();
 const ds = require('../datastore');
 const datastore = ds.datastore;
 const errorMessages = require('./errorMessages');
+const model = require('../model')
 const verifyUser = require('./middleware/verifyUser')
 
 // the name of the kind to be stored
@@ -142,7 +143,7 @@ function checkIdExists (req, res, next) {
 /*--------------- End Middleware Functions ----------------- */
 
 
-/* ------------- Begin Lodging Model Functions ------------- */
+/* ------------- Begin Model Functions ------------- */
 
 /************************************************************* 
  * The function sends a request to datastore to store the received data 
@@ -190,7 +191,7 @@ function post_contact(last_name, first_name, email, phone, notes, contact_at_app
 /************************************************************* 
  * The function returns the arry of contacts that belongs to the user
  ************************************************************/
-async function get_contacts(user_id) {
+async function getContacts(user_id) {
   const query = datastore.createQuery(CONTACT);
   let contacts = await datastore.runQuery(query);
   // array.map adds id attribute to every element in the array at element 0 of
@@ -350,17 +351,39 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
  * GET all contacts
  ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
-  //console.log("Get all request received!");
+  console.log("Get all request received!");
   const user_id = getUserId(req);
 
-  get_contacts(user_id)
-    .then((contacts) => {
+  async function getUserContacts() {
+    try {
+      let contacts = await getContacts(user_id);
+      let applications = await model.getItemsNoPaginate('application');
+
+      // Iterate over contacts and applications, if a contact is related to an application, 
+      // add the name and link of this application to this contact 
+      let arrayAppsNames = [];
+      let objApps = {};
+      for (let contact of contacts) {
+        arrayAppsNames = [];
+        for (let app_id of contact.contact_at_app_id) {
+          for (let application of applications) {
+            if (app_id === application.id) {
+              objApps = {};
+              objApps['title'] = application.title;
+              objApps['link'] = application.link;
+              arrayAppsNames.push(objApps); 
+            } 
+          }
+        };
+        contact.arrayAppsNames = arrayAppsNames
+      };
       res.status(200).json(contacts);
-    })
-    .catch(error => {
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    }
+  };
+  getUserContacts();
 });
 
 
