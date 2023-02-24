@@ -24,34 +24,21 @@ function verifyAcceptHeader (req, res, next) {
     }
 }
 
-/**
- * Verifies that the resource on which action is requested actually exists.
- * If it does exist, the existing resource is added to the request body 
- * as existResource and passes control to next middleware. If it doesn't 
- * exist, a 404 status/error message is returned.
- * @param {express.request} req 
- * @param {express.response} res 
- * @param {express.next} next 
- */
-async function verifyResourceExists (req, res, next) {
-    const resourceId = req.params.user_id
-    let resource = []
+
+function verifyRequestBody(req, res, next){
     try{
-        resource = await model.getItemByManualID('users', resourceId)
+        if(req.body.username === undefined || req.body.username === null){
+            return res.status(400).send(errorMessages[400].keyError)
+        } 
+        if (req.body.username.length > 40){
+            return res.status(400).send(errorMessages[400].keyError)
+        }
     } catch(e){
-        console.error(e)
-        console.error("Problem looking up user!")
-        return res.status(500).end()
+        console.error("Trouble verifying body post on users")
+        return res.status(400).send(errorMessages[400].requiredKey)
     }
-
-    if (resource[0] === null || resource[0] === undefined) {
-        res.status(404).send(errorMessages[404].users)
-    } else {
-        req.body.existResource = resource[0]
-        next()
-    }
+    next()
 }
-
 
 /**
  * Verifies that the user that we're trying to create doesn't exist.
@@ -93,6 +80,7 @@ router.post('/',
     verifyAcceptHeader,
     verifyJWTOnly,                   // adds id under req.body.auth         
     verifyUserDoesNotExist,
+    verifyRequestBody,
     async (req, res) => {
         const today = new Date()
         const [month, day, year] = [today.getMonth() + 1, today.getDate(), today.getFullYear()]
@@ -101,6 +89,7 @@ router.post('/',
         req.body.auth.contacts = []
         req.body.auth.applications = []
         req.body.auth.date_created = `${month}/${day}/${year}`
+        req.body.auth.username = req.body.username
         const id = req.body.auth.id
         delete req.body.auth.id
         try{
@@ -125,17 +114,15 @@ router.delete('/', methodNotAllowed)
 
 router.get('/:user_id', 
     verifyAcceptHeader,
-    verifyJWTWithUserParam,             // adds id under req.body.auth   
-    verifyResourceExists,               // adds user data under req.body.existResource
+    verifyJWTWithUserParam,             // adds id under req.body.auth, user info under req.body.user   
     async(req, res) => {
-        res.status(200).send(req.body.existResource)
+        res.status(200).send(req.body.user)
 })
 
 router.delete('/:user_id', 
-    verifyResourceExists,               // adds user data under req.body.existResource
-    verifyJWTWithUserParam,
+    verifyJWTWithUserParam,             // adds id under req.body.auth, user info under req.body.user
     async (req, res) => {
-        const user_id = req.body.existResource.id
+        const user_id = req.body.user.id
         
         try {
             // delete applications tied to user
