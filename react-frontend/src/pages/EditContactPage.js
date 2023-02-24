@@ -107,12 +107,13 @@ export const EditContactPage = ({ typeToEdit }) => {
       for (let app of originalApplication) {
         if (!(contact_at_app_id.includes(app))) {
           // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/applications/${app}`, {
+          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${app}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
-            },
-          });
+              'Authorization': `Bearer ${user}`}
+            }
+          );
           if (responseGetApp.status === 200) {
             //alert("Successfully get the application!"); 
           } else {

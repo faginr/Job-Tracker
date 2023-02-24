@@ -82,7 +82,7 @@ export const AddApplicationPage = () => {
       for(let contact of contacts) {
 
         // GET the contact
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -103,7 +103,7 @@ export const AddApplicationPage = () => {
       updateContact["contact_at_app_id"].push(`${newApp.id}`) 
       
       // alert(JSON.stringify(updateContact))
-      const responsePatch = await fetch(`${datastore_url}/contacts/${contact}`, {
+      const responsePatch = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
         method: 'PATCH',
         body: JSON.stringify(updateContact),
         headers: {
@@ -125,7 +125,7 @@ export const AddApplicationPage = () => {
 }
 
 const loadContacts = async () => {
-  const response = await fetch(`${datastore_url}/contacts`);
+  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
   const data = await response.json();
   // console.log(data);
   setContacts(data);

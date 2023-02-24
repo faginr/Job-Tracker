@@ -112,7 +112,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         // see if contacts has startingContact still in it
         if(!(contacts.includes(contact))){
         // GET the contact if not
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -135,7 +135,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
         const updatedContacts = {contact_at_app_id: editedContacts}
         
-        const patchResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedContacts),
           headers: {
@@ -152,7 +152,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
     for (let contact of contacts) {
       if (!(startingContacts.includes(contact))) {
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -174,7 +174,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
         const updatedContacts = {contact_at_app_id: editedContacts}
         
-        const patchResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedContacts),
           headers: {
@@ -199,7 +199,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   };
 
   const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/contacts`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
     const data = await response.json();
     // console.log(data);
     setContacts(data);
