@@ -9,8 +9,8 @@ function Application({ application, onDelete }) {
     <tr>
       <td>{application.title}</td>
       <td>{application.description}</td>
-      <td><ul className='view-app-list'>{application.skill_names.map((skill) => (<li>{skill}</li>))}</ul></td>
-      <td><ul className='view-app-list'>{application.contact_names.map((contact) => (<li>{contact}</li>))}</ul></td>
+      <td><ul className='view-app-list'>{application.skill_names.map((skill) => (<li key={skill}>{skill}</li>))}</ul></td>
+      <td><ul className='view-app-list'>{application.contact_names.map((contact) => (<li key={contact}>{contact}</li>))}</ul></td>
       <td>{application.posting_date}</td>
       <td>{application.status}</td>
       <td><a href={application.link}>{application.link}</a></td>
