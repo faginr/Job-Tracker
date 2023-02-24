@@ -31,7 +31,7 @@ function userMatchesJWT(req) {
 async function userExists(req) {
     let user;
     try {
-        user = await model.getItemByID('users', req.params.user_id)
+        user = await model.getItemByManualID('users', req.params.user_id)
         req.body['user'] = user[0]
     } catch(err) {
         console.error(err)
@@ -62,7 +62,7 @@ async function verifyJWTWithUserParam(req, res, next) {
     // from this function
     await verifyJWTOnly(req, res, ()=>{})
     if(res.statusCode === 401){
-        return res.send(messages[401])
+        return
     }
     
     // verify user param and JWT match
