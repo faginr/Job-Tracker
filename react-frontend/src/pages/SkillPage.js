@@ -11,7 +11,7 @@ const apiURL = process.env.REACT_APP_API_SERVER_URL
 function SkillPage() {
   const [groupedSkills, setGroupedSkills] = useState({})
   const [skillsModified, setSkillsModified] = useState(0)
-  const [skills, setSkills] = useState({})
+  const [skills, setSkills] = useState([])
   const {user, isAuthenticated} = useAuth0()
   const {getTokenFromAuth0} = useAPI()
 
@@ -53,14 +53,14 @@ function SkillPage() {
       } catch(err){
         alert("Uh oh... looks like the server is in-communicado!")
       }
+      if (response.status !== 200) {
+        // show error page??
+        console.log("Whoops! Fetch to skills failed")
+        return setSkills([])
+      }
+      const data = await response.json();
+      setSkills(data)
     };
-    if (response.status !== 200) {
-      // show error page??
-      console.log("Whoops! Fetch to skills failed")
-      return setSkills([])
-    }
-    const data = await response.json();
-    setSkills(data)
   }
 
   useEffect(() => {loadUserSkills()}, [skillsModified])
