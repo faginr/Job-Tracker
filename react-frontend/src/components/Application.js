@@ -3,13 +3,14 @@ import { MdDeleteForever, MdEdit } from 'react-icons/md';
 import EditApplicationPage from '../pages/EditApplicationPage'
 import SlidingWindow from './SlidingWindow';
 
-function Application({ application, onDelete, onEdit }) {
+function Application({ application, onDelete }) {
+  // console.log(application)
   return (
     <tr>
       <td>{application.title}</td>
       <td>{application.description}</td>
-      <td>{application.skills}</td>
-      <td>{application.contacts}</td>
+      <td><ul className='view-app-list'>{application.skill_names.map((skill) => (<li>{skill}</li>))}</ul></td>
+      <td><ul className='view-app-list'>{application.contact_names.map((contact) => (<li>{contact}</li>))}</ul></td>
       <td>{application.posting_date}</td>
       <td>{application.status}</td>
       <td><a href={application.link}>{application.link}</a></td>
@@ -19,7 +20,7 @@ function Application({ application, onDelete, onEdit }) {
           ClickableComponent={<MdEdit/>} />
       </td>
       {/* <td><MdEdit onClick={() => onEdit(application)} /></td> */}
-      <td><MdDeleteForever onClick={() => onDelete(application.id,application.contacts)} /></td>
+      <td><MdDeleteForever onClick={() => onDelete(application.id,application.contacts,application.skills)} /></td>
     </tr>
   );
 }

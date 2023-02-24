@@ -12,9 +12,10 @@ function ApplicationPage() {
   
   const [applications, setApplications] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [skills, setSkills] = useState([]);
   // const navigate = useNavigate();
 
-  const onDelete = async (id, contacts) => {
+  const onDelete = async (id, contacts, skills) => {
     // Confirm Deletion
     const confirm = window.confirm("Are you sure you want to delete the application?");
     if(confirm){
@@ -104,6 +105,16 @@ function ApplicationPage() {
     setContacts(data);
   }
 
+  const loadSkills = async () => {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
+    const data = await response.json();
+    setSkills(data);
+  }
+
   // const onEdit = application => {
   //   settypeToEdit(application);
   //   navigate("/edit-application");
@@ -113,7 +124,34 @@ function ApplicationPage() {
   useEffect(() => {
     loadApplications();
     loadContacts();
+    loadSkills();
   }, []);
+
+  // console.log(applications)
+  for (let app of applications){
+    app.skill_names = []
+    app.contact_names = []
+    // skills
+    if (app.skills.length > 0){
+      for(let app_skill of app.skills){
+        for(let skill of skills){
+          // console.log(skill)
+          if (skill.skill_id === app_skill){
+            app.skill_names.push(skill.description);  
+          }
+        }
+      }
+    }
+    if (app.contacts.length > 0){
+      for (let app_contact of app.contacts){
+        for (let contact of contacts){
+          if (contact.id === app_contact){
+            app.contact_names.push(contact.first_name+" "+contact.last_name)
+          }
+        }
+      }
+    }
+  }
 
   return (
     <>
