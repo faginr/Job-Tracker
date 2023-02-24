@@ -1,5 +1,0 @@
-REACT_APP_AUTH0_DOMAIN=capstone-react-auth.us.auth0.com
-REACT_APP_AUTH0_CLIENT_ID=j3LpnhynPhNFODF28v49LU99PyY6dpoW
-REACT_APP_AUTH0_CALLBACK_URL=http://localhost:3000/callback
-REACT_APP_AUTH0_AUDIENCE=Datastore
-REACT_APP_API_SERVER_URL=http://localhost:8080
