@@ -106,7 +106,7 @@ export const AddContactPage = () => {
       }
     };
 
-    // go back to Application Page
+    // go back to Contact Page
     navigate(0);  
   };
 

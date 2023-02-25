@@ -31,64 +31,18 @@ function ContactPage() {
       );
       setContacts(sorted);
       setOrder("Ascending");
-    };
-  }
+    }
+  };
 
 
   /************************************************************* 
    * Function to DELETE a contact 
    ************************************************************/
-  const onDelete = async (id, contact_at_app_id) => {
+  const onDelete = async (contact_id) => {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
     if (confirmed) {
-
-      // update any application if releated to the contact 
-      if (Object.keys(contact_at_app_id).length > 0) {
-        for (let application of contact_at_app_id) {
-          // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-            {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${user}`}
-            }
-          );
-          if (responseGetApp.status === 200) {
-            //console.log("Successfully fetched the application!"); 
-          } else {
-            console.log(`Failed to fetch the application, status code = ${responseUpdateApp.status}`);
-          };
-
-          const data = await responseGetApp.json();
-          const appContacts = [];
-          for (let contact of data.contacts) {
-            if (contact !== id) {
-              appContacts.push(contact)
-            }
-          };
-          const updatedApplication = { contacts: appContacts };
-
-          // PATCH the application
-          const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-            {
-              method: 'PATCH',
-              body: JSON.stringify(updatedApplication),
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user}`}
-            }
-          );
-          if (responseUpdateApp.status === 200) {
-            //console.log("Successfully updated the application!"); 
-          } else {
-            console.log(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-          }
-        }
-      };
-
       // DELETE the contact
-      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${id}`, 
+      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact_id}`, 
         { 
           method: 'DELETE',
           headers: {
@@ -96,10 +50,10 @@ function ContactPage() {
         }
       );
       if (response.status === 204) {
-          setContacts(contacts.filter(contact => contact.id !== id));
+        setContacts(contacts.filter(contact => contact.id !== contact_id));
           //alert("Successfully deleted the contact! Click Ok to update the page.");
       } else {
-        console.log(`Failed to delete contact with id = ${id}, status code = ${response.status}`)
+        console.log(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
       }
     }
   };
@@ -147,10 +101,12 @@ function ContactPage() {
           onDelete={onDelete}
           sorting={sorting} ></ContactList>
       </div><br />
+
       <SlidingWindow 
         Page={<AddContactPage />}
         ClickableComponent={<ReactButton label="Add Contact"/>}
         />
+
     </>
   );
 }

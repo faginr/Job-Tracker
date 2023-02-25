@@ -303,7 +303,7 @@ async function patch_contact(contact_id, last_name, first_name, email, phone, no
  * The function sends a request to datastore to delete the object
  * and returns the status code if the contact belongs to the user
  ************************************************************/
-async function delete_contact(contact_id, user_id) {
+async function deleteContact(contact_id, user_id) {
   const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
 
   let contact = await datastore.get(key);
@@ -311,7 +311,8 @@ async function delete_contact(contact_id, user_id) {
   if (user_id !== contact[0].user_id) {
     return false;
   } else {
-    return datastore.delete(key);
+    await datastore.delete(key);
+    return contact[0].contact_at_app_id;
   }
 };
 
@@ -351,14 +352,13 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
  * GET all contacts
  ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
-  console.log("Get all request received!");
+  //console.log("Get all request received!");
   const user_id = getUserId(req);
 
   async function getUserContacts() {
     try {
       let contacts = await getContacts(user_id);
-      let applications = await model.getItemsNoPaginate('application');
-
+      const applications = await model.getItemsNoPaginate('application');
       // Iterate over contacts and applications, if a contact is related to an application, 
       // add the name and link of this application to this contact 
       let arrayAppsNames = [];
@@ -375,13 +375,13 @@ router.get('/', checkAcceptHeader, function (req, res) {
             } 
           }
         };
-        contact.arrayAppsNames = arrayAppsNames
+        contact.arrayAppsNames = arrayAppsNames;
       };
       res.status(200).json(contacts);
     } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    }
+    };
   };
   getUserContacts();
 });
@@ -471,8 +471,9 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
     .catch(error => {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
-});
+    });
+  }
+);
 
 
 /************************************************************* 
@@ -482,19 +483,39 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
   //console.log("Delete request received!");
   const user_id = getUserId(req);
 
-  delete_contact(req.params.contact_id, user_id)
-  .then((contact) => {
-    if (contact === false) {
-      // user does not own the contact
-      res.status(403).send(errorMessages[403]);
-    } else {
-      res.status(204).end() 
-    };
-  })
-    .catch(error => {
+  async function deleteUserContact() {
+    try {
+      //if delete success, return the list of application to be updated
+      const applicationsId = await deleteContact(req.params.contact_id, user_id);
+      if (applicationsId === false) {
+        // if user does not own the contact
+        res.status(403).send(errorMessages[403]);
+      } else {
+        // update any application if releated to the contact 
+        for (let applicationId of applicationsId) { 
+
+          // GET the application
+          let application = await model.getItemByID('application', applicationId);
+          const appNewContacts = [];
+          for (let contactId of application[0].contacts) {
+            if (contactId !== req.params.contact_id) {
+              appNewContacts.push(contactId)
+            }
+          };
+
+          // PATCH the application
+          application[0].contacts = appNewContacts;
+          model.updateItem(application[0], 'application')
+        };
+
+        res.status(204).end();
+      };
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    };
+  };
+  deleteUserContact();
 });
 
 /* -------------- End Controller Functions -------------- */
