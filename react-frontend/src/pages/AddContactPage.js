@@ -4,6 +4,7 @@ import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
 import { user } from '../utils/User';
+import ContactGetApps from '../components/ContactGetApps';
 
 export const AddContactPage = () => {
   
@@ -24,6 +25,8 @@ export const AddContactPage = () => {
    ************************************************************/
   const addContact = async (e) => {
     e.preventDefault();
+    console.log('contact_at_app_id', contact_at_app_id)
+    console.log('selected', selected)
 
     for (let element of selected) {
       contact_at_app_id.push(element.id)
@@ -60,47 +63,10 @@ export const AddContactPage = () => {
 
 
   /************************************************************* 
-   * Function to get applications 
-   ************************************************************/
-  const getApps = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`,
-      { 
-        method: "GET",
-        headers: {
-          'Accept': 'application/json', 
-          'Authorization': `Bearer ${user}`}
-      }
-    );
-    if (response.status === 200) {
-      //console.log("Successfully fetched the applications!"); 
-    } else {
-      console.log(`Failed to fetch the applications, status code = ${response.status}`);
-    };
-    const data = await response.json();
-
-    // sort by title
-    // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-    data.sort((a, b) => {
-      const titleA = a.title.toUpperCase();
-      const titleB = b.title.toUpperCase();
-      if (titleA < titleB) {
-        return -1;
-      }
-      if (titleA > titleB) {
-        return 1;
-      };
-      return 0;
-    });
-
-    setApps(data);
-  };
-
-
-  /************************************************************* 
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
-    getApps();
+    ContactGetApps(datastore_url, user, setApps);
   }, []);
 
 
