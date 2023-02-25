@@ -15,8 +15,7 @@ export const AddContactPage = () => {
   const [notes, setNotes] = useState('');
   
   let contact_at_app_id = []
-  const [selected, setSelected] = useState([]);
-  
+  const [selected, setSelected] = useState([]);   // added apps to the contact
   let [apps, setApps] = useState([]);
 
 
@@ -53,57 +52,6 @@ export const AddContactPage = () => {
       alert("Successfully added the contact!"); 
     } else {
       console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
-    };
-
-    // update an application if added to the contact
-    if (contact_at_app_id.length > 0) {
-
-      // get contact_id
-      const contact_id = await responseContactId.json();
-
-      // update the application(s)
-      for (let application of contact_at_app_id) {
-
-        // GET the application to be updated
-        const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${user}`}
-          }
-        );
-        if (responseGetApp.status === 200) {
-          //console.log("Successfully fetched the application!"); 
-        } else {
-          console.log(`Failed to fetch the application, status code = ${responseGetApp.status}`);
-        };
-
-        const data = await responseGetApp.json();
-        const appContacts = [];
-        for (let contact of data.contacts) {
-          appContacts.push(contact)
-        };
-
-        appContacts.push(`${contact_id}`)
-        const updateApplication = { contacts: appContacts };
-
-        // PATCH the application with contact_id
-        const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updateApplication),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user}`}
-          }
-        );
-        if (responseUpdateApp.status === 200) {
-          //console.log("Successfully updated the application!"); 
-        } else {
-          console.log(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-        }
-      }
     };
 
     // go back to Contact Page
