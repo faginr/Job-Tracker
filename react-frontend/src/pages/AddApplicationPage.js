@@ -16,7 +16,6 @@ export const AddApplicationPage = () => {
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
-  // Figure out auth with Philip
   let skills = []
   const [selectedSkills, setSelectedSkills] = useState([]);
 
