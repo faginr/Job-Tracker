@@ -129,8 +129,9 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     new_application["link"] = default_values["link"]
   }
 
+  console.log(new_application["description"]["value"])
   // save new object in datastore
-  model.postItem(new_application, 'application')
+  model.postBigItem(new_application, 'application')
     .then((key) => {
       // return object in response body
       res.status(201).json({

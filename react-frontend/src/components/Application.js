@@ -8,7 +8,7 @@ function Application({ application, onDelete }) {
   return (
     <tr>
       <td>{application.title}</td>
-      <td>{application.description}</td>
+      <td className='app-description'>{application.description}</td>
       <td><ul className='view-app-list'>{application.skill_names.map((skill) => (<li key={skill}>{skill}</li>))}</ul></td>
       <td><ul className='view-app-list'>{application.contact_names.map((contact) => (<li key={contact}>{contact}</li>))}</ul></td>
       <td>{application.posting_date}</td>

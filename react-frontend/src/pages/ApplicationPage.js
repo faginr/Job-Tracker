@@ -8,6 +8,8 @@ import AddApplicationPage from './AddApplicationPage';
 import SlidingWindow from '../components/SlidingWindow';
 import ReactButton from '../components/ReactButton';
 
+// Note -> test adding a contact and a skill and then delete the contact and see if skill is also deleted
+
 function ApplicationPage() {
   
   const [applications, setApplications] = useState([]);

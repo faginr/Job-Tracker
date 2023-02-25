@@ -64,6 +64,63 @@ async function postItem(newData, kind) {
     return newData
 }
 
+async function postBigItem(newData, kind) {
+    // prepare the key based on kind - this will assign it to the right "table"
+    const newKey = ds.key(kind)
+
+    let dataUnindexed = []
+
+    const dataTitle = {
+        name: 'title',
+        value: newData.title
+    }
+    const dataDescription = {
+        name: 'description',
+        value: newData.description,
+        excludeFromIndexes: true
+    }
+    const dataSkills = {
+        name: 'skills',
+        value: newData.skills
+    }
+    const dataContacts = {
+        name: 'contacts',
+        value: newData.contacts
+    }
+    const dataDate = {
+        name: 'date',
+        value: newData.posting_date
+    }
+    const dataStatus = {
+        name: 'status',
+        value: newData.status
+    }
+    const dataLink = {
+        name: 'link',
+        value: newData.link
+    }
+
+    dataUnindexed.push(dataTitle)
+    dataUnindexed.push(dataDescription)
+    dataUnindexed.push(dataSkills)
+    dataUnindexed.push(dataContacts)
+    dataUnindexed.push(dataDate)
+    dataUnindexed.push(dataStatus)
+    dataUnindexed.push(dataLink)
+    
+
+    // prepare the entity
+    const entity = {
+        key: newKey,
+        data: dataUnindexed
+    }
+
+    await ds.save(entity)
+
+    newData.id = newKey.id
+    return newData
+}
+
 /**
  * Queries the kind group specified, projecting to keys only for faster query. 
  * Returns an array of entity keys.
@@ -272,6 +329,7 @@ async function updateItem(newData, kind) {
 
 module.exports = {
     postItem,
+    postBigItem,
     postItemManId,
     getItemByID,
     getFilteredItemsPaginated,
