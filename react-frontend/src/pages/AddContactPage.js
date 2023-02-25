@@ -25,8 +25,6 @@ export const AddContactPage = () => {
    ************************************************************/
   const addContact = async (e) => {
     e.preventDefault();
-    console.log('contact_at_app_id', contact_at_app_id)
-    console.log('selected', selected)
 
     for (let element of selected) {
       contact_at_app_id.push(element.id)

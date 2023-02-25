@@ -56,14 +56,20 @@ export const EditContactPage = ({ typeToEdit }) => {
     e.preventDefault();
 
     // if no changes, do nothing
-    if (visibleRemoveButton === true
+    if ((visibleRemoveButton === true
         && selected.length === 0
         && last_name === typeToEdit.last_name 
         && first_name === typeToEdit.first_name
         && email === typeToEdit.email
         && phone === typeToEdit.phone
-        && notes === typeToEdit.notes) {
-      console.log ('no changes');
+        && notes === typeToEdit.notes)
+        || (visibleText === true
+          && selected.length === 0
+          && last_name === typeToEdit.last_name 
+          && first_name === typeToEdit.first_name
+          && email === typeToEdit.email
+          && phone === typeToEdit.phone
+          && notes === typeToEdit.notes)) {
       return navigate(0);
     };
 
