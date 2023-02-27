@@ -11,7 +11,7 @@ export const EditContactPage = ({ typeToEdit }) => {
   const navigate = useNavigate();   // hook to navigate among the pages
 
   // store the original application id's if replaced by new application
-  const originalApplication = typeToEdit.contact_at_app_id
+  const originalApplication = typeToEdit.contact_at_app_id;
 
   const [last_name, setLastName] = useState(typeToEdit.last_name);
   const [first_name, setFirstName] = useState(typeToEdit.first_name);
@@ -21,6 +21,7 @@ export const EditContactPage = ({ typeToEdit }) => {
   
   let contact_at_app_id = [];
   const [selected, setSelected] = useState([]);
+  console.log('selected', selected);
 
   let [apps, setApps] = useState([]);
   let contactAtNameStr = '';
@@ -76,6 +77,10 @@ export const EditContactPage = ({ typeToEdit }) => {
     // remove all applications if the button Remove clicked and no selected 
     if (visibleRemoveButton === false && selected.length === 0) {
       contact_at_app_id = [];
+    };
+
+    if (visibleRemoveButton === true && selected.length === 0) {
+      contact_at_app_id = originalApplication;
     };
 
     for (let element of selected) {
