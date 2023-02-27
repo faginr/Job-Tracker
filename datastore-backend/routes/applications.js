@@ -26,6 +26,7 @@ function verify_not_blank (val){
   if (val === undefined || val === null) {
     return true
   }
+  return false
 }
 
 // Verify an id in a route is of valid type; true means invalid type
@@ -34,6 +35,7 @@ function verify_id (id) {
   if (idRegex.test(id) === true){
       return true
   } 
+  return false
 }
 
 // Verify keys passed to post/patch an application are valid
@@ -61,6 +63,20 @@ function verify_keys (body_keys) {
 
 }
 
+function limit_title (title) {
+  if (title.length>100) {
+    return true
+  }
+  return false
+}
+
+function limit_description (description) {
+  if (description.length>5000) {
+    return true
+  }
+  return false
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              /
 //                                         Routes                                               /
@@ -78,7 +94,7 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     || verify_not_blank(req.body.description)
     ) {
     // Failure, reject
-    return res.status(400).json({Error:  "The request object is missing at least one of the required attributes"});
+    return res.status(400).json({'Error':  "The request object is missing at least one of the required attributes"});
   }
 
   valid_keys = verify_keys(req.body)
@@ -86,7 +102,13 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     return res.status(400).json({'Error': `${valid_keys["message"]}`})
   }
 
+  if(limit_title(req.body.title)){
+    return res.status(400).json({'Error': "title can only be a maximum of 100 chars long"})
+  }
 
+  if(limit_description(req.body.description)){
+    return res.status(400).json({'Error': "description can only be a maximum of 5000 chars long"})
+  }
 
   // create object with new application data
   const default_values = {
@@ -130,7 +152,7 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
   }
 
   // save new object in datastore
-  model.postItem(new_application, 'application')
+  model.postBigItem(new_application, 'application')
     .then((key) => {
       // return object in response body
       res.status(201).json({
@@ -204,7 +226,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
     verify_id(req.params.app_id) 
     || verify_not_blank(req.params.app_id)
     ){
-      console.log("here")
+      // console.log("here")
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
@@ -246,8 +268,17 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       if (req.body.link !== undefined){
         results[0]["link"] = req.body.link
       }
+
+      if(limit_title(results[0]["title"])){
+        return res.status(400).json({'Error': "title can only be a maximum of 100 chars long"})
+      }
+    
+      if(limit_description(results[0]["description"])){
+        return res.status(400).json({'Error': "description can only be a maximum of 5000 chars long"})
+      }
+
       // Update application in datastore, return updated object in response body
-      return model.updateItem(results[0], 'application')
+      return model.updateBigItem(results[0], 'application')
       .then(res.status(200).json({
         'id': req.params.app_id,
         // 'user': results["user"],
@@ -262,8 +293,9 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       }))
     }
   })
-  .catch(error => {
-    res.status(500).json({'Error': error}).end()
+  .catch(err => {
+    console.error(err)
+    // res.status(500).json({'Error': error}).end()
   })
 })
 
