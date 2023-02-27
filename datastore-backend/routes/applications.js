@@ -87,6 +87,7 @@ function limit_description (description) {
 
 router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , function (req, res) {
   console.log("Post request received!");
+  console.log(req.body.user)
 
   // Test for invalid request
   if (
