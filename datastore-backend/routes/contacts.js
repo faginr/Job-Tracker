@@ -109,19 +109,25 @@ function checkRequestBodyPatch (req, res, next) {
     "contact_at_app_id": ''
   };
 
+  let keyError = false;
+
   // check if received keys are valid
   Object.keys(req.body).forEach(key => {
     if (!(key in allKeys)) {
-      res.status(400).send(errorMessages[400].keyError)
+      keyError = errorMessages[400].keyError;
     }    
   });
 
   // required keys cannot be empty strings, if so, send an error message
   if (req.body.last_name === '' || req.body.first_name === '') {
-    res.status(400).send(errorMessages[400].requiredKey)
+    keyError = errorMessages[400].requiredKey;
   };
 
-  next()
+  if (keyError !== false) {
+    res.status(400).send(keyError)
+  } else {
+    next()
+  }
 };
 
 
@@ -515,9 +521,11 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
           // GET the application
           let application = await model.getItemByID('application', app);
           const appNewContacts = [];
-          for (let contactId of application[0].contacts) {
-            if (contactId !== req.params.contact_id) {
-              appNewContacts.push(contactId)
+          if (application !== undefined) {
+            for (let contactId of application[0].contacts) {
+              if (contactId !== req.params.contact_id) {
+                appNewContacts.push(contactId)
+              }
             }
           };
           application[0].contacts = appNewContacts;
