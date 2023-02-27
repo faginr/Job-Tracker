@@ -8,7 +8,11 @@
 const datastore_url = 'https://job-tracker-db-378415.uc.r.appspot.com';
 const frontend_url = 'https://job-tracker-378415.uc.r.appspot.com';
 
+// the name of the kind to be stored for Contact routes functions
+const CONTACT = "contact";
+
 module.exports = {
   datastore_url,
-  frontend_url
+  frontend_url,
+  CONTACT
 };
