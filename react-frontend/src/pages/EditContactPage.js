@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
+import { user } from '../utils/User';
 
 export const EditContactPage = ({ typeToEdit }) => {
   
@@ -48,7 +49,7 @@ export const EditContactPage = ({ typeToEdit }) => {
 
 
   /************************************************************* 
-   * Function to edit the contact 
+   * Function to edit a contact 
    ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
@@ -84,18 +85,19 @@ export const EditContactPage = ({ typeToEdit }) => {
     };
 
     // PUT the contact
-    const response = await fetch(
-      `${datastore_url}/contacts/${typeToEdit.id}`, 
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${typeToEdit.id}`, 
       {
         method: 'PUT',
         body: JSON.stringify(editedContact),
-        headers: {'Content-Type': 'application/json',},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user}`}
       }
     );
     if (response.status === 200) {
       alert("Successfully edited the contact!"); 
     } else {
-      alert(`Failed to edit contact, status code = ${response.status}`);
+      console.log(`Failed to edit contact, status code = ${response.status}`);
     }
 
     // if the array of application has changed for the contact, update the old and new applications
@@ -105,12 +107,13 @@ export const EditContactPage = ({ typeToEdit }) => {
       for (let app of originalApplication) {
         if (!(contact_at_app_id.includes(app))) {
           // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/applications/${app}`, {
+          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${app}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
-            },
-          });
+              'Authorization': `Bearer ${user}`}
+            }
+          );
           if (responseGetApp.status === 200) {
             //alert("Successfully get the application!"); 
           } else {
@@ -128,18 +131,19 @@ export const EditContactPage = ({ typeToEdit }) => {
           const updatedOldApplication = { contacts: appContacts };
 
           // PATCH the old application if changed
-          const responseOldApplication = await fetch(`${datastore_url}/applications/${app}`, {
-            method: 'PATCH',
-            body: JSON.stringify(updatedOldApplication),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
+          const responseOldApplication = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${app}`, 
+            {
+              method: 'PATCH',
+              body: JSON.stringify(updatedOldApplication),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user}`}
+            }
+          );
           if (responseOldApplication.status === 200) {
-            //alert("Successfully updated the old application!"); 
+            //console.log("Successfully updated the old application!"); 
           } else {
-            alert(`Failed to update the old application, status code = ${responseOldApplication.status}`);
+            console.log(`Failed to update the old application, status code = ${responseOldApplication.status}`);
           }
         }
       };
@@ -148,16 +152,18 @@ export const EditContactPage = ({ typeToEdit }) => {
       for (let app of contact_at_app_id) {
         if (!(originalApplication.includes(app))) {
           // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/applications/${app}`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-            },
-          });
+          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${app}`, 
+            {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${user}`}
+            }
+          );
           if (responseGetApp.status === 200) {
-            //alert("Successfully get the application!"); 
+            //console.log("Successfully get the application!"); 
           } else {
-            alert(`Failed to get the application, status code = ${responseGetApp.status}`);
+            console.log(`Failed to get the application, status code = ${responseGetApp.status}`);
           };
 
           const data = await responseGetApp.json();
@@ -166,18 +172,19 @@ export const EditContactPage = ({ typeToEdit }) => {
           const updatedNewApplication = { contacts: appContacts };
 
           // PATCH the new application
-          const responseNewApplication = await fetch(`${datastore_url}/applications/${app}`, {
-            method: 'PATCH',
-            body: JSON.stringify(updatedNewApplication),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
+          const responseNewApplication = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${app}`, 
+            {
+              method: 'PATCH',
+              body: JSON.stringify(updatedNewApplication),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user}`}
+            }
+          );
           if (responseNewApplication.status === 200) {
-            //alert("Successfully updated the old application!"); 
+            //console.log("Successfully updated the old application!"); 
           } else {
-            alert(`Failed to update the old application, status code = ${responseNewApplication.status}`);
+            console.log(`Failed to update the old application, status code = ${responseNewApplication.status}`);
           }
         }
       }
@@ -189,10 +196,22 @@ export const EditContactPage = ({ typeToEdit }) => {
 
 
   /************************************************************* 
-   * Function to fetch applications 
+   * Function to get applications 
    ************************************************************/
   const getApps = async () => {
-    const response = await fetch(`${datastore_url}/applications`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`,
+      { 
+        method: "GET",
+        headers: {
+          'Accept': 'application/json', 
+          'Authorization': `Bearer ${user}`}
+      }
+    );
+    if (response.status === 200) {
+      //console.log("Successfully fetched the applications!"); 
+    } else {
+      console.log(`Failed to fetch the applications, status code = ${response.status}`);
+    };
     const data = await response.json();
 
     // sort by title

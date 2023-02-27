@@ -163,6 +163,22 @@ th {
   color: white;
 }
 
+.view-app-list {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+.app-description {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 200px;
+}
+
 /* input display for add and edit*/
 
 .wrapper {
@@ -236,7 +252,6 @@ th {
 .edit-description {
   max-width: 30rem;
 }
-
 
 /*
 Sliding pane 

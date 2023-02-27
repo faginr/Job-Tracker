@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants'
 
@@ -8,19 +9,18 @@ export const AddApplicationPage = () => {
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [skills, setSkill] = useState('');
+  // const [skills, setSkill] = useState('');
   const [posting_date, setPostingDate] = useState('');
   const [status, setStatus] = useState('');
   const [link, setLink] = useState('');
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
-  // Figure out auth with Philip
-  // let skills = []
-  // const [selectedSkills, setSelectedSkills] = useState([]);
+  let skills = []
+  const [selectedSkills, setSelectedSkills] = useState([]);
 
   let [buildContacts, setContacts] = useState([]);
-  // let [buildSkills, setSkills] = useState([]);
+  let [buildSkills, setSkills] = useState([]);
 
   const navigate = useNavigate();
 
@@ -29,16 +29,18 @@ export const AddApplicationPage = () => {
     e.preventDefault();
 
     // push each element id into skills
-    // for (let element of selectedSkills) {
-    //   console.log(element)
-    //   skills.push(element.id)
-    // }
+    for (let element of selectedSkills) {
+      skills.push(element.skill_id)
+    }
 
     // push each element id selected into contacts
     for (let element of selectedContacts) {
-      console.log(element)
+      // console.log(element)
       contacts.push(element.id)
     }
+
+    // console.log(contacts)
+    // console.log(skills)
 
     // Setup parameters for new application
     const newApplication = { 
@@ -51,13 +53,13 @@ export const AddApplicationPage = () => {
       link 
     };
 
-
     // POST new application
     const response = await fetch(
-      `${datastore_url}/applications`, {
+      `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
       method: 'POST',
       body: JSON.stringify(newApplication),
       headers: {
+        'Authorization': `Bearer ${user}`,
         'Content-Type': 'application/json',
       },
     });
@@ -66,10 +68,10 @@ export const AddApplicationPage = () => {
     if(response.status === 201){
       console.log("Successfully added the application 201"); 
     } else {
-      console.log(`Failed to add application, status code = ${response.status}`);
+      alert(`Failed to add application, status code = ${response.status}`);
     }
    
-
+    
     // update - See if there is at least one contact added
     if (contacts.length > 0) {
 
@@ -80,7 +82,7 @@ export const AddApplicationPage = () => {
       for(let contact of contacts) {
 
         // GET the contact
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -101,7 +103,7 @@ export const AddApplicationPage = () => {
       updateContact["contact_at_app_id"].push(`${newApp.id}`) 
       
       // alert(JSON.stringify(updateContact))
-      const responsePatch = await fetch(`${datastore_url}/contacts/${contact}`, {
+      const responsePatch = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
         method: 'PATCH',
         body: JSON.stringify(updateContact),
         headers: {
@@ -117,27 +119,32 @@ export const AddApplicationPage = () => {
 
     }
 
-    navigate(0);  // goes back to Application Page
+    
   };
+  navigate(0);  // goes back to Application Page
 }
 
 const loadContacts = async () => {
-  const response = await fetch(`${datastore_url}/contacts`);
+  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
   const data = await response.json();
   // console.log(data);
   setContacts(data);
 }
 
-// const loadSkills = async () => {
-//   const response = await fetch(`${datastore_url}/skills`);
-//   const data = await response.json();
-//   console.log(data)
-//   setSkills(data);
-// }
+const loadSkills = async () => {
+  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+    headers: {
+      'Authorization': `Bearer ${user}`
+    }
+  });
+  const data = await response.json();
+  // console.log(data)
+  setSkills(data);
+}
 
 useEffect(() => {
   loadContacts();
-  // loadSkills();
+  loadSkills();
 }, []);
 
 
@@ -154,16 +161,17 @@ useEffect(() => {
         obj.value = obj.first_name + " " + obj.last_name;
         return obj;
     })
-    // if (selection === "skills")
-    // buildSkills = buildSkills.map(function(obj) {
-    //     obj.label = obj.title;
-    //     obj.value = obj.title;
-    //     return obj;
-    // })
+    if (selection === "skills")
+    buildSkills = buildSkills.map(function(obj) {
+        // console.log(obj.description)
+        obj.label = obj.description;
+        obj.value = obj.description;
+        return obj;
+    })
     return
   };
   addKeys("contacts");
-  // addKeys("skills");
+  addKeys("skills");
   
 
 
@@ -192,14 +200,15 @@ useEffect(() => {
         value={description}
         placeholder="Enter Description (required)"
         onChange={e => setDescription(e.target.value)} />
-      {/* <div className="select">
-        <p>Skills:</p>
+      <br />
+      <div className="select">
+      <label>Skills:</label>
         <SelectMulti
         items={buildSkills}
         selected={selectedSkills}
         setSelected={setSelectedSkills}
         />
-      </div> */}
+      </div>
       <div className="select">
         <label>Contacts:</label>
         <br />
@@ -209,14 +218,14 @@ useEffect(() => {
         setSelected={setSelectedContacts}
         />
       </div>
-      <label>Skills:</label>
+      {/* <label>Skills:</label>
       <br />
       <input
       className='add-app'
         type="text"
         placeholder="Enter Skill"
         value={skills}
-        onChange={e => setSkill(e.target.value)} />
+        onChange={e => setSkill(e.target.value)} /> */}
       {/* <input
         type="text"
         placeholder="Enter Contact"

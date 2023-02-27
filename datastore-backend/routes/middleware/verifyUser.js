@@ -12,21 +12,44 @@ const model = require("../../model")
  * @returns 
  */
 function extractUserInfo (decodedJWT) {
-    const userInfo = {
-        "username": decodedJWT.username,
-        "id": parseInt(decodedJWT.sub, 10)
+    const blankUserInfo = {
+        "username": null,
+        "id": null
+    }
+    if (decodedJWT !== undefined && decodedJWT !== null){
+        const userInfo = {
+            "username": decodedJWT.username,
+            "id": parseInt(decodedJWT.sub, 10)
+        }
+        return userInfo
     }
 
-    return userInfo
+    return blankUserInfo
 }
 
 function fakeDecode(token, req) {
     // token is a JSON object as string like "Bearer <Token>"
     // so slice token to only get <Token> part
-    req.body['auth'] = JSON.parse(token.slice(7))
-    if (req.body.auth.username === 'bad'){
-        throw TypeError
+
+    // try{
+    //     JSON.parse(token);
+    if (token !== undefined && token !== null){
+        req.body['auth'] = JSON.parse(token.slice(7))
     }
+    // }
+    // catch (err) {
+    //     if (err instanceof SyntaxError){
+    //         console.error('Invalid JSON:', err.message);
+    //     } else {
+    //         throw err;
+    //     }
+    // }
+    // req.body['auth'] = JSON.parse(token.slice(7))
+    // if (req.body.auth.username === 'bad'){
+    //     throw TypeError
+    // }
+    
+
 }
 
 /**
@@ -74,7 +97,9 @@ function userMatchesJWT(req) {
 async function userExists(req) {
     let user;
     try {
+        // console.log(req.params.user_id)
         user = await model.getItemByID('users', req.params.user_id)
+        // console.log(`user ${user}`)
         req.body['user'] = user[0]
     } catch(err) {
         console.error(err)
