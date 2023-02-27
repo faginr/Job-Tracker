@@ -3,18 +3,21 @@ import React from 'react';
 import ApplicationList from '../components/ApplicationList';
 import { useState, useEffect } from 'react';
 import { datastore_url } from '../utils/Constants';
-
+import { user } from '../utils/User';
 import AddApplicationPage from './AddApplicationPage';
 import SlidingWindow from '../components/SlidingWindow';
 import ReactButton from '../components/ReactButton';
+
+// Note -> test adding a contact and a skill and then delete the contact and see if skill is also deleted
 
 function ApplicationPage() {
   
   const [applications, setApplications] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [skills, setSkills] = useState([]);
   // const navigate = useNavigate();
 
-  const onDelete = async (id, contacts) => {
+  const onDelete = async (id, contacts, skills) => {
     // Confirm Deletion
     const confirm = window.confirm("Are you sure you want to delete the application?");
     if(confirm){
@@ -24,7 +27,7 @@ function ApplicationPage() {
         // at least one contact
         for (let contact of contacts){
           // get each contact in contacts
-          const response = await fetch(`${datastore_url}/contacts/${contact}`, {
+          const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
@@ -52,7 +55,7 @@ function ApplicationPage() {
           const updatedContactApps = {contact_at_app_id: newApps}
 
           // Save updated contact to database
-          const patchContact = await fetch(`${datastore_url}/contacts/${contact}`, {
+          const patchContact = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
             method: 'PATCH',
             body: JSON.stringify(updatedContactApps),
             headers: {
@@ -70,7 +73,12 @@ function ApplicationPage() {
       // Check Skills
 
       // DELETE application
-      const response = await fetch(`${datastore_url}/applications/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${id}`, { 
+        headers: {
+          'Authorization': `Bearer ${user}`
+        },
+        method: 'DELETE' 
+      });
       if (response.status === 204) {
           setApplications(applications.filter(application => application.id !== id));
           console.log("Successfully deleted the application!");
@@ -83,16 +91,30 @@ function ApplicationPage() {
 
   // GET Applications
   const loadApplications = async () => {
-    const response = await fetch(`${datastore_url}/applications`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
     const data = await response.json();
     setApplications(data);
   };
 
   // GET Contacts
   const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/contacts`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
     const data = await response.json();
     setContacts(data);
+  }
+
+  const loadSkills = async () => {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
+    const data = await response.json();
+    setSkills(data);
   }
 
   // const onEdit = application => {
@@ -104,7 +126,36 @@ function ApplicationPage() {
   useEffect(() => {
     loadApplications();
     loadContacts();
+    loadSkills();
   }, []);
+
+  // console.log(applications)
+  for (let app of applications){
+    app.skill_names = []
+    app.contact_names = []
+    // skills
+    if (app.skills.length > 0){
+      for(let app_skill of app.skills){
+        for(let skill of skills){
+          // console.log(skill)
+          if (skill.skill_id === app_skill){
+            app.skill_names.push(skill.description);  
+          }
+        }
+      }
+    }
+    if (app.contacts.length > 0){
+      for (let app_contact of app.contacts){
+        for (let contact of contacts){
+          if (contact.id === app_contact){
+            app.contact_names.push(contact.first_name+" "+contact.last_name)
+          }
+        }
+      }
+    }
+  }
+
+  
 
   return (
     <>

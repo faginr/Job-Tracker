@@ -1,45 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants';
 
 export const EditApplicationPage = ({ typeToEdit }) => {
   
   const startingContacts = typeToEdit.contacts
+  const startingSkills = typeToEdit.skills
 
   // console.log(typeToEdit);
   const [title, setTitle] = useState(typeToEdit.title);
   const [description, setDescription] = useState(typeToEdit.description);
-  const [skills, setSkill] = useState(typeToEdit.skills);
-  // const [contacts, setContact] = useState(typeToEdit.contacts);
   const [posting_date, setPostingDate] = useState(typeToEdit.posting_date);
   const [status, setStatus] = useState(typeToEdit.status);
   const [link, setLink] = useState(typeToEdit.link);
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
+  let skills = []
+  const [selectedSkills, setSelectedSkills] = useState([]);
 
   let [buildContacts, setContacts] = useState([]);
+  let [buildSkills, setSkills] = useState([]);
 
   const navigate = useNavigate();
 
-  const [visibleRemoveButton, setVisibleRemoveButton] = useState(true);
-  const [visibleUndoButton, setVisibleUndoButton] = useState(false);
+  const [visibleRemoveContactsButton, setvisibleRemoveContactsButton] = useState(true);
+  const [visibleUndoContactsButton, setvisibleUndoContactsButton] = useState(false);
+  const [visibleRemoveSkillsButton, setvisibleRemoveSkillsButton] = useState(true);
+  const [visibleUndoSkillsButton, setvisibleUndoSkillsButton] = useState(false);
 
-  const show = (e) => {
+  const showContacts = (e) => {
     e.preventDefault();
-    setVisibleRemoveButton(true);
-    setVisibleUndoButton(false);
+    setvisibleRemoveContactsButton(true);
+    setvisibleUndoContactsButton(false);
   }
 
-  const hide = (e) => {
+  const showSkills = (e) => {
     e.preventDefault();
-    setVisibleRemoveButton(false);
-    setVisibleUndoButton(true);
+    setvisibleRemoveSkillsButton(true);
+    setvisibleUndoSkillsButton(false);
   }
+
+  const hideContacts = (e) => {
+    e.preventDefault();
+    setvisibleRemoveContactsButton(false);
+    setvisibleUndoContactsButton(true);
+  }
+
+  const hideSkills = (e) => {
+    e.preventDefault();
+    setvisibleRemoveSkillsButton(false);
+    setvisibleUndoSkillsButton(true);
+  }
+
+  
 
   let displayContacts = [];
-  let displayLabel = '';
+  let displaySkills =[];
+  let displayContactLabel = '';
+  let displaySkillLabel = '';
 
 
   const editApplication = async (e) => {
@@ -47,9 +68,20 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
     // listen for any value changes
 
-    if(setVisibleRemoveButton === true
+    if(setvisibleRemoveContactsButton === true
       && selectedContacts.length === 0
-      && skills === typeToEdit.skills
+      && title === typeToEdit.title
+      && description === typeToEdit.description
+      && posting_date === typeToEdit.posting_date
+      && status === typeToEdit.status
+      && link === typeToEdit.link
+      ) {
+        console.log('no changes');
+        return navigate(0);
+      }
+
+    if(setvisibleRemoveSkillsButton === true
+      && selectedContacts.length === 0
       && title === typeToEdit.title
       && description === typeToEdit.description
       && posting_date === typeToEdit.posting_date
@@ -61,10 +93,16 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       }
 
     // reset all contacts to blank array if user removed all via button
-    if (setVisibleRemoveButton === false
+    if (setvisibleRemoveContactsButton === false
       && selectedContacts.length === 0
       ) {
         contacts = [];
+      }
+
+    if (setvisibleRemoveSkillsButton === false
+      && selectedSkills.length === 0
+      ) {
+        skills = [];
       }
 
     // push each element id selected into contacts
@@ -72,6 +110,11 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       // console.log(element)
       contacts.push(element.id)
 
+    }
+
+    for (let element of selectedSkills) {
+      // console.log(element)
+      skills.push(element.skill_id)
     }
 
     // define all values for edited app
@@ -86,10 +129,11 @@ export const EditApplicationPage = ({ typeToEdit }) => {
      };
 
     // PATCH application
-    const response = await fetch(`${datastore_url}/applications/${typeToEdit.id}`, {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
       method: 'PATCH',
       body: JSON.stringify(editedApplication),
       headers: {
+        'Authorization': `Bearer ${user}`,
         'Content-Type': 'application/json',
       },
     });
@@ -110,7 +154,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         // see if contacts has startingContact still in it
         if(!(contacts.includes(contact))){
         // GET the contact if not
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -133,7 +177,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
         const updatedContacts = {contact_at_app_id: editedContacts}
         
-        const patchResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedContacts),
           headers: {
@@ -150,7 +194,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
     for (let contact of contacts) {
       if (!(startingContacts.includes(contact))) {
-        const contactResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -172,7 +216,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
         const updatedContacts = {contact_at_app_id: editedContacts}
         
-        const patchResponse = await fetch(`${datastore_url}/contacts/${contact}`, {
+        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
           method: 'PATCH',
           body: JSON.stringify(updatedContacts),
           headers: {
@@ -190,43 +234,77 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
   }
 
-
-
-
     navigate(0);  // goes back to Application Page
   };
 
   const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/contacts`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
     const data = await response.json();
     // console.log(data);
     setContacts(data);
   }
 
+  const loadSkills = async () => {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
+    const data = await response.json();
+    // console.log(data)
+    setSkills(data);
+  }
+
   function contactNames() {
     for (let contact of typeToEdit.contacts){
-      console.log(contact)
+      // console.log(contact)
       for (let id of buildContacts){
         if (contact === id.id){
-          displayContacts.push(contact);
+          let contactName = id.first_name + " " + id.last_name
+          displayContacts.push(contactName);
         }
       }
     };
     // console.log(displayContacts)
 
     if (displayContacts.length === 0) {
-      displayLabel = 'None';
+      displayContactLabel = 'None';
     } else {
-      displayLabel = JSON.stringify(displayContacts);
-      displayLabel = displayLabel.slice(1,-1);
+      displayContactLabel = JSON.stringify(displayContacts);
+      displayContactLabel = displayContactLabel.slice(1,-1);
     }
     // console.log(displayLabel)
   }
+
+  function skillNames() {
+    for (let skill of typeToEdit.skills){
+      // console.log(skill)
+      for (let id of buildSkills){
+        // console.log(id)
+        if (skill === id.skill_id){
+          displaySkills.push(id.description);
+        }
+      }
+    };
+    // console.log(displayContacts)
+
+    if (displaySkills.length === 0) {
+      displaySkillLabel = 'None';
+    } else {
+      displaySkillLabel = JSON.stringify(displaySkills);
+      displaySkillLabel = displaySkillLabel.slice(1,-1);
+    }
+    // console.log(displayLabel)
+  }
+
   contactNames();
+  skillNames();
+
+
 
   useEffect(() => {
     loadContacts();
-    // loadSkills();
+    loadSkills();
   }, []);
 
   function addKeys(selection) {
@@ -236,16 +314,16 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         obj.value = obj.first_name + " " + obj.last_name;
         return obj;
     })
-    // if (selection === "skills")
-    // buildSkills = buildSkills.map(function(obj) {
-    //     obj.label = obj.title;
-    //     obj.value = obj.title;
-    //     return obj;
-    // })
+    if (selection === "skills")
+    buildSkills = buildSkills.map(function(obj) {
+        obj.label = obj.description;
+        obj.value = obj.description;
+        return obj;
+    })
     return
   };
   addKeys("contacts");
-  // addKeys("skills");
+  addKeys("skills");
   
   
   return (
@@ -272,13 +350,6 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         value={description}
         placeholder="Enter Description (required)"
         onChange={e => setDescription(e.target.value)} />
-      <label className="">Skills:</label>
-      <input
-      className="edit-app"
-        type="text"
-        placeholder="Enter Skill"
-        value={skills}
-        onChange={e => setSkill(e.target.value)} />
       <label className="">Posting Date:</label>
       <input
       className="edit-app"
@@ -301,29 +372,24 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         value={link}
         onChange={e => setLink(e.target.value)} />
       </div>
-      {/* <input
-        type="text"
-        placeholder="Enter Contact"
-        value={contacts}
-        onChange={e => setContact(e.target.value)} /> */}
         <div  className='select'>
-          {visibleRemoveButton && 
+          {visibleRemoveContactsButton && 
             <><br />
               <><b>Current Contact(s):</b></><br /><br />
-              <>{displayLabel}</>
+              <>{displayContactLabel}</>
             </>
           }
 
           <div><br />
-            {visibleRemoveButton &&
-              <button onClick={hide}>Remove all current contacts</button>
+            {visibleRemoveContactsButton &&
+              <button onClick={hideContacts}>Remove all current contacts</button>
             }
-            {visibleUndoButton &&
-              <><button onClick={show}>Undo Remove</button><br /><br /></>
+            {visibleUndoContactsButton &&
+              <><button onClick={showContacts}>Undo Remove</button><br /><br /></>
             }
           </div>
 
-          {visibleRemoveButton &&
+          {visibleRemoveContactsButton &&
             <><br /><b>or </b>
             </>
           }
@@ -337,16 +403,38 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
           <b><br />or leave as it is.</b>
         </div> 
-      
-      {/* <p>
-        <button
-          onClick={() => navigate(-1)}
-        >Cancel</button>
-        <> </>
-        <button
-          onClick={editApplication}
-        >Submit</button>
-      </p> */}
+        <br />  
+        <div  className='select'>
+          {visibleRemoveSkillsButton && 
+            <><br />
+              <><b>Current Skill(s):</b></><br /><br />
+              <>{displaySkillLabel}</>
+            </>
+          }
+
+          <div><br />
+            {visibleRemoveSkillsButton &&
+              <button onClick={hideSkills}>Remove all current skills</button>
+            }
+            {visibleUndoSkillsButton &&
+              <><button onClick={showSkills}>Undo Remove</button><br /><br /></>
+            }
+          </div>
+
+          {visibleRemoveSkillsButton &&
+            <><br /><b>or </b>
+            </>
+          }
+
+          <b>select new Skills to add to Applcation:</b><br /><br />
+          <SelectMulti
+          items={buildSkills}
+          selected={selectedSkills}
+          setSelected={setSelectedSkills}
+          />
+
+          <b><br />or leave as it is.</b>
+        </div> 
       <p>
         <input type="submit" value="Submit Changes" />
       </p>
