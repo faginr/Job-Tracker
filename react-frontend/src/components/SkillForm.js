@@ -27,7 +27,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         setSkillsModified(skillsModified+1)
     }
 
-    async function sendUpdate(skill) {
+    async function sendUpdate() {
         // send update on proficiency
         let requestBody = {'proficiency': parseInt(skill.proficiency, 10)}
         await fetchRequests.updateSkillProficiency(user, user, requestBody, skill.skill_id)
@@ -42,7 +42,9 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     }
 
     async function tieToApps(){
-        console.log(selectedApps)
+        for(let app of selectedApps){
+            fetchRequests.tieSkillToApp(user, user, skill.skill_id, app.id)
+        }
     }
 
     async function getAllApps() {
@@ -98,7 +100,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                     })}
                     selected={selectedApps}
                     setSelected={setSelectedApps}/>
-                <button onClick={()=>sendUpdate(skill)}>Confirm Updates</button>
+                <button onClick={()=>sendUpdate()}>Confirm Updates</button>
             </div>
         </div>
     )

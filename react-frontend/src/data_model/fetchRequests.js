@@ -93,7 +93,7 @@ export default class fetchRequests {
     }
 
     static getAllApplications = async function(user, accessToken){
-        const response = await fetch(`${this.DATASTORE_URL}/applications`, {
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/applications`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -103,5 +103,17 @@ export default class fetchRequests {
             alert("Uh-oh, I had trouble getting applications")
         }
         return await response.json()
+    }
+
+    static tieSkillToApp = async function(user, accessToken, skillID, appID){
+        const response = await fetch(`${this.DATASTORE_URL}/users/${JSON.parse(user).sub}/applications/${appID}/skills/${skillID}`,{
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+        if (response.status !== 204){
+            alert(`Whoops... I couldn't tie skill: ${skillID} to app: ${appID}`)
+        }
     }
 }

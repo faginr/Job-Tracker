@@ -62,7 +62,7 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
         setSkillAdded(skillAdded+1)
     }
 
-    function cancleCreate(e) {
+    function cancelCreate(e) {
         e.preventDefault()
         setNewSkillFormClass("hidden")
         setQuery("")
@@ -156,7 +156,7 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
                     </div>
                     <div>
                         <button onClick={createSkill}>Submit</button>
-                        <button onClick={cancleCreate}>Cancel</button>
+                        <button onClick={cancelCreate}>Cancel</button>
                     </div>
                 </form>
             </div>

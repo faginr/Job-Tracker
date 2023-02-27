@@ -130,7 +130,7 @@ async function verifyJWTWithUserParam (req, res, next) {
     }
 
     if (!(userMatchesJWT(req))) {
-        return res.status(403).send(messages[403])
+        return res.status(403).send({"Error": "User ID in JWT does not match URL"})
     }
 
     if (!(await userExists(req))) {
