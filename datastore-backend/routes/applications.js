@@ -129,7 +129,6 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     new_application["link"] = default_values["link"]
   }
 
-  console.log(new_application["description"]["value"])
   // save new object in datastore
   model.postBigItem(new_application, 'application')
     .then((key) => {
@@ -205,7 +204,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
     verify_id(req.params.app_id) 
     || verify_not_blank(req.params.app_id)
     ){
-      console.log("here")
+      // console.log("here")
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
@@ -248,7 +247,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
         results[0]["link"] = req.body.link
       }
       // Update application in datastore, return updated object in response body
-      return model.updateItem(results[0], 'application')
+      return model.updateBigItem(results[0], 'application')
       .then(res.status(200).json({
         'id': req.params.app_id,
         // 'user': results["user"],
@@ -263,8 +262,9 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       }))
     }
   })
-  .catch(error => {
-    res.status(500).json({'Error': error}).end()
+  .catch(err => {
+    console.error(err)
+    // res.status(500).json({'Error': error}).end()
   })
 })
 

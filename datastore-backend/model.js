@@ -88,7 +88,7 @@ async function postBigItem(newData, kind) {
         value: newData.contacts
     }
     const dataDate = {
-        name: 'date',
+        name: 'posting_date',
         value: newData.posting_date
     }
     const dataStatus = {
@@ -327,6 +327,66 @@ async function updateItem(newData, kind) {
     return newData
 }
 
+async function updateBigItem(newData, kind) {
+    // manually create matching key 
+    let manKey = null
+    let existId = newData.id
+    manKey = ds.key([kind, parseInt(newData.id, 10)])
+
+    // prepare the entity object
+    delete newData.id
+
+    let dataUnindexed = []
+
+    const dataTitle = {
+        name: 'title',
+        value: newData.title
+    }
+    const dataDescription = {
+        name: 'description',
+        value: newData.description,
+        excludeFromIndexes: true
+    }
+    const dataSkills = {
+        name: 'skills',
+        value: newData.skills
+    }
+    const dataContacts = {
+        name: 'contacts',
+        value: newData.contacts
+    }
+    const dataDate = {
+        name: 'posting_date',
+        value: newData.posting_date
+    }
+    const dataStatus = {
+        name: 'status',
+        value: newData.status
+    }
+    const dataLink = {
+        name: 'link',
+        value: newData.link
+    }
+
+    dataUnindexed.push(dataTitle)
+    dataUnindexed.push(dataDescription)
+    dataUnindexed.push(dataSkills)
+    dataUnindexed.push(dataContacts)
+    dataUnindexed.push(dataDate)
+    dataUnindexed.push(dataStatus)
+    dataUnindexed.push(dataLink)
+
+    const newEntity = {
+        key: manKey,
+        data: dataUnindexed
+    }
+
+    // update the datastore item and return the key
+    await ds.save(newEntity)
+    newData.id = existId
+    return newData
+}
+
 module.exports = {
     postItem,
     postBigItem,
@@ -338,5 +398,6 @@ module.exports = {
     getItemsNoPaginate,
     deleteItem,
     deleteMatchingItemsFromKind,
-    updateItem
+    updateItem,
+    updateBigItem
 }
