@@ -1,6 +1,7 @@
 const ds = require('./datastore');
 const datastore = ds.datastore;
 const constants = require('./routes/constants');
+const model = require('./model');
 
 // the name of the kind to be stored
 const CONTACT = constants.CONTACT;
@@ -60,17 +61,20 @@ async function postContact(last_name, first_name, email, phone, notes, contact_a
  ************************************************************/
 async function getContacts(userId) {
   try {
-    const query = datastore.createQuery(CONTACT);
-    let contacts = await datastore.runQuery(query);
-    // array.map adds id attribute to every element in the array at element 0 of
-    // the variable contacts
-    contacts = contacts[0].map(ds.fromDatastore);
     let userContacts = [];
-    // get only contacts that belongs to the user
-    for (let contact of contacts) {
-      if (userId === contact.user) {
-        userContacts.push(contact)
-      }
+    // get user data
+    const userData = await model.getItemByID('users', userId);
+    const userContactsId = userData[0].contacts;
+    // iterate through array of contact id's and get their data
+    for (let contactId of userContactsId) {
+      const key = datastore.key([CONTACT, parseInt(contactId, 10)]);
+      let contact = await datastore.get(key);
+      // array.map adds id attribute
+      contact = contact.map(ds.fromDatastore);
+      // check if the contact belongs to the user
+      if (userId === contact[0].user) {
+        userContacts.push(contact[0]);
+      };
     };
     return userContacts;
   } catch (error) {
