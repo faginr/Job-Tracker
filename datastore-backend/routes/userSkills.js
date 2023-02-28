@@ -107,9 +107,7 @@ async function deleteSkillFromApps(skillID, userID) {
     let relatedApps = []
     
     try{
-        // TODO: uncomment once apps are tied to skills
-        // const relatedApps = await model.getFilteredItems('application', 'user_id', userID)
-        relatedApps = await model.getItemsNoPaginate('application')
+        relatedApps = await model.getFilteredItems('application', 'user', userID)
     } catch(err){
         console.error(err)
         console.error('Error in GCP getting applications from DB')
@@ -188,9 +186,7 @@ async function bucketAppsBySkill(userData, skillMap) {
     let userApps = []
 
     try{
-        // TODO: uncomment once user identification tied to apps
-        // const userApps = await model.getFilteredItems('application', 'user_id', userData.id)
-        userApps = await model.getItemsNoPaginate('application')
+        userApps = await model.getFilteredItems('application', 'user', userData.id)
     } catch(err) {
         console.error(err)
         console.error('Error in GCP getting user apps')
