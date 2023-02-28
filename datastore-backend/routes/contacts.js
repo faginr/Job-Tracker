@@ -13,7 +13,7 @@ const CONTACT = constants.CONTACT;
 
 
 /************************************************************* 
- * Function to get a user_id from the url
+ * Function to get a user id from the url
  ************************************************************/
 function getUserId(req) {
   const tempArray = req.baseUrl.split("/");
@@ -164,7 +164,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 
   async function postUserContact() {
     try {
-      const user_id = getUserId(req);
+      const user = getUserId(req);
       const key = await modelContact.postContact(
         req.body.last_name, 
         req.body.first_name, 
@@ -172,10 +172,12 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user_id
+        user
         );
       const contactId = key.id;
       const appsId = req.body.contact_at_app_id;
+
+      // UPDATE the user by adding the contact_id
       
       // UPDATE the application(s) if added to the contact
       for (let app of appsId) {
@@ -207,8 +209,8 @@ router.get('/', checkAcceptHeader, function (req, res) {
 
   async function getUserContacts() {
     try {
-      const user_id = getUserId(req);
-      let contacts = await modelContact.getContacts(user_id);
+      const user = getUserId(req);
+      let contacts = await modelContact.getContacts(user);
       const applications = await model.getItemsNoPaginate('application');
       // Iterate over contacts and applications, if a contact is related to an application, 
       // add the name and link of this application to this contact 
@@ -246,8 +248,8 @@ router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res)
   //console.log("Get request received!");
   async function getUserContact() {
     try {
-      const user_id = getUserId(req);
-      let contact = await modelContact.getContact(req.params.contact_id, user_id)
+      const user = getUserId(req);
+      let contact = await modelContact.getContact(req.params.contact_id, user)
       if (contact === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
@@ -272,7 +274,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
 
   async function putUserContact() {
     try {
-      const user_id = getUserId(req);
+      const user = getUserId(req);
       const originalApps = await modelContact.putContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -281,7 +283,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user_id
+        user
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -339,7 +341,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
 
   async function patchUserContact() {
     try {
-      const user_id = getUserId(req);
+      const user = getUserId(req);
       const originalApps = await modelContact.patchContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -348,7 +350,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user_id
+        user
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -410,9 +412,9 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
 
   async function deleteUserContact() {
     try {
-      const user_id = getUserId(req);
+      const user = getUserId(req);
       //if delete success, return the list of application to be updated
-      const appsId = await modelContact.deleteContact(req.params.contact_id, user_id);
+      const appsId = await modelContact.deleteContact(req.params.contact_id, user);
       if (appsId === false) {
         // if user does not own the contact
         res.status(403).send(errorMessages[403]);
