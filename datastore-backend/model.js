@@ -199,6 +199,13 @@ async function getItemsPaginate (kind, pageCursor=undefined) {
     return returnObj
 }
 
+async function getItemsSorted(kind, sortCol, descending=false){
+    const query = ds.createQuery(kind).order(sortCol, {descending: descending})
+    let results = await ds.runQuery(query)
+    results = results[0]
+    return results.map(fromStore)
+}
+
 /**
  * Returns an array of datastore entities whose filterProp = filterVal. If 
  * no entities are found, returns an empty array. Returns the entities within 
@@ -408,6 +415,7 @@ module.exports = {
     getFilteredItems,
     getItemsPaginate,
     getItemsNoPaginate,
+    getItemsSorted,
     deleteItem,
     deleteMatchingItemsFromKind,
     updateItem,

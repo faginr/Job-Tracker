@@ -107,9 +107,7 @@ async function deleteSkillFromApps(skillID, userID) {
     let relatedApps = []
     
     try{
-        // TODO: uncomment once apps are tied to skills
-        // const relatedApps = await model.getFilteredItems('application', 'user_id', userID)
-        relatedApps = await model.getItemsNoPaginate('application')
+        relatedApps = await model.getFilteredItems('application', 'user', userID)
     } catch(err){
         console.error(err)
         console.error('Error in GCP getting applications from DB')
@@ -188,9 +186,7 @@ async function bucketAppsBySkill(userData, skillMap) {
     let userApps = []
 
     try{
-        // TODO: uncomment once user identification tied to apps
-        // const userApps = await model.getFilteredItems('application', 'user_id', userData.id)
-        userApps = await model.getItemsNoPaginate('application')
+        userApps = await model.getFilteredItems('application', 'user', userData.id)
     } catch(err) {
         console.error(err)
         console.error('Error in GCP getting user apps')
@@ -386,7 +382,17 @@ router.get('/:user_id/skills',
     verifyAcceptHeader, 
     async (req, res) => {
         const skillMap = createSkillMap(req.body.user.skills)
-        const skills = await bucketAppsBySkill(req.body.user, skillMap)
+        let skills = await bucketAppsBySkill(req.body.user, skillMap)
+
+        // sort the skills before sending them back
+        skills = skills.sort((a, b) => {
+            a = a.description.toUpperCase()
+            b = b.description.toUpperCase()
+            if(a < b) return -1
+            if(a > b) return 1
+            return 0
+        })
+
         res.status(200).send(skills)
 })
 
