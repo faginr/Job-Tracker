@@ -16,7 +16,6 @@ function SkillPage() {
   const {getTokenFromAuth0} = useAPI()
 
   function splitSkillsByProf(userSkills) {
-    console.log("bucketing")
     const skillsMap = {"high": [], "med": [], "low": []}
     for(let skill of userSkills) {
         switch (skill.proficiency) {

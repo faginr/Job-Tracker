@@ -3,8 +3,7 @@ import {useAuth0} from '@auth0/auth0-react'
 function useAPI() {
     const {getAccessTokenSilently, loginWithRedirect} = useAuth0()
 
-    const getTokenFromAuth0 = async ({redirectURI}={'redirectURI':'/callback'}) => {
-        console.log('getting the access token');
+    async function getTokenFromAuth0({redirectURI='/callback'} = {}) {
         let accessToken = ''
         try{
             accessToken = await getAccessTokenSilently()

@@ -46,6 +46,9 @@ function CallBackPage() {
         
         const res = await getUserFromAPI()
         switch (res.status){
+            case 200:
+                navigate('/applications')
+                break;
             case 401:
                 alert(`Whoops... It looks like there's a problem with your access token.`)
                 break;
