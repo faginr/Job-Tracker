@@ -178,7 +178,7 @@ router.get("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , f
   console.log("Get all requests received!");
 
   // Get all entities by kind 'application'
-  model.getItemsNoPaginate('application').then((applications) => {
+  model.getFilteredItems('application', 'user', req.params.user_id).then((applications) => {
     res.status(200).json(applications);
   });
 });
