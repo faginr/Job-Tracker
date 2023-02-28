@@ -188,7 +188,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
         // get the application
         let application = await model.getItemByID('application', app);
         application[0].contacts.push(contactId);
-        // patch the application
+        // update the application
         model.updateItem(application[0], 'application');
       };
       
@@ -434,7 +434,7 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
             }
           };
           application[0].contacts = appUpdatedContacts;
-          // patch the application
+          // update the application
           model.updateItem(application[0], 'application');
         };
 
