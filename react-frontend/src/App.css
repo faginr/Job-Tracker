@@ -336,6 +336,9 @@ th {
   max-height: 200px;
   padding: 0px 2rem;
   margin-right: 10px;
+  line-height: 1.5;
+  text-align: justify;
+  white-space: pre-line;
 }
 
 .app-item {
