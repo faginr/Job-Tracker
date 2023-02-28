@@ -164,7 +164,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 
   async function postUserContact() {
     try {
-      const user = getUserId(req);
+      const userId = getUserId(req);
       const key = await modelContact.postContact(
         req.body.last_name, 
         req.body.first_name, 
@@ -172,21 +172,23 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user
+        userId
         );
       const contactId = key.id;
       const appsId = req.body.contact_at_app_id;
 
-      // UPDATE the user by adding the contact_id
+      // UPDATE the user by adding the contact id
+      let userData = await model.getItemByID('users', userId);
+      let newUserData = userData[0]
+      newUserData.contacts.push(contactId);
+      model.updateItem(newUserData, 'users');
       
       // UPDATE the application(s) if added to the contact
       for (let app of appsId) {
-
-        // GET the application
+        // get the application
         let application = await model.getItemByID('application', app);
         application[0].contacts.push(contactId);
-
-        // PATCH the application
+        // patch the application
         model.updateItem(application[0], 'application');
       };
       
@@ -209,8 +211,8 @@ router.get('/', checkAcceptHeader, function (req, res) {
 
   async function getUserContacts() {
     try {
-      const user = getUserId(req);
-      let contacts = await modelContact.getContacts(user);
+      const userId = getUserId(req);
+      let contacts = await modelContact.getContacts(userId);
       const applications = await model.getItemsNoPaginate('application');
       // Iterate over contacts and applications, if a contact is related to an application, 
       // add the name and link of this application to this contact 
@@ -248,8 +250,8 @@ router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res)
   //console.log("Get request received!");
   async function getUserContact() {
     try {
-      const user = getUserId(req);
-      let contact = await modelContact.getContact(req.params.contact_id, user)
+      const userId = getUserId(req);
+      let contact = await modelContact.getContact(req.params.contact_id, userId)
       if (contact === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
@@ -274,7 +276,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
 
   async function putUserContact() {
     try {
-      const user = getUserId(req);
+      const userId = getUserId(req);
       const originalApps = await modelContact.putContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -283,7 +285,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user
+        userId
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -296,7 +298,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
           // UPDATE old applications by removing the contact_id
           for (let app of originalApps) {
             if (!(newApps.includes(app))) {
-              // GET the application to be updated
+              // get the application to be updated
               let application = await model.getItemByID('application', app);
               const appUpdatedContacts = [];
               for (let contactId of application[0].contacts) {
@@ -305,7 +307,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
                 }
               };
               application[0].contacts = appUpdatedContacts;
-              // UPDATE the application
+              // update the application
               model.updateItem(application[0], 'application');
             }
           };
@@ -313,10 +315,10 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
           // UPDATE new applications if added by adding the contact_id
           for (let app of newApps) {
             if (!(originalApps.includes(app))) {
-              // GET the application to be updated
+              // get the application to be updated
               let application = await model.getItemByID('application', app);
               application[0].contacts.push(req.params.contact_id);
-              // UPDATE the application
+              // update the application
               model.updateItem(application[0], 'application');
             }
           };
@@ -341,7 +343,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
 
   async function patchUserContact() {
     try {
-      const user = getUserId(req);
+      const userId = getUserId(req);
       const originalApps = await modelContact.patchContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -350,7 +352,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        user
+        userId
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -364,7 +366,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
           for (let app of originalApps) {
             if (newApps !== undefined) {
               if (!(newApps.includes(app))) {
-                // GET the application to be updated
+                // get the application to be updated
                 let application = await model.getItemByID('application', app);
                 const appUpdatedContacts = [];
                 for (let contactId of application[0].contacts) {
@@ -373,7 +375,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
                   }
                 };
                 application[0].contacts = appUpdatedContacts;
-                // UPDATE the application
+                // update the application
                 model.updateItem(application[0], 'application');
               }
             }
@@ -383,10 +385,10 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
           if (newApps !== undefined) {
             for (let app of newApps) {
               if (!(originalApps.includes(app))) {
-                // GET the application to be updated
+                // get the application to be updated
                 let application = await model.getItemByID('application', app);
                 application[0].contacts.push(req.params.contact_id);
-                // UPDATE the application
+                // update the application
                 model.updateItem(application[0], 'application');
               }
             }
@@ -412,27 +414,41 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
 
   async function deleteUserContact() {
     try {
-      const user = getUserId(req);
+      const userId = getUserId(req);
+      const contactId = req.params.contact_id;
       //if delete success, return the list of application to be updated
-      const appsId = await modelContact.deleteContact(req.params.contact_id, user);
+      const appsId = await modelContact.deleteContact(contactId, userId);
       if (appsId === false) {
         // if user does not own the contact
         res.status(403).send(errorMessages[403]);
       } else {
+
         // UPDATE any application if releated to the contact 
         for (let app of appsId) { 
-          // GET the application
+          // get the application
           let application = await model.getItemByID('application', app);
           const appUpdatedContacts = [];
           for (let contactId of application[0].contacts) {
-            if (contactId !== req.params.contact_id) {
+            if (contactId !== contactId) {
               appUpdatedContacts.push(contactId)
             }
           };
           application[0].contacts = appUpdatedContacts;
-          // PATCH the application
+          // patch the application
           model.updateItem(application[0], 'application');
         };
+
+        // UPDATE the user by removing the contact id
+        let userData = await model.getItemByID('users', userId);
+        let newUserContacts = [];
+        for (let contact of userData[0].contacts) {
+          if (contactId !== contact) {
+            newUserContacts.push(contact);
+          }
+        };
+        userData[0].contacts = newUserContacts
+        model.updateItem(userData[0], 'users');
+
         res.status(204).end();
       };
     } catch (error) {
