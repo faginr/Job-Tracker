@@ -87,7 +87,7 @@ function limit_description (description) {
 
 router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , function (req, res) {
   console.log("Post request received!");
-  console.log(req.body.user)
+  // console.log(req.body.user.id)
 
   // Test for invalid request
   if (
@@ -128,6 +128,7 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     'posting_date': req.body.posting_date,
     'status': req.body.status,
     'link': req.body.link,
+    'user': req.body.user.id
   }
 
   // apply default values to blanks
@@ -165,7 +166,8 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
         'posting date': new_application["posting_date"],
         'status': new_application["status"],
         'link': new_application["link"],
-        'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
+        'user': new_application["user"]
+        // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
     });
   });
 });
@@ -290,7 +292,8 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
         'posting_date': results[0]["posting_date"],
         'status': results[0]["status"],
         'link': results[0]["link"],
-        'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
+        'user': results[0]["user"]
+        // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
       }))
     }
   })

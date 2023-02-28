@@ -70,6 +70,8 @@ async function postBigItem(newData, kind) {
 
     let dataUnindexed = []
 
+    console.log(newData)
+
     const dataTitle = {
         name: 'title',
         value: newData.title
@@ -99,6 +101,10 @@ async function postBigItem(newData, kind) {
         name: 'link',
         value: newData.link
     }
+    const dataUser = {
+        name: 'user',
+        value: newData.user
+    }
 
     dataUnindexed.push(dataTitle)
     dataUnindexed.push(dataDescription)
@@ -107,6 +113,7 @@ async function postBigItem(newData, kind) {
     dataUnindexed.push(dataDate)
     dataUnindexed.push(dataStatus)
     dataUnindexed.push(dataLink)
+    dataUnindexed.push(dataUser)
     
 
     // prepare the entity
@@ -367,6 +374,10 @@ async function updateBigItem(newData, kind) {
         name: 'link',
         value: newData.link
     }
+    const dataUser = {
+        name: 'user',
+        value: newData.user
+    }
 
     dataUnindexed.push(dataTitle)
     dataUnindexed.push(dataDescription)
@@ -375,6 +386,7 @@ async function updateBigItem(newData, kind) {
     dataUnindexed.push(dataDate)
     dataUnindexed.push(dataStatus)
     dataUnindexed.push(dataLink)
+    dataUnindexed.push(dataUser)
 
     const newEntity = {
         key: manKey,
