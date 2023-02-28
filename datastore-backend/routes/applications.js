@@ -156,19 +156,25 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
   // save new object in datastore
   model.postBigItem(new_application, 'application')
     .then((key) => {
-      // return object in response body
-      res.status(201).json({
-        'id': key.id,
-        'title': new_application["title"],
-        'description': new_application["description"],
-        'skills': new_application["skills"],
-        'contacts': new_application["contacts"],
-        'posting date': new_application["posting_date"],
-        'status': new_application["status"],
-        'link': new_application["link"],
-        'user': new_application["user"]
-        // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
-    });
+      model.getItemByID('users', req.params.user_id).then((user) => {
+        let newUserData = user[0]
+        newUserData.applications.push(key.id)
+        model.updateItem(newUserData, 'users').then(() => {
+          // return object in response body
+          res.status(201).json({
+            'id': key.id,
+            'title': new_application["title"],
+            'description': new_application["description"],
+            'skills': new_application["skills"],
+            'contacts': new_application["contacts"],
+            'posting date': new_application["posting_date"],
+            'status': new_application["status"],
+            'link': new_application["link"],
+            'user': new_application["user"]
+            // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
+          });
+        })
+      })
   });
 });
 
@@ -326,8 +332,22 @@ router.delete("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUs
       return res.status(404).json({'Error': 'No application with this id exists'});
     }
 
-    // TODO implement all necessary checks and removals before delete
-    return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
+    model.getItemByID('users', req.params.user_id).then((user) => {
+        let newUserData = user[0]
+        newUserData.applications = []
+
+        for (let app in user[0].applications){
+          if (app === application[0].id){
+            console.log(application[0].id + " removed")
+          } else {
+            newUserData.applications.push(app)
+          }
+        }
+        model.updateItem(newUserData, 'users').then(() => { 
+          // TODO implement all necessary checks and removals before delete
+          return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
+        })
+      })
   })
 });
 
