@@ -163,7 +163,7 @@ function ApplicationPage() {
 
       <div>
         <p>Hello Username!</p>
-        <p>List of your applications:</p>
+        <p>Your applications:</p>
         <ApplicationList 
           applications={applications} 
           onDelete={onDelete}
