@@ -35,8 +35,6 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         // send update on tying apps to skills
         tieToApps()
 
-        // TODO: send update on removing apps
-
         // call setSkillsModified to refresh the skills page
         setSkillsModified(skillsModified+1)
     }
