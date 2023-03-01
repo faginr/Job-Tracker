@@ -3,13 +3,14 @@
 /************************************************************* 
  * Function to get applications 
  ************************************************************/
-async function ContactGetApps(datastore_url, user, setApps) {
-  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`,
+async function ContactGetApps(datastore_url, user, token, setApps) {
+  const userID = user.sub.split('|')[1]
+  const response = await fetch(`${datastore_url}/users/${userID}/applications`,
     { 
       method: "GET",
       headers: {
         'Accept': 'application/json', 
-        'Authorization': `Bearer ${user}`}
+        'Authorization': `Bearer ${token}`}
     }
   );
   if (response.status === 200) {
