@@ -270,15 +270,20 @@ async function getFilteredItemsPaginated(kind, filterProp, filterVal, pageCursor
  */
 async function getItemByID(kind, id){
     // manually create matching key
-    let manKey = ds.key([kind, parseInt(id, 10)])
-
-    const results = await ds.get(manKey)
-
-    if (results[0] === null || results[0] === undefined) {
-        return results
-    }
+    try{
+        let manKey = ds.key([kind, parseInt(id, 10)])
     
-    return results.map(fromStore)
+        const results = await ds.get(manKey)
+    
+        if (results[0] === null || results[0] === undefined) {
+            return results
+        }
+        
+        return results.map(fromStore)
+    } catch(e){
+        console.error(`error while getting ${kind}, with id ${id}`)
+        throw e
+    }
 }
 
 /**
