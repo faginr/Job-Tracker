@@ -1,11 +1,11 @@
 export default class fetchRequests {
     static DATASTORE_URL = process.env.REACT_APP_API_SERVER_URL
 
-    static getIDFromUser = function (user){
+    static getIDFromUser(user){
         if (user == undefined || user.sub == undefined){
             return ''
         }
-        return userSub.split('|')[1]
+        return user.sub.split('|')[1]
     }
 
     static getAllSkills = async function (accessToken) {
@@ -25,7 +25,7 @@ export default class fetchRequests {
     
 
     static getUserSkills = async function (user, accessToken) {
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         const response = await fetch(`${this.DATASTORE_URL}/users/${userID}/skills`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -59,7 +59,7 @@ export default class fetchRequests {
     }
 
     static tieSkillToUser = async function (user, accessToken, requestBody, skillID){
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         let putResponse = await fetch(`${this.DATASTORE_URL}/users/${userID}/skills/${skillID}`, {
             method: "PUT",
             headers: {
@@ -76,7 +76,7 @@ export default class fetchRequests {
     }
 
     static updateSkillProficiency = async function(user, accessToken, requestBody, skillID) {
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         const response = await fetch(`${this.DATASTORE_URL}/users/${userID}/skills/${skillID}`, {
             method: 'PUT',
             headers: {
@@ -91,7 +91,7 @@ export default class fetchRequests {
     }
 
     static deleteSkillFromUser = async function(user, accessToken, skillID) {
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         const response = await fetch(`${this.DATASTORE_URL}/users/${userID}/skills/${skillID}`, {
             method: 'DELETE',
             headers: {
@@ -104,7 +104,7 @@ export default class fetchRequests {
     }
 
     static getAllApplications = async function(user, accessToken){
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         const response = await fetch(`${this.DATASTORE_URL}/users/${userID}/applications`, {
             method: 'GET',
             headers: {
@@ -118,7 +118,7 @@ export default class fetchRequests {
     }
 
     static tieSkillToApp = async function(user, accessToken, skillID, appID){
-        const userID = getIDFromUser(user)
+        const userID = this.getIDFromUser(user)
         const response = await fetch(`${this.DATASTORE_URL}/users/${userID}/applications/${appID}/skills/${skillID}`,{
             method: 'PUT',
             headers: {
