@@ -63,7 +63,7 @@ async function getContacts(userId) {
   try {
     let userContacts = [];
     // get user data
-    const userData = await model.getItemByID('users', userId);
+    const userData = await model.getItemByManualID('users', userId);
     const userContactsId = userData[0].contacts;
     // iterate through array of contact id's and get their data
     for (let contactId of userContactsId) {
