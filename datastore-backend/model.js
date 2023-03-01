@@ -358,6 +358,9 @@ async function deleteMatchingItemsFromKind(kind, filter_prop, filter_val) {
  */
 async function updateItem(newData, kind) {
     // manually create matching key 
+    if(kind === 'users'){
+        return updateItemManualId(newData, kind)
+    }
     let manKey = null
     let existId = newData.id
     manKey = ds.key([kind, parseInt(newData.id, 10)])
@@ -372,6 +375,22 @@ async function updateItem(newData, kind) {
 
     // update the datastore item and return the key
     await ds.save(newEntity)
+    newData.id = existId
+    return newData
+}
+
+async function updateItemManualId(newData, kind){
+    let manKey;
+    let existId = newData.id
+    manKey = ds.key([kind, existId])
+
+    delete newData.id
+
+    await ds.save({
+        key: manKey,
+        data: newData
+    })
+
     newData.id = existId
     return newData
 }
