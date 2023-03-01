@@ -67,7 +67,7 @@ async function verifyJWTWithUserParam(req, res, next) {
     
     // verify user param and JWT match
     if (!(userMatchesJWT(req))) {
-        return res.status(403).send(messages[403])
+        return res.status(403).send({"Error": "User ID in JWT does not match URL"})
     }
 
     // verify user exists in the database

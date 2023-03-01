@@ -1,89 +1,95 @@
 import React, {useState, useEffect} from "react";
+import {MdOutlineCheckCircleOutline} from "react-icons/md"
 import { user } from "../utils/User";
-
-const datastore_url = process.env.REACT_APP_API_SERVER_URL
+import fetchRequests from "../data_model/fetchRequests";
 
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
 // is clicked adds that skill to the user.
 // Requires handleSkillClick function to control what happens with
 // the parent component when a skill is clicked.
-function AddSkill({skillAdded, setSkillAdded}) {
-    const [allSkills, setAllSkills] = useState([])
+function AddSkill({skillAdded, setSkillAdded, userSkills}) {
+    const [allSkillList, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
     const [query, setQuery] = useState("")
 
-    const filterdSkills = allSkills.filter((skill) => {
+    const filteredSkills = allSkillList.filter((skill) => {
         return (skill.description.toLowerCase().includes(query.toLowerCase()))
     })
 
-    function createNew() {
-        return (
-            <li onClick={() => setNewSkillFormClass("new-skill-form")}>
-                Create New
-            </li>
+    function allowSearchAndCreateNew() {
+        return(
+            <div>
+                <input type="search" placeholder="Search..." onChange={handleQuery}/>
+                {createNew()}
+            </div>
         )
     }
 
-    async function createNewSkillInAPI(){
-        let response = await fetch(`${datastore_url}/skills`, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-type': 'application/json'
-            }, 
-            // only send the description to POST
-            body: JSON.stringify({'description': newSkill.description}),
-        })
-        if (response.status !== 201) {
-            alert(`Uh-oh, I couldn't create ${newSkill.description} in DS!`)
-            return
-        }
-        return await response.json()
+    function createNew() {
+        return (
+        <button onClick={() => setNewSkillFormClass("new-skill-form")}>
+            Create New
+        </button>
+        )
     }
 
-    async function tieSkillToUser(skill){
-        let putResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.id}`, {
-            method: "PUT",
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-type': 'application/json',
-            }, 
-            // PUT method expect only proficiency in body
-            // and form auto-formats prof as string, so need to conver to num
-            body: JSON.stringify({'proficiency': parseInt(skill.proficiency)})
-        })
-        if (putResponse.status !== 204) {
-            alert(`Uh-oh, I couldn't tie ${skill.description} to user!`)
-        }
-        updateUserSkillsInReact()
-    }
+    /**
+     * Creates a new skill in datastore and ties new skill to the user
+     * with the defined proficiency
+     * @param {*} e 
+     */
+    async function createSkill (e) {
+        e.preventDefault()
 
-    function updateUserSkillsInReact() {
+        // handles case where description is blank
+        if(newSkill.description == undefined || newSkill.description === "") {
+            return alert('Sorry, it looks like you haven\'t provided a description... Please try again')
+        }
+
+        // send the skill to the backend for creation
+        let createdSkill = await fetchRequests.createSkill(user, {'description': newSkill.description})
+
+        // tie the skill to the user
+        await fetchRequests.tieSkillToUser(user, user, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+        
+        // perform cleanup after skill created
+        setNewSkillFormClass("hidden")
+        loadAllSkills().then((data) => highlightUsersSkills(data))
+        setQuery("")
+        setNewSkill({'description': undefined, 'proficiency': undefined})
         setSkillAdded(skillAdded+1)
     }
 
-    async function createSkill (e) {
+    function cancelCreate(e) {
         e.preventDefault()
-        
-        newSkill.description ?? (newSkill['description'] = query)
-
-        // send the skill to the backend for creation
-        let createdSkill = await createNewSkillInAPI()
-
-        // format the created skill to be the same as all the other skills
-        createdSkill['proficiency'] = newSkill.proficiency
-
-        // tie the skill to the user
-        await tieSkillToUser(createdSkill)
-
-        // hide the form
         setNewSkillFormClass("hidden")
-
-        // reload all skills to reflect new item and reset query
-        loadAllSkills()
         setQuery("")
+        setNewSkill({'description': '', 'proficiency': ''})
+    }
+
+    /**
+     * Ties a skill to a user with default proficiency
+     * @param {*} skill 
+     */
+    async function tieSkillToUser(skill){
+        await fetchRequests.tieSkillToUser(user, user, {'proficiency': undefined}, skill.id)
+
+        // perform cleanup after skill tied
+        setSkillAdded(skillAdded+1)
+        skill.userOwns = true
+    }
+
+    function handleQuery(e){
+        // update the new skill to have the same value as query
+        setNewSkill({
+            ...newSkill,
+            'description': e.target.value
+        })
+
+        // update query to reflect the target value
+        setQuery(e.target.value)
     }
 
     function handleFormChange(e, identifier) {
@@ -98,47 +104,42 @@ function AddSkill({skillAdded, setSkillAdded}) {
         }
     }
 
-    async function loadAllSkills() {
-        const response = await fetch(`${datastore_url}/skills`, {
-            headers: {
-                'Authorization': `Bearer ${user}`
-            }
-        })
-        if (response.status !== 200) {
-            alert('Uh-oh, I couldn\'t load all the skills in DS!')
-            return
+    function highlightUsersSkills(allSkillList) {
+        let allSkillIndex = 0
+        let userSkillIndex = 0
+        while (allSkillIndex < allSkillList.length && userSkillIndex < userSkills.length){
+            let allSkillDesc = allSkillList[allSkillIndex].description.toLowerCase()
+            let userSkillDesc = userSkills[userSkillIndex].description.toLowerCase()
+            
+            if(allSkillDesc > userSkillDesc){
+                userSkillIndex++
+                continue;
+            } else if(allSkillDesc === userSkillDesc){
+                allSkillList[allSkillIndex].userOwns = true
+                userSkillIndex++
+            } 
+            allSkillIndex++
         }
+        setAllSkills(allSkillList)
+    }
 
-        const data = await response.json()
+    async function loadAllSkills() {
+        const data = await fetchRequests.getAllSkills(user)
         setAllSkills(data)
+        return data
     }
 
-    async function handleSkillSelection(skill) {
-        await tieSkillToUser(skill)
-    }
-
-    useEffect(()=>{loadAllSkills()}, [])
+    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [])
 
     return(
         <div className="add-skill">
+            
             <h2>
                 Add Skill to Your Profile
             </h2>
-            <input type="search" placeholder="Search..." onChange={(e)=>setQuery(e.target.value)}/>
-            <ul>
-                {/* List all skills in database */}
-                {filterdSkills.map((skill) => {
-                    return(
-                        <li key={skill.id} 
-                            onClick={() => handleSkillSelection(skill)}>
-                                {skill.description}
-                        </li>
-                    )}
-                )}
+            
+            {allSkillList.length<3?createNew():allowSearchAndCreateNew()}
 
-                {/* Add ability to create new skill if less than 4 skills on screen */}
-                {filterdSkills.length<4?createNew():<div/>}
-            </ul>
             <div className={newSkillFormClass}>
                 <form>
                     <div>
@@ -150,14 +151,37 @@ function AddSkill({skillAdded, setSkillAdded}) {
                     <div>
                         <label>
                             Proficiency:
-                            <input type="number" max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
+                            <input type="number" value={undefined} max={5} min={1} onChange={(e)=>handleFormChange(e, 'proficiency')}/>
                         </label>
                     </div>
                     <div>
-                        <button onClick={createSkill}>Create New</button>
+                        <button onClick={createSkill}>Submit</button>
+                        <button onClick={cancelCreate}>Cancel</button>
                     </div>
                 </form>
             </div>
+
+            <ul>
+                {/* List all skills in database, display user owned skills as different
+                color with checkmark */}
+                {filteredSkills.map((skill) => {
+                    return (
+                        skill.userOwns ? 
+                            <li key={skill.id} 
+                                className='user-skill'>
+                                {skill.description}
+                                <MdOutlineCheckCircleOutline />
+                            </li>
+                        :
+                        <li key={skill.id} 
+                            className='all-skill'
+                            onClick={() => tieSkillToUser(skill)}>
+                            {skill.description}
+                        </li>
+                    )}
+                )}
+
+            </ul>
         </div>
     )
 }

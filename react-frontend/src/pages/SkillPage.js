@@ -36,30 +36,8 @@ function SkillPage() {
 
 
   async function loadUserSkills() {
-
-    // get the access token from Auth0 and redirect back to this page
-    const accessToken = await getTokenFromAuth0({redirectURI: '/skills'})
-
-    // fetch the user's skills once authenticated
-    if (isAuthenticated){
-      let response;
-      try {
-        response = await fetch(`${apiURL}/users/${user?.sub.slice(6)}/skills`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-      } catch(err){
-        alert("Uh oh... looks like the server is in-communicado!")
-      }
-      if (response.status !== 200) {
-        // show error page??
-        console.log("Whoops! Fetch to skills failed")
-        return setSkills([])
-      }
-      const data = await response.json();
-      setSkills(data)
-    };
+    const data = await fetchRequests.getUserSkills(user, user)
+    setSkills(data)
   }
 
   useEffect(() => {loadUserSkills()}, [skillsModified])
@@ -72,7 +50,7 @@ function SkillPage() {
       
       <div>
         <SlidingWindow 
-          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified}/>}
+          Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified} userSkills={skills}/>}
           ClickableComponent={<ReactButton label={"Add New Skill"}/>} />
       </div>
     </div>
