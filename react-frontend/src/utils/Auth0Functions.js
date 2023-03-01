@@ -1,9 +1,9 @@
 import {useAuth0} from '@auth0/auth0-react'
 
-function useAPI() {
+export function useAPI() {
     const {getAccessTokenSilently, loginWithRedirect} = useAuth0()
-
-    async function getTokenFromAuth0({redirectURI='/callback'} = {}) {
+    
+    async function getTokenFromAuth0({redirectURI='/callback'}={}) {
         let accessToken = ''
         try{
             accessToken = await getAccessTokenSilently()
@@ -16,6 +16,7 @@ function useAPI() {
                         returnTo: `${redirectURI}`
                     }
                 })
+                accessToken = await getAccessTokenSilently()
             } else {
                 throw e
             }
@@ -23,7 +24,5 @@ function useAPI() {
         return accessToken
     }
 
-    return {getTokenFromAuth0}
+    return getTokenFromAuth0
 }
-
-export {useAPI}
