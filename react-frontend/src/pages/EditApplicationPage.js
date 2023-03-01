@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants';
+import { useAPI } from '../utils/Auth0Functions';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export const EditApplicationPage = ({ typeToEdit }) => {
   
@@ -15,6 +16,8 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   const [posting_date, setPostingDate] = useState(typeToEdit.posting_date);
   const [status, setStatus] = useState(typeToEdit.status);
   const [link, setLink] = useState(typeToEdit.link);
+  const {user, isAuthenticated} = useAuth0();
+  const getTokenFromAuth0 = useAPI();
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -66,188 +69,200 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   const editApplication = async (e) => {
     e.preventDefault();
 
-    // listen for any value changes
+    const token = await getTokenFromAuth0({redirectURI: '/applications'})
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
 
-    if(setvisibleRemoveContactsButton === true
-      && selectedContacts.length === 0
-      && title === typeToEdit.title
-      && description === typeToEdit.description
-      && posting_date === typeToEdit.posting_date
-      && status === typeToEdit.status
-      && link === typeToEdit.link
-      ) {
-        console.log('no changes');
-        return navigate(0);
-      }
-
-    if(setvisibleRemoveSkillsButton === true
-      && selectedContacts.length === 0
-      && title === typeToEdit.title
-      && description === typeToEdit.description
-      && posting_date === typeToEdit.posting_date
-      && status === typeToEdit.status
-      && link === typeToEdit.link
-      ) {
-        console.log('no changes');
-        return navigate(0);
-      }
-
-    // reset all contacts to blank array if user removed all via button
-    if (setvisibleRemoveContactsButton === false
-      && selectedContacts.length === 0
-      ) {
-        contacts = [];
-      }
-
-    if (setvisibleRemoveSkillsButton === false
-      && selectedSkills.length === 0
-      ) {
-        skills = [];
-      }
-
-    // push each element id selected into contacts
-    for (let element of selectedContacts) {
-      // console.log(element)
-      contacts.push(element.id)
-
-    }
-
-    for (let element of selectedSkills) {
-      // console.log(element)
-      skills.push(element.skill_id)
-    }
-
-    // define all values for edited app
-    const editedApplication = { 
-      title, 
-      description,
-      skills, 
-      contacts, 
-      posting_date, 
-      status, 
-      link 
-     };
-
-    // PATCH application
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(editedApplication),
-      headers: {
-        'Authorization': `Bearer ${user}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if(response.status === 200){
-      alert("Successfully edit the application!"); 
-    } else {
-      alert(`Failed to edit application, status code = ${response.status}`);
-    }
-
-    // check if contacts has changed
-    if (startingContacts !== contacts) {
-
-      // get newly posted application by id
-      // const newApp = await response.json();
-
-      // Loop through each contact of starting contacts
-      for(let contact of startingContacts) {
-        // see if contacts has startingContact still in it
-        if(!(contacts.includes(contact))){
-        // GET the contact if not
-        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        // See response status of GET
-        if (contactResponse.status === 200) {
-          console.log(`GET ${contactResponse} success 200`);
-        } else {
-          console.log(`GET ${contactResponse} failure ${contactResponse.status}`);
+      // listen for any value changes
+  
+      if(setvisibleRemoveContactsButton === true
+        && selectedContacts.length === 0
+        && title === typeToEdit.title
+        && description === typeToEdit.description
+        && posting_date === typeToEdit.posting_date
+        && status === typeToEdit.status
+        && link === typeToEdit.link
+        ) {
+          console.log('no changes');
+          return navigate(0);
         }
-
-        const data = await contactResponse.json();
-        const editedContacts = [];
-        for (let contactId of data.contact_at_app_id){
-          if (contactId !== typeToEdit.id){
-            editedContacts.push(contactId)
+  
+      if(setvisibleRemoveSkillsButton === true
+        && selectedContacts.length === 0
+        && title === typeToEdit.title
+        && description === typeToEdit.description
+        && posting_date === typeToEdit.posting_date
+        && status === typeToEdit.status
+        && link === typeToEdit.link
+        ) {
+          console.log('no changes');
+          return navigate(0);
+        }
+  
+      // reset all contacts to blank array if user removed all via button
+      if (setvisibleRemoveContactsButton === false
+        && selectedContacts.length === 0
+        ) {
+          contacts = [];
+        }
+  
+      if (setvisibleRemoveSkillsButton === false
+        && selectedSkills.length === 0
+        ) {
+          skills = [];
+        }
+  
+      // push each element id selected into contacts
+      for (let element of selectedContacts) {
+        // console.log(element)
+        contacts.push(element.id)
+  
+      }
+  
+      for (let element of selectedSkills) {
+        // console.log(element)
+        skills.push(element.skill_id)
+      }
+  
+      // define all values for edited app
+      const editedApplication = { 
+        title, 
+        description,
+        skills, 
+        contacts, 
+        posting_date, 
+        status, 
+        link 
+       };
+  
+      // PATCH application
+      const response = await fetch(`${datastore_url}/users/${userID}/applications/${typeToEdit.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(editedApplication),
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if(response.status === 200){
+        alert("Successfully edit the application!"); 
+      } else {
+        alert(`Failed to edit application, status code = ${response.status}`);
+      }
+  
+      // check if contacts has changed
+      if (startingContacts !== contacts) {
+  
+        // get newly posted application by id
+        // const newApp = await response.json();
+  
+        // Loop through each contact of starting contacts
+        for(let contact of startingContacts) {
+          // see if contacts has startingContact still in it
+          if(!(contacts.includes(contact))){
+          // GET the contact if not
+          const contactResponse = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+          });
+          // See response status of GET
+          if (contactResponse.status === 200) {
+            console.log(`GET ${contactResponse} success 200`);
+          } else {
+            console.log(`GET ${contactResponse} failure ${contactResponse.status}`);
           }
-        };
-
-        const updatedContacts = {contact_at_app_id: editedContacts}
-        
-        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updatedContacts),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (patchResponse.status === 200) {
-          console.log(`PATCH ${patchResponse.id} success 200`)
-        } else {
-          console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
-        }
-      }
-    }
-
-    for (let contact of contacts) {
-      if (!(startingContacts.includes(contact))) {
-        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        if (contactResponse.status === 200){
-          console.log(`GET ${contactResponse.id} success 200`);
-        } else {
-          console.log(`GET ${contactResponse.id} failure ${contactResponse.status}`);
-        }
-
-        const data = await contactResponse.json();
-        const editedContacts = [];
-        for (let contactId of data.contact_at_app_id){
-          if (contactId !== typeToEdit.id){
-            editedContacts.push(contactId)
+  
+          const data = await contactResponse.json();
+          const editedContacts = [];
+          for (let contactId of data.contact_at_app_id){
+            if (contactId !== typeToEdit.id){
+              editedContacts.push(contactId)
+            }
+          };
+  
+          const updatedContacts = {contact_at_app_id: editedContacts}
+          
+          const patchResponse = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updatedContacts),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+          });
+          if (patchResponse.status === 200) {
+            console.log(`PATCH ${patchResponse.id} success 200`)
+          } else {
+            console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
           }
-        };
-
-        const updatedContacts = {contact_at_app_id: editedContacts}
-        
-        const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updatedContacts),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (patchResponse.status === 200) {
-          console.log(`PATCH ${patchResponse.id} success 200`)
-        } else {
-          console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
         }
-
       }
-    }
-
-  }
-
+  
+      for (let contact of contacts) {
+        if (!(startingContacts.includes(contact))) {
+          const contactResponse = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+          });
+          if (contactResponse.status === 200){
+            console.log(`GET ${contactResponse.id} success 200`);
+          } else {
+            console.log(`GET ${contactResponse.id} failure ${contactResponse.status}`);
+          }
+  
+          const data = await contactResponse.json();
+          const editedContacts = [];
+          for (let contactId of data.contact_at_app_id){
+            if (contactId !== typeToEdit.id){
+              editedContacts.push(contactId)
+            }
+          };
+  
+          const updatedContacts = {contact_at_app_id: editedContacts}
+          
+          const patchResponse = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updatedContacts),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+          });
+          if (patchResponse.status === 200) {
+            console.log(`PATCH ${patchResponse.id} success 200`)
+          } else {
+            console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
+          }
+  
+        }
+      }
+  
+      }
     navigate(0);  // goes back to Application Page
+    }
   };
 
-  const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
+  const loadContacts = async (token, userID) => {
+    const response = await fetch(`${datastore_url}/users/${userID}/contacts`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     const data = await response.json();
     // console.log(data);
     setContacts(data);
   }
 
-  const loadSkills = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+  const loadSkills = async (token, userID) => {
+    const response = await fetch(`${datastore_url}/users/${userID}/skills`, {
       headers: {
-        'Authorization': `Bearer ${user}`
+        'Authorization': `Bearer ${token}`
       }
     });
     const data = await response.json();
@@ -303,9 +318,14 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
 
   useEffect(() => {
-    loadContacts();
-    loadSkills();
-  }, []);
+    getTokenFromAuth0({redirectURI: '/applications'}).then((token) => {
+      if(isAuthenticated){
+        const userID = user.sub.split('|')[1]
+        loadContacts(token, userID);
+        loadSkills(token, userID);
+      }
+    })
+  }, [user]);
 
   function addKeys(selection) {
     if (selection === "contacts")

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants'
+import { useAuth0 } from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
 
 
 export const AddApplicationPage = () => {
@@ -13,6 +14,8 @@ export const AddApplicationPage = () => {
   const [posting_date, setPostingDate] = useState('');
   const [status, setStatus] = useState('');
   const [link, setLink] = useState('');
+  const getTokenFromAuth0 = useAPI();
+  const {user, isAuthenticated} = useAuth0();
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -27,125 +30,136 @@ export const AddApplicationPage = () => {
   const addApplication = async (e) => {
     // prevent default behavior
     e.preventDefault();
-
-    // push each element id into skills
-    for (let element of selectedSkills) {
-      skills.push(element.skill_id)
-    }
-
-    // push each element id selected into contacts
-    for (let element of selectedContacts) {
-      // console.log(element)
-      contacts.push(element.id)
-    }
-
-    // console.log(contacts)
-    // console.log(skills)
-
-    // Setup parameters for new application
-    const newApplication = { 
-      title, 
-      description,
-      skills, 
-      contacts, 
-      posting_date, 
-      status, 
-      link 
-    };
-
-    // POST new application
-    const response = await fetch(
-      `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
-      method: 'POST',
-      body: JSON.stringify(newApplication),
-      headers: {
-        'Authorization': `Bearer ${user}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Log response status 
-    if(response.status === 201){
-      console.log("Successfully added the application 201"); 
-    } else {
-      alert(`Failed to add application, status code = ${response.status}`);
-    }
-   
     
-    // update - See if there is at least one contact added
-    if (contacts.length > 0) {
-
-      // get newly posted application by id
-      const newApp = await response.json();
-
-      // Loop through each contact
-      for(let contact of contacts) {
-
-        // GET the contact
-        const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        // See response status of GET
-        if (contactResponse.status === 200) {
-          console.log(`GET ${contact} success 200`);
-        } else {
-          console.log(`GET ${contact} failure ${contactResponse.status}`);
-        }
-
-      // convert data to json
-      const data = await contactResponse.json();
-
-      // Put all previous app ids into new array, add newly posted app id
-      const updateContact = { contact_at_app_id: data.contact_at_app_id }
-      updateContact["contact_at_app_id"].push(`${newApp.id}`) 
-      
-      // alert(JSON.stringify(updateContact))
-      const responsePatch = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updateContact),
+    const token = await getTokenFromAuth0()
+    if(isAuthenticated) {
+      const userID = user.sub.split('|')[1]
+      // push each element id into skills
+      for (let element of selectedSkills) {
+        skills.push(element.skill_id)
+      }
+  
+      // push each element id selected into contacts
+      for (let element of selectedContacts) {
+        // console.log(element)
+        contacts.push(element.id)
+      }
+  
+      // console.log(contacts)
+      // console.log(skills)
+  
+      // Setup parameters for new application
+      const newApplication = { 
+        title, 
+        description,
+        skills, 
+        contacts, 
+        posting_date, 
+        status, 
+        link 
+      };
+  
+      // POST new application
+      const response = await fetch(
+        `${datastore_url}/users/${userID}/applications`, {
+        method: 'POST',
+        body: JSON.stringify(newApplication),
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-      // See response status of GET
-      if (responsePatch.status === 200) {
-        console.log(`PATCH ${contact} success 200`);
+  
+      // Log response status 
+      if(response.status === 201){
+        console.log("Successfully added the application 201"); 
       } else {
-        console.log(`PATCH ${contact} failure ${responsePatch.status}`);
+        alert(`Failed to add application, status code = ${response.status}`);
       }
-
+     
+      
+      // update - See if there is at least one contact added
+      if (contacts.length > 0) {
+  
+        // get newly posted application by id
+        const newApp = await response.json();
+  
+        // Loop through each contact
+        for(let contact of contacts) {
+  
+          // GET the contact
+          const contactResponse = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          // See response status of GET
+          if (contactResponse.status === 200) {
+            console.log(`GET ${contact} success 200`);
+          } else {
+            console.log(`GET ${contact} failure ${contactResponse.status}`);
+          }
+  
+        // convert data to json
+        const data = await contactResponse.json();
+  
+        // Put all previous app ids into new array, add newly posted app id
+        const updateContact = { contact_at_app_id: data.contact_at_app_id }
+        updateContact["contact_at_app_id"].push(`${newApp.id}`) 
+        
+        // alert(JSON.stringify(updateContact))
+        const responsePatch = await fetch(`${datastore_url}/users/${userID}/contacts/${contact}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateContact),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+        });
+        // See response status of GET
+        if (responsePatch.status === 200) {
+          console.log(`PATCH ${contact} success 200`);
+        } else {
+          console.log(`PATCH ${contact} failure ${responsePatch.status}`);
+        }
+  
+      }
     }
-
-    
+    navigate(0);  // goes back to Application Page
   };
-  navigate(0);  // goes back to Application Page
 }
 
-const loadContacts = async () => {
-  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
-  const data = await response.json();
-  // console.log(data);
-  setContacts(data);
-}
-
-const loadSkills = async () => {
-  const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills`, {
+const loadContacts = async (token, userID) => {
+  const response = await fetch(`${datastore_url}/users/${userID}/contacts`, {
     headers: {
-      'Authorization': `Bearer ${user}`
+      'Authorization': `Bearer ${token}`
     }
   });
   const data = await response.json();
-  // console.log(data)
+  setContacts(data);
+}
+
+const loadSkills = async (token, userID) => {
+  const response = await fetch(`${datastore_url}/users/${userID}/skills`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await response.json();
   setSkills(data);
 }
 
 useEffect(() => {
-  loadContacts();
-  loadSkills();
-}, []);
+  getTokenFromAuth0({redirectURI: '/applications'}).then((token) => {
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
+      loadContacts(token, userID);
+      loadSkills(token, userID);
+    }
+  })
+}, [user]);
 
 
 
