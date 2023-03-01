@@ -4,6 +4,7 @@ import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
 import { user } from '../utils/User';
+import ContactGetApps from '../components/ContactGetApps';
 
 export const AddContactPage = () => {
   
@@ -15,8 +16,7 @@ export const AddContactPage = () => {
   const [notes, setNotes] = useState('');
   
   let contact_at_app_id = []
-  const [selected, setSelected] = useState([]);
-  
+  const [selected, setSelected] = useState([]);   // added apps to the contact
   let [apps, setApps] = useState([]);
 
 
@@ -55,96 +55,8 @@ export const AddContactPage = () => {
       console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
     };
 
-    // update an application if added to the contact
-    if (contact_at_app_id.length > 0) {
-
-      // get contact_id
-      const contact_id = await responseContactId.json();
-
-      // update the application(s)
-      for (let application of contact_at_app_id) {
-
-        // GET the application to be updated
-        const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${user}`}
-          }
-        );
-        if (responseGetApp.status === 200) {
-          //console.log("Successfully fetched the application!"); 
-        } else {
-          console.log(`Failed to fetch the application, status code = ${responseGetApp.status}`);
-        };
-
-        const data = await responseGetApp.json();
-        const appContacts = [];
-        for (let contact of data.contacts) {
-          appContacts.push(contact)
-        };
-
-        appContacts.push(`${contact_id}`)
-        const updateApplication = { contacts: appContacts };
-
-        // PATCH the application with contact_id
-        const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, 
-          {
-            method: 'PATCH',
-            body: JSON.stringify(updateApplication),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user}`}
-          }
-        );
-        if (responseUpdateApp.status === 200) {
-          //console.log("Successfully updated the application!"); 
-        } else {
-          console.log(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-        }
-      }
-    };
-
-    // go back to Application Page
+    // go back to Contact Page
     navigate(0);  
-  };
-
-
-  /************************************************************* 
-   * Function to get applications 
-   ************************************************************/
-  const getApps = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`,
-      { 
-        method: "GET",
-        headers: {
-          'Accept': 'application/json', 
-          'Authorization': `Bearer ${user}`}
-      }
-    );
-    if (response.status === 200) {
-      //console.log("Successfully fetched the applications!"); 
-    } else {
-      console.log(`Failed to fetch the applications, status code = ${response.status}`);
-    };
-    const data = await response.json();
-
-    // sort by title
-    // source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-    data.sort((a, b) => {
-      const titleA = a.title.toUpperCase();
-      const titleB = b.title.toUpperCase();
-      if (titleA < titleB) {
-        return -1;
-      }
-      if (titleA > titleB) {
-        return 1;
-      };
-      return 0;
-    });
-
-    setApps(data);
   };
 
 
@@ -152,7 +64,7 @@ export const AddContactPage = () => {
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
-    getApps();
+    ContactGetApps(datastore_url, user, setApps);
   }, []);
 
 

@@ -3,10 +3,13 @@ const router = express.Router();
 const ds = require('../datastore');
 const datastore = ds.datastore;
 const errorMessages = require('./errorMessages');
-const verifyUser = require('./middleware/verifyUser')
+const model = require('../model');
+const modelContact = require('../modelContact');
+const verifyUser = require('./middleware/verifyUser');
+const constants = require('./constants');
 
 // the name of the kind to be stored
-const CONTACT = "contact";
+const CONTACT = constants.CONTACT;
 
 
 /************************************************************* 
@@ -108,19 +111,25 @@ function checkRequestBodyPatch (req, res, next) {
     "contact_at_app_id": ''
   };
 
+  let keyError = false;
+
   // check if received keys are valid
   Object.keys(req.body).forEach(key => {
     if (!(key in allKeys)) {
-      res.status(400).send(errorMessages[400].keyError)
+      keyError = errorMessages[400].keyError;
     }    
   });
 
   // required keys cannot be empty strings, if so, send an error message
   if (req.body.last_name === '' || req.body.first_name === '') {
-    res.status(400).send(errorMessages[400].requiredKey)
+    keyError = errorMessages[400].requiredKey;
   };
 
-  next()
+  if (keyError !== false) {
+    res.status(400).send(keyError)
+  } else {
+    next()
+  }
 };
 
 
@@ -128,196 +137,23 @@ function checkRequestBodyPatch (req, res, next) {
  * Check if the user sends a valid object's id, 
  * if not, send an error message.
  ************************************************************/
-function checkIdExists (req, res, next) {
-  const key = datastore.key([CONTACT, parseInt(req.params.contact_id, 10)]);
-  return datastore.get(key).then((entity) => {
+async function checkIdExists (req, res, next) {
+  try {
+    const key = datastore.key([CONTACT, parseInt(req.params.contact_id, 10)]);
+    const entity = await datastore.get(key)
     if (entity[0] === undefined || entity[0] === null) {
       res.status(404).send(errorMessages[404].contacts);
     } else {
       next()
     }
-  })
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(errorMessages[500]);
+  };
 };
 
 /*--------------- End Middleware Functions ----------------- */
-
-
-/* ------------- Begin Lodging Model Functions ------------- */
-
-/************************************************************* 
- * The function sends a request to datastore to store the received data 
- * and returns the status code and the key of new created object.
- ************************************************************/
-function post_contact(last_name, first_name, email, phone, notes, contact_at_app_id, user_id) {
-  let key = datastore.key(CONTACT);
-  
-  const default_values = {
-    'email': "",
-    'phone': "",
-    'notes': "",
-    'contact_at_app_id': []
-  }
-
-  // if optional values undefined, apply the default values
-  if (email === undefined) {
-    email = default_values["email"]
-  }
-  if (phone === undefined) {
-    phone = default_values["phone"]
-  }
-  if (notes === undefined) {
-    notes = default_values["notes"]
-  }
-  if (contact_at_app_id === undefined) {
-    contact_at_app_id = default_values["contact_at_app_id"]
-  };
-
-  // create object
-  const new_contact = { 
-    "last_name": last_name,
-    "first_name": first_name, 
-    "email": email, 
-    "phone": phone, 
-    "notes": notes, 
-    "contact_at_app_id": contact_at_app_id,
-    "user_id": user_id
-  };
-
-  return datastore.save({ "key": key, "data": new_contact }).then(() => { return key });
-};
-
-
-/************************************************************* 
- * The function returns the arry of contacts that belongs to the user
- ************************************************************/
-async function get_contacts(user_id) {
-  const query = datastore.createQuery(CONTACT);
-  let contacts = await datastore.runQuery(query);
-  // array.map adds id attribute to every element in the array at element 0 of
-  // the variable contacts
-  contacts = contacts[0].map(ds.fromDatastore);
-  let userContacts = [];
-  // get only contacts that belongs to the user
-  for (let contact of contacts) {
-    if (user_id === contact.user_id) {
-      userContacts.push(contact)
-    }
-  };
-  return userContacts;
-};
-
-
-/************************************************************* 
- * The function returns the arry with the requested contact 
- * if the contact belongs to the user
- ************************************************************/
-async function get_contact(contact_id, user_id) {
-  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
-  let contact = await datastore.get(key);
-  // array.map adds id attribute
-  contact = contact.map(ds.fromDatastore);
-  // check if the contact belongs to the user
-  if (user_id === contact[0].user_id) {
-    return contact;
-  } else {
-    return false;
-  };
-};
-
-
-/************************************************************* 
- * The function sends a request to datastore to replace 
- * old values with the new values and returns the status code
- * if the contact belongs to the user
- ************************************************************/
-async function put_contact(contact_id, last_name, first_name, email, phone, notes, contact_at_app_id, user_id ) {
-  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
-  let contact = await datastore.get(key);
-  // check if the contact belongs to the user
-  if (user_id !== contact[0].user_id) {
-    return false;
-  } else {
-    contact = { 
-      "last_name": last_name, 
-      "first_name": first_name, 
-      "email": email, 
-      "phone": phone, 
-      "notes": notes, 
-      "contact_at_app_id": contact_at_app_id,
-      "user_id": user_id
-    };
-    let result = await datastore.save({ "key": key, "data": contact });
-    return result;
-  }
-};
-
-
-/************************************************************* 
- * The function sends a request to datastore to update some old values 
- * with the new values and returns the status code
- * if the contact belongs to the user
- ************************************************************/
-async function patch_contact(contact_id, last_name, first_name, email, phone, notes, contact_at_app_id, user_id ) {
-  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
-  let contact = await datastore.get(key);
-  // check if the contact belongs to the user
-  if (user_id !== contact[0].user_id) {
-    return false;
-  } else {
-    if (last_name === undefined) {
-      last_name = contact[0].last_name
-    }
-    if (first_name === undefined) {
-      first_name = contact[0].first_name
-    }
-    if (email === undefined) {
-      email = contact[0].email
-    }
-    if (phone === undefined) {
-      phone = contact[0].phone
-    }
-    if (notes === undefined) {
-      notes = contact[0].notes
-    }
-    if (contact_at_app_id === undefined) {
-      contact_at_app_id = contact[0].contact_at_app_id
-    };
-    // created the contact
-    contact = { 
-      "last_name": last_name, 
-      "first_name": first_name, 
-      "email": email, 
-      "phone": phone, 
-      "notes": notes, 
-      "contact_at_app_id": contact_at_app_id,
-      "user_id": user_id
-    };
-    let result = await datastore.save({ "key": key, "data": contact });
-    return result;
-  }
-};
-
-
-/************************************************************* 
- * The function sends a request to datastore to delete the object
- * and returns the status code if the contact belongs to the user
- ************************************************************/
-async function delete_contact(contact_id, user_id) {
-  const key = datastore.key([CONTACT, parseInt(contact_id, 10)]);
-
-  let contact = await datastore.get(key);
-  // check if the contact belongs to the user
-  if (user_id !== contact[0].user_id) {
-    return false;
-  } else {
-    return datastore.delete(key);
-  }
-};
-
-
-/* ----------------- End Model Functions ---------------- */
-
-/* ------------- Begin Controller Functions ------------- */
+/* ------------- Begin Controller Functions ---------------- */
 
 
 /************************************************************* 
@@ -325,24 +161,41 @@ async function delete_contact(contact_id, user_id) {
  ************************************************************/
 router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
   //console.log("Post request received!");
-  const user_id = getUserId(req);
 
-  post_contact(
-    req.body.last_name, 
-    req.body.first_name, 
-    req.body.email, 
-    req.body.phone, 
-    req.body.notes, 
-    req.body.contact_at_app_id,
-    user_id
-    )
-    .then(key => { 
-      res.status(201).json(key.id) 
-    })
-    .catch(error => {
+  async function postUserContact() {
+    try {
+      const user_id = getUserId(req);
+      const key = await modelContact.postContact(
+        req.body.last_name, 
+        req.body.first_name, 
+        req.body.email, 
+        req.body.phone, 
+        req.body.notes, 
+        req.body.contact_at_app_id,
+        user_id
+        );
+      const contactId = key.id;
+      const appsId = req.body.contact_at_app_id;
+      
+      // UPDATE the application(s) if added to the contact
+      for (let app of appsId) {
+
+        // GET the application
+        let application = await model.getItemByID('application', app);
+        application[0].contacts.push(contactId);
+
+        // PATCH the application
+        model.updateItem(application[0], 'application');
+      };
+      
+      res.status(201).json(contactId);
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    };
+  };
+
+  postUserContact();
 });
 
 
@@ -351,16 +204,38 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
  ************************************************************/
 router.get('/', checkAcceptHeader, function (req, res) {
   //console.log("Get all request received!");
-  const user_id = getUserId(req);
 
-  get_contacts(user_id)
-    .then((contacts) => {
+  async function getUserContacts() {
+    try {
+      const user_id = getUserId(req);
+      let contacts = await modelContact.getContacts(user_id);
+      const applications = await model.getItemsNoPaginate('application');
+      // Iterate over contacts and applications, if a contact is related to an application, 
+      // add the name and link of this application to this contact 
+      let arrayAppsNames = [];
+      let objApps = {};
+      for (let contact of contacts) {
+        arrayAppsNames = [];
+        for (let app_id of contact.contact_at_app_id) {
+          for (let application of applications) {
+            if (app_id === application.id) {
+              objApps = {};
+              objApps['title'] = application.title;
+              objApps['link'] = application.link;
+              arrayAppsNames.push(objApps); 
+            } 
+          }
+        };
+        contact.arrayAppsNames = arrayAppsNames;
+      };
       res.status(200).json(contacts);
-    })
-    .catch(error => {
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    };
+  };
+
+  getUserContacts();
 });
 
 
@@ -369,86 +244,161 @@ router.get('/', checkAcceptHeader, function (req, res) {
  ************************************************************/
 router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res) {
   //console.log("Get request received!");
-  const user_id = getUserId(req);
-
-  get_contact(req.params.contact_id, user_id)
-    .then(contact => {
+  async function getUserContact() {
+    try {
+      const user_id = getUserId(req);
+      let contact = await modelContact.getContact(req.params.contact_id, user_id)
       if (contact === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
       } else {
         res.status(200).json(contact[0]) 
-      };
-    })
-    .catch(error => {
+      }
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    }
+  }
+
+  getUserContact();
 });
 
 
 /************************************************************* 
- * PUT: replace all values for this contact_id
+ * PUT: replace all values for this contact_id and updates applications if needed
  ************************************************************/
 router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
   //console.log("Put request received!");
-  const user_id = getUserId(req);
 
-  put_contact(
-    req.params.contact_id, 
-    req.body.last_name, 
-    req.body.first_name, 
-    req.body.email, 
-    req.body.phone, 
-    req.body.notes, 
-    req.body.contact_at_app_id,
-    user_id
-    )
-    .then((contact) => {
-      if (contact === false) {
+  async function putUserContact() {
+    try {
+      const user_id = getUserId(req);
+      const originalApps = await modelContact.putContact(
+        req.params.contact_id, 
+        req.body.last_name, 
+        req.body.first_name, 
+        req.body.email, 
+        req.body.phone, 
+        req.body.notes, 
+        req.body.contact_at_app_id,
+        user_id
+        );
+      const newApps =req.body.contact_at_app_id;
+      if (originalApps === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
       } else {
-        res.status(200).end() 
+        // if the array of application has changed for the contact, update the old and new applications
+        if (originalApps !== newApps) {
+
+          // UPDATE old applications by removing the contact_id
+          for (let app of originalApps) {
+            if (!(newApps.includes(app))) {
+              // GET the application to be updated
+              let application = await model.getItemByID('application', app);
+              const appUpdatedContacts = [];
+              for (let contactId of application[0].contacts) {
+                if (contactId !== req.params.contact_id) {
+                  appUpdatedContacts.push(contactId)
+                }
+              };
+              application[0].contacts = appUpdatedContacts;
+              // UPDATE the application
+              model.updateItem(application[0], 'application');
+            }
+          };
+
+          // UPDATE new applications if added by adding the contact_id
+          for (let app of newApps) {
+            if (!(originalApps.includes(app))) {
+              // GET the application to be updated
+              let application = await model.getItemByID('application', app);
+              application[0].contacts.push(req.params.contact_id);
+              // UPDATE the application
+              model.updateItem(application[0], 'application');
+            }
+          };
+        };
+        res.status(200).end();
       };
-    })
-    .catch(error => {
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    }
+  };
+
+  putUserContact();
 });
 
 
 /************************************************************* 
- * PATCH: update some values, the received values, 
- * do not change others for this contact_id
+ * PATCH: update only received values and updates applications if needed
  ************************************************************/
 router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
   //console.log("Patch request received!");
-  const user_id = getUserId(req);
 
-  patch_contact(
-    req.params.contact_id, 
-    req.body.last_name, 
-    req.body.first_name, 
-    req.body.email, 
-    req.body.phone, 
-    req.body.notes, 
-    req.body.contact_at_app_id,
-    user_id
-    )
-    .then((contact) => {
-      if (contact === false) {
+  async function patchUserContact() {
+    try {
+      const user_id = getUserId(req);
+      const originalApps = await modelContact.patchContact(
+        req.params.contact_id, 
+        req.body.last_name, 
+        req.body.first_name, 
+        req.body.email, 
+        req.body.phone, 
+        req.body.notes, 
+        req.body.contact_at_app_id,
+        user_id
+        );
+      const newApps =req.body.contact_at_app_id;
+      if (originalApps === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
       } else {
-        res.status(200).end() 
+        // if the array of application has changed for the contact, update the old and new applications
+        if (originalApps !== newApps) {
+
+          // UPDATE old applications by removing the contact_id
+          for (let app of originalApps) {
+            if (newApps !== undefined) {
+              if (!(newApps.includes(app))) {
+                // GET the application to be updated
+                let application = await model.getItemByID('application', app);
+                const appUpdatedContacts = [];
+                for (let contactId of application[0].contacts) {
+                  if (contactId !== req.params.contact_id) {
+                    appUpdatedContacts.push(contactId)
+                  }
+                };
+                application[0].contacts = appUpdatedContacts;
+                // UPDATE the application
+                model.updateItem(application[0], 'application');
+              }
+            }
+          };
+
+          // UPDATE new applications if added by adding the contact_id
+          if (newApps !== undefined) {
+            for (let app of newApps) {
+              if (!(originalApps.includes(app))) {
+                // GET the application to be updated
+                let application = await model.getItemByID('application', app);
+                application[0].contacts.push(req.params.contact_id);
+                // UPDATE the application
+                model.updateItem(application[0], 'application');
+              }
+            }
+          }
+        };
+        res.status(200).end();
       };
-    })
-    .catch(error => {
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    }
+  };
+
+  patchUserContact();
 });
 
 
@@ -457,25 +407,42 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
  ************************************************************/
 router.delete('/:contact_id', checkIdExists, function (req, res) {
   //console.log("Delete request received!");
-  const user_id = getUserId(req);
 
-  delete_contact(req.params.contact_id, user_id)
-  .then((contact) => {
-    if (contact === false) {
-      // user does not own the contact
-      res.status(403).send(errorMessages[403]);
-    } else {
-      res.status(204).end() 
-    };
-  })
-    .catch(error => {
+  async function deleteUserContact() {
+    try {
+      const user_id = getUserId(req);
+      //if delete success, return the list of application to be updated
+      const appsId = await modelContact.deleteContact(req.params.contact_id, user_id);
+      if (appsId === false) {
+        // if user does not own the contact
+        res.status(403).send(errorMessages[403]);
+      } else {
+        // UPDATE any application if releated to the contact 
+        for (let app of appsId) { 
+          // GET the application
+          let application = await model.getItemByID('application', app);
+          const appUpdatedContacts = [];
+          for (let contactId of application[0].contacts) {
+            if (contactId !== req.params.contact_id) {
+              appUpdatedContacts.push(contactId)
+            }
+          };
+          application[0].contacts = appUpdatedContacts;
+          // PATCH the application
+          model.updateItem(application[0], 'application');
+        };
+        res.status(204).end();
+      };
+    } catch (error) {
       console.error(error);
       res.status(500).send(errorMessages[500]);
-    })
+    };
+  };
+
+  deleteUserContact();
 });
 
 /* -------------- End Controller Functions -------------- */
-
 /* -------------- Begin Not Allowed Routes -------------- */
 
 router.put('/', function (req, res) {
