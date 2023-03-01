@@ -6,6 +6,7 @@ import ReactButton from '../components/ReactButton';
 import LoadingPage from './LoadingPage';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useAPI } from '../utils/Auth0Functions';
+import fetchRequests from '../data_model/fetchRequests';
 
 const apiURL = process.env.REACT_APP_API_SERVER_URL
 
@@ -13,7 +14,7 @@ function SkillPage() {
   const [skillsModified, setSkillsModified] = useState(0)
   const [skills, setSkills] = useState([])
   const {user, isAuthenticated} = useAuth0()
-  const {getTokenFromAuth0} = useAPI()
+  const getTokenFromAuth0 = useAPI()
 
   // group skills any time page re-renders
   const groupedSkills = splitSkillsByProf(skills)
@@ -39,13 +40,17 @@ function SkillPage() {
 
 
   async function loadUserSkills() {
-    const token = await getTokenFromAuth0('/skills')
-    const data = await fetchRequests.getUserSkills(user, token)
-    setSkills(data)
-  
+    const token = await getTokenFromAuth0({redirectURI: '/skills'})
+    let data = [];
+    if(isAuthenticated){
+      data = await fetchRequests.getUserSkills(user, token);
+    }
+    setSkills(data);
   }
 
-  useEffect(() => {loadUserSkills()}, [skillsModified])
+  useEffect(() => {
+    loadUserSkills()
+  }, [skillsModified, user])
 
   return (
     isAuthenticated ?

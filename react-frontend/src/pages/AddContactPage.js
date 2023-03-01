@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
-import { user } from '../utils/User';
 import ContactGetApps from '../components/ContactGetApps';
+import {useAuth0} from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
 
 export const AddContactPage = () => {
   
@@ -14,6 +15,9 @@ export const AddContactPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
+
+  const {user, isAuthenticated} = useAuth0();
+  const getTokenFromAuth0 = useAPI();
   
   let contact_at_app_id = []
   const [selected, setSelected] = useState([]);   // added apps to the contact
@@ -40,23 +44,27 @@ export const AddContactPage = () => {
     };
 
     // POST a new contact
-    const responseContactId = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, 
-      {
-        method: 'POST',
-        body: JSON.stringify(newContact),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user}`},
-      }
-    );
-    if (responseContactId.status === 201) {
-      alert("Successfully added the contact!"); 
-    } else {
-      console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
-    };
-
-    // go back to Contact Page
-    navigate(0);  
+    const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
+      const responseContactId = await fetch(`${datastore_url}/users/${userID}/contacts`, 
+        {
+          method: 'POST',
+          body: JSON.stringify(newContact),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`},
+        }
+      );
+      if (responseContactId.status === 201) {
+        alert("Successfully added the contact!"); 
+      } else {
+        console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
+      };
+  
+      // go back to Contact Page
+      navigate(0);  
+    }
   };
 
 
@@ -64,7 +72,9 @@ export const AddContactPage = () => {
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
-    ContactGetApps(datastore_url, user, setApps);
+    getTokenFromAuth0({redirectURI: '/contacts'}).then(
+      (token) => ContactGetApps(datastore_url, user, token, setApps)
+    )
   }, []);
 
 
