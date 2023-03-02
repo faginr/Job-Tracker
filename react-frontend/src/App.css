@@ -60,6 +60,20 @@
   max-width: 20%;
 }
 
+
+button {
+  padding: 5px;
+}
+
+hr {
+  width: 40%;
+}
+
+.hidden {
+  display: none;
+}
+
+/************ Skills specific **************/
 .user-skills > div {
   display: flex;
   flex-direction: row;
@@ -83,51 +97,7 @@
 }
 
 .alert-skill {
-  background-color: maroon;
-}
-
-
-button {
-  padding: 5px;
-}
-
-.feature-pane-header {
-  margin-bottom: 1rem;
-}
-
-hr {
-  width: 40%;
-}
-
-.feature-pane {
-  animation-duration: 1s;
-  animation-name: slidein;
-  z-index: 1;
-  position: absolute;
-  top: 0px;
-  left: 50%;
-  width: 50%;
-  height: 100%;
-  border-left:gray;
-  border-left-style: solid;
-  background-color: white;
-  padding: 2%;
-}
-
-.hidden {
-  display: none;
-}
-
-@keyframes slidein {
-  from {
-    margin-left: 100%;
-    width: 300%;
-  }
-
-  to {
-    margin-left: 0%;
-    width: 50%;
-  }
+  background-color: rgb(219, 89, 89);
 }
 
 .add-skill ul{

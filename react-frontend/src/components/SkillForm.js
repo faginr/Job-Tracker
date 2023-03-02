@@ -77,14 +77,14 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
             <div>
                 <h2>
                     Tied to Applications:
-                    <ul>
-                        {skillToEdit.applications.map((app) => {
-                            return (
-                                <li>{app.title ?? "missing title"}</li>
-                                )
-                            })}
-                    </ul>
                 </h2>
+                <ul>
+                    {skillToEdit.applications.map((app) => {
+                        return (
+                            <li>{app.title ?? "missing title"}</li>
+                            )
+                        })}
+                </ul>
             </div>
             <div>
                 <h2>
