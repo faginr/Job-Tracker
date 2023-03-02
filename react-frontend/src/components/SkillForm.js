@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {useNavigate} from 'react-router-dom';
 import { user } from "../utils/User";
 import SelectMulti from "./SelectMulti"
 import {MdDeleteForever} from 'react-icons/md'
@@ -11,6 +12,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [selectedApps, setSelectedApps] = useState([])
     // used by selectMulti to display list of apps
     const [applications, setApplications] = useState([])
+    const navigate = useNavigate()
 
     function updateSkill(e, identifier) {
         setSkill({
@@ -35,8 +37,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         // send update on tying apps to skills
         tieToApps()
 
-        // call setSkillsModified to refresh the skills page
-        setSkillsModified(skillsModified+1)
+        navigate(0)
     }
 
     async function tieToApps(){
@@ -81,7 +82,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                 <ul>
                     {skillToEdit.applications.map((app) => {
                         return (
-                            <li>{app.title ?? "missing title"}</li>
+                            <li key={app.id}>{app.title ?? "missing title"}</li>
                             )
                         })}
                 </ul>
