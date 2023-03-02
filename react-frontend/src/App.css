@@ -74,9 +74,27 @@ hr {
 }
 
 /************ Skills specific **************/
-.user-skills > div {
+#skills-page{
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.grouped-skills-container{
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  border-bottom: 0.1rem solid grey;
+  margin-bottom: 5px;
+}
+
+.grouped-skills-category{
+  align-self: center;
+  margin-right: 10px;
+  font-size: larger;
+}
+
+.grouped-skills .sliding-window {
+  max-width: fit-content;
 }
 
 .skills {
@@ -84,6 +102,7 @@ hr {
   padding: 10px;
   margin: 5px;
   border-radius: 10px;
+  max-width: fit-content;
   border-style: solid;
   border-color: grey;
 }

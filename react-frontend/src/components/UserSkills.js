@@ -29,37 +29,32 @@ function UserSkills({userSkills, skillsModified, setSkillsModified}) {
         )
     }
 
-    // split skill display out by competency
+    // split skill display out by first letter
+    const alphabet = [
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
+        "U", "V", "W", "X", "Y", "Z", "Other"
+        ]
+    
     return (
-        <div className="user-skills">
-            <p>High Proficiency Skills</p>
-            <div className="high-prof-skills">
-                {/* user skills in the 4/5 proficiency category */}
-                {userSkills?.high?.map((skill) => {
-                    return (normalSkill(skill))
-                })}
-            </div>
-            <hr />
+        <div className="grouped-skills">
+            {alphabet.map((letter) => {
+                return (
+                    <div className="grouped-skills-container" key={letter}> 
+                        <div className="grouped-skills-category">
+                            {letter}
+                        </div>
+                        {userSkills[letter]?.map((skill)=>{
+                            return skill.proficiency < 2 && skill.applications.length > 3 
+                                ?
+                                    alertSkill(skill) 
+                                :
+                                    normalSkill(skill)
+                        })}
+                    </div>
+                )
+            })}
 
-            <p>Medium Proficiency Skills</p>
-            <div className='med-prof-skills'>
-                {/* user skills in the 2/3 proficiency category */}
-                {/* color RED if on more than 5 applications */}
-                {userSkills?.med?.map((skill) => {
-                    return (skill.applications.length > 5 ? alertSkill(skill) : normalSkill(skill))
-                })}
-            </div>
-            <hr />
-
-            <p>Low Proficiency Skills</p>
-            <div className="low-prof-skills">
-                {/* user skills in the null/1 proficiency category */}
-                {/* color RED if on more than 2 applications */}
-                {userSkills?.low?.map((skill) => {
-                    return(skill.applications.length > 2 ? alertSkill(skill) : normalSkill(skill))
-                })}
-            </div>
-            <hr />
         </div>
     )
 }
