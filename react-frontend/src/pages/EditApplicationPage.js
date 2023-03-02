@@ -55,17 +55,13 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     setvisibleUndoSkillsButton(true);
   }
 
-  
-
   let displayContacts = [];
   let displaySkills =[];
   let displayContactLabel = '';
   let displaySkillLabel = '';
 
-
   const editApplication = async (e) => {
     e.preventDefault();
-
     // listen for any value changes
 
     if(setvisibleRemoveContactsButton === true
@@ -81,7 +77,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       }
 
     if(setvisibleRemoveSkillsButton === true
-      && selectedContacts.length === 0
+      && selectedSkills.length === 0
       && title === typeToEdit.title
       && description === typeToEdit.description
       && posting_date === typeToEdit.posting_date
@@ -109,7 +105,6 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     for (let element of selectedContacts) {
       // console.log(element)
       contacts.push(element.id)
-
     }
 
     for (let element of selectedSkills) {
@@ -138,7 +133,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       },
     });
     if(response.status === 200){
-      alert("Successfully edit the application!"); 
+      alert("Successfully edit the application!");
     } else {
       alert(`Failed to edit application, status code = ${response.status}`);
     }
@@ -312,6 +307,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     buildContacts = buildContacts.map(function(obj) {
         obj.label = obj.first_name + " " + obj.last_name;
         obj.value = obj.first_name + " " + obj.last_name;
+        // console.log(selectedContacts)
         return obj;
     })
     if (selection === "skills")
@@ -381,9 +377,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
           }
 
           <div><br />
-            {visibleRemoveContactsButton &&
               <button onClick={hideContacts}>Remove all current contacts</button>
-            }
             {visibleUndoContactsButton &&
               <><button onClick={showContacts}>Undo Remove</button><br /><br /></>
             }
@@ -413,9 +407,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
           }
 
           <div><br />
-            {visibleRemoveSkillsButton &&
               <button onClick={hideSkills}>Remove all current skills</button>
-            }
             {visibleUndoSkillsButton &&
               <><button onClick={showSkills}>Undo Remove</button><br /><br /></>
             }
