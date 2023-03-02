@@ -75,6 +75,7 @@ hr {
 
 /************ Skills specific **************/
 #skills-page{
+  text-align: start;
   align-items: flex-start;
   justify-content: flex-start;
 }

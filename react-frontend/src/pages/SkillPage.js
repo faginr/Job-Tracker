@@ -9,6 +9,7 @@ import fetchRequests from '../data_model/fetchRequests';
 function SkillPage() {
   // const [groupedSkills, setGroupedSkills] = useState({})
   const [skills, setSkills] = useState([])
+  const [proficiency, setProficiency] = useState(0)
   const [skillsModified, setSkillsModified] = useState(0)
 
   const skillsMap = {
@@ -18,16 +19,55 @@ function SkillPage() {
     "V": [], "W": [], "X": [], "Y": [], "Z": [], "Other": [],
   }
   
-  splitSkillsByFirstLetter()
-  function splitSkillsByFirstLetter() {
-
+  function groupSkills() {
     for(let skill of skills) {
-        try{
-          skillsMap[skill.description[0]].push(skill)
-        } catch(e){
-          skillsMap.Other.push(skill)
+      try{
+        skillsMap[skill.description[0]].push(skill)
+      } catch(e){
+        skillsMap.Other.push(skill)
+      }
+    }
+  }
+
+  function filterSkillsByProf(){
+    if(proficiency === 0){
+      return skillsMap
+    } 
+    if(proficiency === 6){
+      return filterForNull()
+    }
+    
+    const newSkillMap = createBlankSkillMap()
+    // loop through skillsMap and filter based on prof
+    for(let letter in skillsMap){
+      for(let skill of skillsMap[letter]){
+        if(skill.proficiency === proficiency){
+          newSkillMap[letter].push(skill)
         }
       }
+    }
+    return newSkillMap
+  }
+
+  function filterForNull(){
+    const newSkillMap = createBlankSkillMap()
+    for(let letter in skillsMap){
+      for(let skill of skillsMap[letter]){
+        if(skill.proficiency == undefined){
+          newSkillMap[letter].push(skill)
+        }
+      }
+    }
+    return newSkillMap
+  }
+
+  function createBlankSkillMap(){
+    // create blank copy of skillsMap
+    const newSkillMap = {}
+    for(let letter in skillsMap){
+      newSkillMap[letter] = []
+    }
+    return newSkillMap
   }
 
 
@@ -36,6 +76,9 @@ function SkillPage() {
     setSkills(data)
   }
 
+  groupSkills()
+  const filteredSkillMap = filterSkillsByProf()
+
   useEffect(() => {
     loadUserSkills()
   }, [skillsModified])
@@ -43,7 +86,20 @@ function SkillPage() {
   return (
     <div id="skills-page">
       <h1>Your current skills:</h1>
-      <UserSkills userSkills={skillsMap} skillsModified={skillsModified} setSkillsModified={setSkillsModified} />
+      <label>
+        Filter By Proficiency: 
+        <select onChange={(e)=>setProficiency(parseInt(e.target.value))}>
+          <option value={0}>--No Filter--</option>
+          <option value={1}>1</option>
+          <option value={2}>2</option>
+          <option value={3}>3</option>
+          <option value={4}>4</option>
+          <option value={5}>5</option>
+          <option value={6}>No Rating</option>
+
+        </select>
+      </label>
+      <UserSkills userSkills={filteredSkillMap} skillsModified={skillsModified} setSkillsModified={setSkillsModified} />
       
       <div>
         <SlidingWindow 
