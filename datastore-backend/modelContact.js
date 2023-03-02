@@ -51,7 +51,7 @@ async function postContact(last_name, first_name, email, phone, notes, contact_a
     await datastore.save({ "key": key, "data": new_contact });
     return key;
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in postContact', error);
   };
 };
 
@@ -78,9 +78,32 @@ async function getContacts(userId) {
     };
     return userContacts;
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in getContacts', error);
   };
 };
+
+
+/** 
+async function getContacts(user) {
+  try {
+    const query = datastore.createQuery(CONTACT);
+    let contacts = await datastore.runQuery(query);
+    // array.map adds id attribute to every element in the array at element 0 of
+    // the variable contacts
+    contacts = contacts[0].map(ds.fromDatastore);
+    let userContacts = [];
+    // get only contacts that belongs to the user
+    for (let contact of contacts) {
+      if (user === contact.user) {
+        userContacts.push(contact)
+      }
+    };
+    return userContacts;
+  } catch (error) {
+    console.error('Error caught in getContacts', error);
+  };
+};
+*/
 
 
 /************************************************************* 
@@ -100,7 +123,7 @@ async function getContact(contact_id, userId) {
       return false;
     };
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in getContact', error);
   };
 };
 
@@ -132,7 +155,7 @@ async function putContact(contact_id, last_name, first_name, email, phone, notes
       return contact[0].contact_at_app_id;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in putContact', error);
   };
 };
 
@@ -182,7 +205,7 @@ async function patchContact(contact_id, last_name, first_name, email, phone, not
       return result;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in patchContact', error);
   };
 };
 
@@ -203,7 +226,7 @@ async function deleteContact(contact_id, userId) {
       return contact[0].contact_at_app_id;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in deleteContact', error);
   };
 };
 

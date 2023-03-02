@@ -147,7 +147,7 @@ async function checkIdExists (req, res, next) {
       next()
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error caught in checkIdExists', error);
     res.status(500).send(errorMessages[500]);
   };
 };
@@ -189,12 +189,12 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
         let application = await model.getItemByID('application', app);
         application[0].contacts.push(contactId);
         // update the application
-        model.updateItem(application[0], 'application');
+        model.updateBigItem(application[0], 'application');
       };
       
       res.status(201).json(contactId);
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in postUserContact', error);
       res.status(500).send(errorMessages[500]);
     };
   };
@@ -234,7 +234,7 @@ router.get('/', checkAcceptHeader, function (req, res) {
       };
       res.status(200).json(contacts);
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in getUserContacts', error);
       res.status(500).send(errorMessages[500]);
     };
   };
@@ -259,7 +259,7 @@ router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res)
         res.status(200).json(contact[0]) 
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in getUserContact', error);
       res.status(500).send(errorMessages[500]);
     }
   }
@@ -308,7 +308,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
               };
               application[0].contacts = appUpdatedContacts;
               // update the application
-              model.updateItem(application[0], 'application');
+              model.updateBigItem(application[0], 'application');
             }
           };
 
@@ -319,14 +319,14 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
               let application = await model.getItemByID('application', app);
               application[0].contacts.push(req.params.contact_id);
               // update the application
-              model.updateItem(application[0], 'application');
+              model.updateBigItem(application[0], 'application');
             }
           };
         };
         res.status(200).end();
       };
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in putUserContact', error);
       res.status(500).send(errorMessages[500]);
     }
   };
@@ -376,7 +376,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
                 };
                 application[0].contacts = appUpdatedContacts;
                 // update the application
-                model.updateItem(application[0], 'application');
+                model.updateBigItem(application[0], 'application');
               }
             }
           };
@@ -389,7 +389,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
                 let application = await model.getItemByID('application', app);
                 application[0].contacts.push(req.params.contact_id);
                 // update the application
-                model.updateItem(application[0], 'application');
+                model.updateBigItem(application[0], 'application');
               }
             }
           }
@@ -397,7 +397,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
         res.status(200).end();
       };
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in patchUserContact', error);
       res.status(500).send(errorMessages[500]);
     }
   };
@@ -435,7 +435,7 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
           };
           application[0].contacts = appUpdatedContacts;
           // update the application
-          model.updateItem(application[0], 'application');
+          model.updateBigItem(application[0], 'application');
         };
 
         // UPDATE the user by removing the contact id
@@ -452,7 +452,7 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
         res.status(204).end();
       };
     } catch (error) {
-      console.error(error);
+      console.error('Error caught in deleteUserContact', error);
       res.status(500).send(errorMessages[500]);
     };
   };

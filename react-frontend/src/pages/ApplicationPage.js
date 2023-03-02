@@ -110,10 +110,17 @@ function ApplicationPage() {
   };
 
   // GET Contacts
+<<<<<<< HEAD
   const loadContacts = async (token, userID) => {
     const response = await fetch(`${datastore_url}/users/${userID}/contacts`, {
       headers: {
         'Authorization': `Bearer ${token}`
+=======
+  const loadContacts = async () => {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+>>>>>>> main
       }
     });
     const data = await response.json();
@@ -193,11 +200,13 @@ function ApplicationPage() {
           ></ApplicationList>
         </div>
         <br />
-        <SlidingWindow 
-          Page={<AddApplicationPage />}
-          ClickableComponent={<ReactButton label="Add Application"/>}
-          />
-      </>
+        <div className='add-app'>
+          <SlidingWindow 
+            Page={<AddApplicationPage />}
+            ClickableComponent={<ReactButton label="Add Application"/>}
+            />
+        </div>
+    </>
     :
       <LoadingPage />
   );
