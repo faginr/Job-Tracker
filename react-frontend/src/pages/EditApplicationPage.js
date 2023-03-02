@@ -35,24 +35,34 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     e.preventDefault();
     setvisibleRemoveContactsButton(true);
     setvisibleUndoContactsButton(false);
+    console.log("visibleRemoveContactsButton " + visibleRemoveContactsButton)
+    console.log("visibleUndoContactsButton " + visibleUndoContactsButton)
+    console.log(startingContacts)
   }
 
   const showSkills = (e) => {
     e.preventDefault();
     setvisibleRemoveSkillsButton(true);
     setvisibleUndoSkillsButton(false);
+    console.log("visibleRemoveSkillsButton " + visibleRemoveSkillsButton)
+    console.log("visibleUndoSkillsButton " + visibleUndoSkillsButton)
   }
 
   const hideContacts = (e) => {
     e.preventDefault();
     setvisibleRemoveContactsButton(false);
     setvisibleUndoContactsButton(true);
+    console.log("visibleRemoveContactsButton " + visibleRemoveContactsButton)
+    console.log("visibleUndoContactsButton " + visibleUndoContactsButton)
+    console.log(startingContacts)
   }
 
   const hideSkills = (e) => {
     e.preventDefault();
     setvisibleRemoveSkillsButton(false);
     setvisibleUndoSkillsButton(true);
+    console.log("visibleRemoveSkillsButton " + visibleRemoveSkillsButton)
+    console.log("visibleUndoSkillsButton " + visibleUndoSkillsButton)
   }
 
   let displayContacts = [];
@@ -64,19 +74,9 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     e.preventDefault();
     // listen for any value changes
 
-    if(setvisibleRemoveContactsButton === true
+    if(visibleRemoveContactsButton === true
+      && visibleRemoveSkillsButton === true
       && selectedContacts.length === 0
-      && title === typeToEdit.title
-      && description === typeToEdit.description
-      && posting_date === typeToEdit.posting_date
-      && status === typeToEdit.status
-      && link === typeToEdit.link
-      ) {
-        console.log('no changes');
-        return navigate(0);
-      }
-
-    if(setvisibleRemoveSkillsButton === true
       && selectedSkills.length === 0
       && title === typeToEdit.title
       && description === typeToEdit.description
@@ -87,19 +87,33 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         console.log('no changes');
         return navigate(0);
       }
-
+    
     // reset all contacts to blank array if user removed all via button
-    if (setvisibleRemoveContactsButton === false
+    if (visibleRemoveContactsButton === false
       && selectedContacts.length === 0
       ) {
         contacts = [];
       }
+    
+    if (visibleRemoveContactsButton === true
+      && selectedSkills.length === 0
+      ) {
+        contacts = startingContacts;
+      }
 
-    if (setvisibleRemoveSkillsButton === false
+    if (visibleRemoveSkillsButton === false
       && selectedSkills.length === 0
       ) {
         skills = [];
       }
+    
+    if (visibleRemoveSkillsButton === true
+      && selectedSkills.length === 0
+      ) {
+        skills = startingSkills;
+      }
+
+    
 
     // push each element id selected into contacts
     for (let element of selectedContacts) {
@@ -373,11 +387,13 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             <><br />
               <><b>Current Contact(s):</b></><br /><br />
               <>{displayContactLabel}</>
+              <br/>
+              <button onClick={hideContacts}>Remove all current contacts</button>
             </>
           }
 
           <div><br />
-              <button onClick={hideContacts}>Remove all current contacts</button>
+              
             {visibleUndoContactsButton &&
               <><button onClick={showContacts}>Undo Remove</button><br /><br /></>
             }
@@ -403,11 +419,13 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             <><br />
               <><b>Current Skill(s):</b></><br /><br />
               <>{displaySkillLabel}</>
+              <br />
+              <button onClick={hideSkills}>Remove all current skills</button>
             </>
           }
 
           <div><br />
-              <button onClick={hideSkills}>Remove all current skills</button>
+              
             {visibleUndoSkillsButton &&
               <><button onClick={showSkills}>Undo Remove</button><br /><br /></>
             }
