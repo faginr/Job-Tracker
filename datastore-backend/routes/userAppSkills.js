@@ -46,7 +46,7 @@ async function addSkillToUser(skillObject, userObject) {
 async function addSkillToApp(skillID, appObject) {
     try{
         appObject.skills.push(skillID)
-        await model.updateItem(appObject, 'application')
+        await model.updateBigItem(appObject, 'application')
     } catch(err){
         console.error(err)
         console.error(`Error adding ${skillID} to ${appObject.id}`)
@@ -186,7 +186,7 @@ router.delete(
 
         try{
             // update datastore
-            model.updateItem(req.body.app, 'application')
+            model.updateBigItem(req.body.app, 'application')
     
             // send back 204 status
             res.status(204).end()

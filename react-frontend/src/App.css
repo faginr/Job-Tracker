@@ -60,9 +60,42 @@
   max-width: 20%;
 }
 
-.user-skills > div {
+
+button {
+  padding: 5px;
+}
+
+hr {
+  width: 40%;
+}
+
+.hidden {
+  display: none;
+}
+
+/************ Skills specific **************/
+#skills-page{
+  text-align: start;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.grouped-skills-container{
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  border-bottom: 0.1rem solid grey;
+  margin-bottom: 5px;
+}
+
+.grouped-skills-category{
+  align-self: center;
+  margin-right: 10px;
+  font-size: larger;
+}
+
+.grouped-skills .sliding-window {
+  max-width: fit-content;
 }
 
 .skills {
@@ -70,6 +103,7 @@
   padding: 10px;
   margin: 5px;
   border-radius: 10px;
+  max-width: fit-content;
   border-style: solid;
   border-color: grey;
 }
@@ -83,51 +117,12 @@
 }
 
 .alert-skill {
-  background-color: maroon;
+  background-color: rgb(219, 89, 89);
 }
 
-
-button {
-  padding: 5px;
-}
-
-.feature-pane-header {
-  margin-bottom: 1rem;
-}
-
-hr {
-  width: 40%;
-}
-
-.feature-pane {
-  animation-duration: 1s;
-  animation-name: slidein;
-  z-index: 1;
-  position: absolute;
-  top: 0px;
-  left: 50%;
-  width: 50%;
-  height: 100%;
-  border-left:gray;
-  border-left-style: solid;
-  background-color: white;
-  padding: 2%;
-}
-
-.hidden {
-  display: none;
-}
-
-@keyframes slidein {
-  from {
-    margin-left: 100%;
-    width: 300%;
-  }
-
-  to {
-    margin-left: 0%;
-    width: 50%;
-  }
+.add-skill ul{
+  list-style-position: inside;
+  padding: 0;
 }
 
 .add-skill li {
