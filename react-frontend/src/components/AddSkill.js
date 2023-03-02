@@ -6,8 +6,6 @@ import fetchRequests from "../data_model/fetchRequests";
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
 // is clicked adds that skill to the user.
-// Requires handleSkillClick function to control what happens with
-// the parent component when a skill is clicked.
 function AddSkill({skillAdded, setSkillAdded, userSkills}) {
     const [allSkillList, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})

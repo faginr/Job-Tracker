@@ -130,6 +130,11 @@ hr {
   }
 }
 
+.add-skill ul{
+  list-style-position: inside;
+  padding: 0;
+}
+
 .add-skill li {
   list-style: none;
   padding: 5px;
