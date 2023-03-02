@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
-import { user } from "../utils/User";
 import SelectMulti from "./SelectMulti"
 import {MdDeleteForever} from 'react-icons/md'
 import fetchRequests from "../data_model/fetchRequests";
+import {useAuth0} from '@auth0/auth0-react';
+import { useAPI } from "../utils/Auth0Functions";
 
 function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [skill, setSkill] = useState(skillToEdit)
@@ -11,6 +12,8 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [selectedApps, setSelectedApps] = useState([])
     // used by selectMulti to display list of apps
     const [applications, setApplications] = useState([])
+    const {user, isAuthenticated} = useAuth0();
+    const getTokenFromAuth0 = useAPI()
 
     function updateSkill(e, identifier) {
         setSkill({
@@ -21,38 +24,50 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
 
     async function handleDelete(e) {
         e.preventDefault()
-        await fetchRequests.deleteSkillFromUser(user, user, skill.skill_id)
-        
-        // call setSkillsModified to refresh the skills page
-        setSkillsModified(skillsModified+1)
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated){
+            await fetchRequests.deleteSkillFromUser(user, token, skill.skill_id)
+            
+            // call setSkillsModified to refresh the skills page
+            setSkillsModified(skillsModified+1)
+        }
     }
 
     async function sendUpdate() {
-        // send update on proficiency
-        let requestBody = {'proficiency': parseInt(skill.proficiency, 10)}
-        await fetchRequests.updateSkillProficiency(user, user, requestBody, skill.skill_id)
-
-        // send update on tying apps to skills
-        tieToApps()
-
-        // call setSkillsModified to refresh the skills page
-        setSkillsModified(skillsModified+1)
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated){
+            // send update on proficiency
+            let requestBody = {'proficiency': parseInt(skill.proficiency, 10)}
+            await fetchRequests.updateSkillProficiency(user, token, requestBody, skill.skill_id)
+    
+            // send update on tying apps to skills
+            tieToApps()
+    
+            // call setSkillsModified to refresh the skills page
+            setSkillsModified(skillsModified+1)
+        }
     }
 
     async function tieToApps(){
-        for(let app of selectedApps){
-            fetchRequests.tieSkillToApp(user, user, skill.skill_id, app.id)
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated){
+            for(let app of selectedApps){
+                fetchRequests.tieSkillToApp(user, token, skill.skill_id, app.id)
+            }
         }
     }
 
     async function getAllApps() {
-        const apps = await fetchRequests.getAllApplications(user, user) 
-        setApplications(apps)
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated) {
+            const apps = await fetchRequests.getAllApplications(user, token) 
+            setApplications(apps)
+        }
     }
 
     useEffect(() => {
         getAllApps()
-    }, [])
+    }, [user])
     
     return (
         <div id='skill-form' className='form'>
