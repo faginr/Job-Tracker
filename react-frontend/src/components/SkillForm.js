@@ -1,9 +1,16 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { user } from "../utils/User";
-import { datastore_url } from "../utils/Constants";
+import SelectMulti from "./SelectMulti"
+import {MdDeleteForever} from 'react-icons/md'
+import fetchRequests from "../data_model/fetchRequests";
 
 function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
-    const [skill, setSkill] = useState(skillToEdit===undefined?{}:skillToEdit)
+    const [skill, setSkill] = useState(skillToEdit)
+    // used by selectMulti to keep track of what's selected, pushes app objects to
+    // the array
+    const [selectedApps, setSelectedApps] = useState([])
+    // used by selectMulti to display list of apps
+    const [applications, setApplications] = useState([])
 
     function updateSkill(e, identifier) {
         setSkill({
@@ -12,62 +19,46 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         })
     }
 
-    async function handleSubmit(e) {
-        e.preventDefault()
-        skillToEdit ?  await sendUpdate(skill) : await sendNew(skill)
-
-        // call setSkillsModified to refresh the skills page
-        setSkillsModified(skillsModified+1)
-    }
-
     async function handleDelete(e) {
         e.preventDefault()
-        const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${user}`,
-            }
-        })
-        if (response.status !== 200) {
-            alert("Uh-oh, I had trouble deleting this skill")
-        }
+        await fetchRequests.deleteSkillFromUser(user, user, skill.skill_id)
+        
+        // call setSkillsModified to refresh the skills page
+        setSkillsModified(skillsModified+1)
+    }
+
+    async function sendUpdate() {
+        // send update on proficiency
+        let requestBody = {'proficiency': parseInt(skill.proficiency, 10)}
+        await fetchRequests.updateSkillProficiency(user, user, requestBody, skill.skill_id)
+
+        // send update on tying apps to skills
+        tieToApps()
 
         // call setSkillsModified to refresh the skills page
         setSkillsModified(skillsModified+1)
     }
 
-    async function sendUpdate(skill) {
-        const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/skills/${skill.skill_id}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({'proficiency': parseInt(skill.proficiency, 10)})
-        })
-        if (response.status !== 204) {
-            alert("Uh-oh, something went wrong with updating the skill")
+    async function tieToApps(){
+        for(let app of selectedApps){
+            fetchRequests.tieSkillToApp(user, user, skill.skill_id, app.id)
         }
     }
 
-    async function sendNew(skill) {
-        const response = await fetch(`${datastore_url}/skills`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${user}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(skill)
-        })
-        if (response.status !== 201) {
-            alert("Uh-oh, something went wrong with creating a new skill")
-        }
+    async function getAllApps() {
+        const apps = await fetchRequests.getAllApplications(user, user) 
+        setApplications(apps)
     }
+
+    useEffect(() => {
+        getAllApps()
+    }, [])
     
     return (
         <div id='skill-form' className='form'>
             <div>
                 <h2>
+                    <MdDeleteForever onClick={handleDelete}/>
                     {skillToEdit.description}
                 </h2>
             </div>
@@ -79,16 +70,15 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
                         type="number"
                         min={1}
                         max={5}
-                        placeholder={skillToEdit?skill.proficiency:1}
+                        placeholder={skillToEdit.proficiency}
                         onChange={(e) => {updateSkill(e, 'proficiency')}}/>
                 </label>
             </div>
-            <button onClick={handleSubmit}>Submit</button>
             <div>
                 <h2>
                     Tied to Applications:
                     <ul>
-                        {skillToEdit?.applications.map((app) => {
+                        {skillToEdit.applications.map((app) => {
                             return (
                                 <li>{app.title ?? "missing title"}</li>
                                 )
@@ -98,9 +88,17 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
             </div>
             <div>
                 <h2>
-                    Ability to add application here?
+                    Add To Application:
                 </h2>
-                <button onClick={handleDelete}>Delete</button>
+                <SelectMulti 
+                    items={applications.map((app) => {
+                        app.label = app.title
+                        app.value = app.title
+                        return app
+                    })}
+                    selected={selectedApps}
+                    setSelected={setSelectedApps}/>
+                <button onClick={()=>sendUpdate()}>Confirm Updates</button>
             </div>
         </div>
     )

@@ -95,7 +95,7 @@ async function addSkillToApp(skillID, appObject) {
             return next()
         }
     }
-    return res.status(403).send(messages[403])
+    return res.status(403).send({"Error": "User does not own application"})
  }
 
  function verifyAppNotTiedToSkill(req, res, next) {
@@ -139,7 +139,7 @@ router.put(
     verifyJWTWithUserParam,     // places user under req.body.user
     verifyAppExists,            // places app under req.body.app
     verifySkillExists,          // places skill under req.body.skill
-    // verifyUserOwnsApp, commenting out until apps are tied to users          
+    verifyUserOwnsApp,           
     verifyAppNotTiedToSkill,    // kills route and send 204 if app already tied to skill
     (req, res) => {
 
@@ -170,7 +170,7 @@ router.delete(
     verifyJWTWithUserParam,     // places user under req.body.user
     verifyAppExists,            // places app under req.body.app
     verifySkillExists,          // places skill under req.body.skill
-    // verifyUserOwnsApp, commenting out until users are tied to apps          
+    verifyUserOwnsApp,        
     (req, res) => {
         // update app skills array to not contain skill
         // if skill not tied, this won't throw an error, it will just act

@@ -1,19 +1,18 @@
 import ContactList from '../components/ContactList';
 import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
-import { user } from '../utils/User';
 import AddContactPage from './AddContactPage';
 import SlidingWindow from '../components/SlidingWindow';
+import { user } from '../utils/User';
 import ReactButton from '../components/ReactButton';
 
 function ContactPage() {
   
   const [contacts, setContacts] = useState([]);
   const [order, setOrder] = useState("Ascending");
-  const [apps, setApps] = useState([]);
   
   /************************************************************* 
-   * Function to allow the user to sort the contact table 
+   * Function to allow a user to sort the contact table 
    * by clicking on the name of the column
    * Source: https://www.youtube.com/watch?v=g523Bj0y36Q
    ************************************************************/
@@ -32,104 +31,53 @@ function ContactPage() {
       );
       setContacts(sorted);
       setOrder("Ascending");
-    };
-  }
+    }
+  };
 
 
   /************************************************************* 
    * Function to DELETE a contact 
    ************************************************************/
-  const onDelete = async (id, contact_at_app_id) => {
+  const onDelete = async (contact_id) => {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
     if (confirmed) {
-
-      // update any application if releated to the contact 
-      if (Object.keys(contact_at_app_id).length > 0) {
-        for (let application of contact_at_app_id) {
-          // GET the application to be updated
-          const responseGetApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${user}`,
-              'Accept': 'application/json',
-            },
-          });
-          if (responseGetApp.status === 200) {
-            //alert("Successfully get the application!"); 
-          } else {
-            alert(`Failed to get the application, status code = ${responseUpdateApp.status}`);
-          };
-
-          const data = await responseGetApp.json();
-          const appContacts = [];
-          for (let contact of data.contacts) {
-            if (contact !== id) {
-              appContacts.push(contact)
-            }
-          };
-          const updatedApplication = { contacts: appContacts };
-
-          // PATCH the application
-          const responseUpdateApp = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${application}`, {
-            method: 'PATCH',
-            body: JSON.stringify(updatedApplication),
-            headers: {
-              'Authorization': `Bearer ${user}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          if (responseUpdateApp.status === 200) {
-            //alert("Successfully updated the application!"); 
-          } else {
-            alert(`Failed to update the application, status code = ${responseUpdateApp.status}`);
-          }
-        }
-      };
-
       // DELETE the contact
-      const response = await fetch(
-        `${datastore_url}/contacts/${id}`, 
+      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact_id}`, 
         { 
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user}`}
         }
       );
       if (response.status === 204) {
-          setContacts(contacts.filter(contact => contact.id !== id));
-          alert("Successfully deleted the contact! Click Ok to update the page.");
+        setContacts(contacts.filter(contact => contact.id !== contact_id));
+          //alert("Successfully deleted the contact! Click Ok to update the page.");
       } else {
-          console.error(`Failed to delete contact with id = ${id}, status code = ${response.status}`)
+        console.log(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
       }
     }
   };
 
 
   /************************************************************* 
-   * Function to fetch contacts 
+   * Function to get contacts 
    ************************************************************/
-  const loadContacts = async () => {
-    const response = await fetch(
-      `${datastore_url}/contacts`,
+  const getContacts = async () => {
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`,
       { 
         method: "GET",
-        headers: {"Accept": "application/json"}
+        headers: {
+          'Accept': 'application/json', 
+          'Authorization': `Bearer ${user}`}
       }
     );
+    if (response.status === 200) {
+      //console.log("Successfully fetched the contacts!"); 
+    } else {
+      console.log(`Failed to fetch the contacts, status code = ${response.status}`);
+    };
     const data = await response.json();
     setContacts(data);
-  };
-
-  
-  /************************************************************* 
-   * Function to fetch applications 
-   ************************************************************/
-  const getApps = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
-      headers: {
-        'Authorization': `Bearer ${user}`
-      }
-    });
-    const data = await response.json();
-    setApps(data);
   };
 
 
@@ -137,31 +85,8 @@ function ContactPage() {
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
-    loadContacts();
-    getApps();
+    getContacts();
   }, []);
-
-
-  /************************************************************* 
-   * Iterate over contacts and applications, if a contact is related to an application, 
-   * add the name and link of this application to this contact 
-   ************************************************************/
-  let arrayAppsNames = [];
-  let objApps = {};
-  for (let contact of contacts) {
-    arrayAppsNames = [];
-    for (let app_id of contact.contact_at_app_id) {
-      for (let app of apps) {
-        if (app_id === app.id) {
-          objApps = {};
-          objApps['title'] = app.title;
-          objApps['link'] = app.link;
-          arrayAppsNames.push(objApps); 
-        } 
-      }
-    };
-    contact.arrayAppsNames = arrayAppsNames
-  };
 
 
   return (
@@ -176,10 +101,12 @@ function ContactPage() {
           onDelete={onDelete}
           sorting={sorting} ></ContactList>
       </div><br />
+
       <SlidingWindow 
         Page={<AddContactPage />}
         ClickableComponent={<ReactButton label="Add Contact"/>}
         />
+
     </>
   );
 }

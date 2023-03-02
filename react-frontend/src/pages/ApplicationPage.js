@@ -27,7 +27,7 @@ function ApplicationPage() {
         // at least one contact
         for (let contact of contacts){
           // get each contact in contacts
-          const response = await fetch(`${datastore_url}/contacts/${contact}`, {
+          const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
@@ -55,7 +55,7 @@ function ApplicationPage() {
           const updatedContactApps = {contact_at_app_id: newApps}
 
           // Save updated contact to database
-          const patchContact = await fetch(`${datastore_url}/contacts/${contact}`, {
+          const patchContact = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
             method: 'PATCH',
             body: JSON.stringify(updatedContactApps),
             headers: {
@@ -102,7 +102,7 @@ function ApplicationPage() {
 
   // GET Contacts
   const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/contacts`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
     const data = await response.json();
     setContacts(data);
   }
