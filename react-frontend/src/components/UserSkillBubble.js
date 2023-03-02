@@ -12,13 +12,13 @@ export default function UserSkillBubble({skill, className}) {
         let background = "grey"
         switch (completed){
             case 1:
+                bgColor = "red"
+                break;
             case 2:
-                 bgColor = "red"
-                 break;
             case 3:
-            case 4:
                 bgColor = "orange"
                 break;
+            case 4:
             case 5:
                 bgColor = "green"
                 break;
