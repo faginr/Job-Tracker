@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useAPI } from "../utils/Auth0Functions";
+import fetchRequests from "../data_model/fetchRequests";
 
 
 const datastore_url = process.env.REACT_APP_API_SERVER_URL
@@ -12,54 +13,24 @@ function CallBackPage() {
     const {getTokenFromAuth0} = useAPI()
     const navigate = useNavigate()
 
-    async function getUserFromAPI(){
-        const accessToken = await getTokenFromAuth0()
+    async function handleUserLogin(token) {
         
-        console.log('getting user info from datastore')
-        const res = await fetch(`${datastore_url}/users/${user.sub.slice(6)}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            }
-        })
-        return res
-    }
-
-
-    async function createUser() {
-        const accessToken = await getTokenFromAuth0()
-        console.log('creating user in datastore')
-        const res = await fetch(`${datastore_url}/users`, {
-            method: 'POST',
-            body: JSON.stringify({"username": user.name}),
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'content-type': 'application/json'
-            }
-        })
-        if (res.status !== 201) {
-            throw ReferenceError('Error creating user in datastore')
-        }
-    }
-
-    async function handleUserLogin() {
-        
-        const res = await getUserFromAPI()
+        const res = await fetchRequests.getUserResponseObject(user, token)
         switch (res.status){
             case 200:
                 navigate('/applications')
                 break;
             case 401:
-                alert(`Whoops... It looks like there's a problem with your access token.`)
-                break;
+                // fallthrough to 403 because same action
             case 403:
-                alert(`Whoops... user ID and access token don't match`)
+                alert(`Unable to complete login at this time.`)
+                navigate('/')
                 break;
             case 404:
                 try{
-                    await createUser()
+                    await fetchRequests.createUser(user, token)
                 } catch(e){
-                    alert('Whoops... this is embarassing. I couldn\'t create the user in datastore.')
+                    alert('Unable to create a new user at this time.')
                     navigate('/')
                     break;
                 }
@@ -68,13 +39,16 @@ function CallBackPage() {
                 break;
             default:
                 alert(`Whoops... I got a response of ${res.status} from our API`)
+                navigate('/')
         }
     
     }
 
     useEffect(() => {
         if(isAuthenticated){
-            handleUserLogin()
+            getTokenFromAuth0().then((token) => {
+                handleUserLogin(token)
+            })
         }
         // run this effect every time user value changes
     }, [user])

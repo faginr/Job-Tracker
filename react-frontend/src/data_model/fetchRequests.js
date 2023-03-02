@@ -8,6 +8,34 @@ export default class fetchRequests {
         return user.sub.split('|')[1]
     }
 
+    // returns the response object, not the user info from datastore
+    // for processing the response status.
+    static getUserResponseObject = async function(user, accessToken){
+        const userID = this.getIDFromUser(user)
+        const response = await fetch(`${this.DATASTORE_URL}/users/${userID}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+        return response
+    }
+
+    static createUser = async function(user, accessToken) {
+        console.info('creating user in datastore')
+        
+        const res = await fetch(`${this.DATASTORE_URL}/users`, {
+            method: 'POST',
+            body: JSON.stringify({"username": user.name}),
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'content-type': 'application/json'
+            }
+        })
+        if (res.status !== 201) {
+            throw ReferenceError('Error creating user in datastore')
+        }
+    }
+
     static getAllSkills = async function (accessToken) {
             const response = await fetch(`${this.DATASTORE_URL}/skills`, {
                 headers: {
