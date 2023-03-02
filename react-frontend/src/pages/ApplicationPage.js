@@ -102,7 +102,11 @@ function ApplicationPage() {
 
   // GET Contacts
   const loadContacts = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`);
+    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, {
+      headers: {
+        'Authorization': `Bearer ${user}`
+      }
+    });
     const data = await response.json();
     setContacts(data);
   }
