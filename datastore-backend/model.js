@@ -269,6 +269,9 @@ async function getFilteredItemsPaginated(kind, filterProp, filterVal, pageCursor
  * @returns Array with single entity
  */
 async function getItemByID(kind, id){
+    if(kind === 'users'){
+        return getItemByManualID(kind, id)
+    }
     // manually create matching key
     try{
         let manKey = ds.key([kind, parseInt(id, 10)])
