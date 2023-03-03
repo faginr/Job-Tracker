@@ -95,7 +95,7 @@ function ContactPage() {
 
       <div>
         <p>Hello Username!</p>
-        <p>List of your contacts:</p>
+        <p>Your contacts:</p>
         <ContactList 
           contacts={contacts} 
           onDelete={onDelete}
