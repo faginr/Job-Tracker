@@ -14,10 +14,10 @@ function Navigation () {
           <NavLink to="/applications">Applications</NavLink>
         </div>
         <div className="App-link" >
-          <NavLink to="/skills">Skills</NavLink>
+          <NavLink to="/contacts">Contacts</NavLink>
         </div>
         <div className="App-link" >
-          <NavLink to="/contacts">Contacts</NavLink>
+          <NavLink to="/skills">Skills</NavLink>
         </div>
     </nav>
   );

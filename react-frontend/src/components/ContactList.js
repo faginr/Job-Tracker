@@ -4,7 +4,7 @@ import Contact from './Contact';
 function ContactList({ contacts, onDelete, sorting }) {
   
   return (
-    <table id="contacts">
+    <table id="contacts" className='contact-table'>
       <thead>
         <tr>
           <th onClick={() => sorting("first_name")} >Contact First Name <br />(click to sort)</th>
