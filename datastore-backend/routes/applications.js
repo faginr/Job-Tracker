@@ -7,11 +7,17 @@ const verifyUser = require('./middleware/verifyUser')
 const ds = require('../datastore');
 
 const datastore = ds.datastore;
-
 const APPLICATION = "application";
 
 router.use(bodyParser.json());
 
+const default_values = {
+  'skills': [],
+  'contacts': [],
+  'posting_date': "",
+  'status': "",
+  'link': "",
+}
 
 // gcloud auth application-default login
 
@@ -87,9 +93,8 @@ function limit_description (description) {
 
 router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , function (req, res) {
   console.log("Post request received!");
-  // console.log(req.body.user.id)
 
-  // Test for invalid request
+  // Tests for invalid request
   if (
     verify_not_blank(req.body.title) 
     || verify_not_blank(req.body.description)
@@ -112,14 +117,6 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
   }
 
   // create object with new application data
-  const default_values = {
-    'skills': [],
-    'contacts': [],
-    'posting_date': "",
-    'status': "",
-    'link': "",
-  }
-
   const new_application = {
     'title': req.body.title,
     'description': req.body.description,
@@ -135,11 +132,6 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
   if (req.body.skills === undefined){
     new_application["skills"] = default_values["skills"]
   }
-  // else {
-  //   for (let skill of req.body.skills){
-  //     new_application["skills"].push(skill)
-  //   }
-  // }
   if (req.body.contacts === undefined){
     new_application["contacts"] = default_values["contacts"]
   }
@@ -153,29 +145,63 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     new_application["link"] = default_values["link"]
   }
 
-  // save new object in datastore
-  model.postBigItem(new_application, 'application')
-    .then((key) => {
-      model.getItemByID('users', req.params.user_id).then((user) => {
-        let newUserData = user[0]
-        newUserData.applications.push(key.id)
-        model.updateItem(newUserData, 'users').then(() => {
-          // return object in response body
-          res.status(201).json({
-            'id': key.id,
-            'title': new_application["title"],
-            'description': new_application["description"],
-            'skills': new_application["skills"],
-            'contacts': new_application["contacts"],
-            'posting date': new_application["posting_date"],
-            'status': new_application["status"],
-            'link': new_application["link"],
-            'user': new_application["user"]
-            // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
-          });
+  try{
+
+    // Post new app
+    model.postBigItem(new_application, 'application')
+      .then((key) => {
+        
+        // Get user by id
+        model.getItemByID('users', req.params.user_id).then((user) => {
+          let newUserData = user[0]
+          newUserData.applications.push(key.id)
+          
+          // Patch user to include new app id in apps property
+          model.updateItem(newUserData, 'users').then(() => {
+            
+            // queue up promises to run
+            const promises = [];
+            // Get each contact in application contacts
+            for(let contact of new_application["contacts"]){
+              promises.push(model.getItemByID('contact', contact)
+                .then(currentContact => {
+                  // update contact with new app id
+                  currentContact[0]["contact_at_app_id"].push(key.id)
+                  // console.log(currentContact[0])
+                  model.updateItem(currentContact[0], 'contact')
+                })
+              )
+            }
+
+            // Run all promises
+            Promise.all(promises)
+              .then(() => {
+                // return object in response body
+                res.status(201).json({
+                  'id': key.id,
+                  'title': new_application["title"],
+                  'description': new_application["description"],
+                  'skills': new_application["skills"],
+                  'contacts': new_application["contacts"],
+                  'posting date': new_application["posting_date"],
+                  'status': new_application["status"],
+                  'link': new_application["link"],
+                  'user': new_application["user"]
+                  // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + key.id
+                });
+
+              })
+
+            })
+
         })
-      })
-  });
+
+    });
+  } catch(err) {
+    // Log error
+    console.error(err);
+    res.status(500).end()
+  }
 });
 
 // GET all applications route
