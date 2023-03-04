@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
-import { datastore_url } from '../utils/Constants'
+import { datastore_url } from '../utils/Constants';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 
 
 /***********************************************************
-* Application Page component
+* Add Application Page component
 ***********************************************************/
 export const AddApplicationPage = () => {
   
@@ -59,6 +59,8 @@ export const AddApplicationPage = () => {
       link 
     };
 
+    alert(newApplication)
+
     // POST new application
     const response = await fetch(
       `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
@@ -76,57 +78,6 @@ export const AddApplicationPage = () => {
     } else {
       alert(`Failed to add application, status code = ${response.status}`);
     }
-   
-    
-    // update - See if there is at least one contact added
-  //   if (contacts.length > 0) {
-
-  //     // get newly posted application by id
-  //     const newApp = await response.json();
-
-  //     // Loop through each contact
-  //     for(let contact of contacts) {
-
-  //       // GET the contact
-  //       const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //         method: 'GET',
-  //         headers: {
-  //           'Accept': 'application/json',
-  //         },
-  //       });
-  //       // See response status of GET
-  //       if (contactResponse.status === 200) {
-  //         console.log(`GET ${contact} success 200`);
-  //       } else {
-  //         console.log(`GET ${contact} failure ${contactResponse.status}`);
-  //       }
-
-  //     // convert data to json
-  //     const data = await contactResponse.json();
-
-  //     // Put all previous app ids into new array, add newly posted app id
-  //     const updateContact = { contact_at_app_id: data.contact_at_app_id }
-  //     updateContact["contact_at_app_id"].push(`${newApp.id}`) 
-      
-  //     // alert(JSON.stringify(updateContact))
-  //     const responsePatch = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //       method: 'PATCH',
-  //       body: JSON.stringify(updateContact),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     });
-  //     // See response status of GET
-  //     if (responsePatch.status === 200) {
-  //       console.log(`PATCH ${contact} success 200`);
-  //     } else {
-  //       console.log(`PATCH ${contact} failure ${responsePatch.status}`);
-  //     }
-
-  //   }
-
-    
-  // };
   navigate(0);  // goes back to Application Page
 }
 
@@ -221,7 +172,9 @@ useEffect(() => {
           <br />
         <label>Status:</label>
         <br />
-        <select className="status" onChange={e => setStatus(e.target.value)}>
+        <select className="status"
+        // defaultValue={{value: "Applied"}}
+        onChange={e => setStatus(e.target.value)}>
             <option>Applied</option>
             <option>Not Applied</option>
         </select>

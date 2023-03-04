@@ -15,7 +15,7 @@ const default_values = {
   'skills': [],
   'contacts': [],
   'posting_date': "",
-  'status': "",
+  'status': "Applied",
   'link': "",
 }
 
@@ -128,6 +128,8 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
     'user': req.body.user.id
   }
 
+  console.log(req.body.status)
+
   // apply default values to blanks
   if (req.body.skills === undefined){
     new_application["skills"] = default_values["skills"]
@@ -138,7 +140,7 @@ router.post("/users/:user_id/applications", verifyUser.verifyJWTWithUserParam , 
   if (req.body.posting_date === undefined){
     new_application["posting_date"] = default_values["posting_date"]
   }
-  if (req.body.status === undefined){
+  if (req.body.status === undefined || req.body.status === ''){
     new_application["status"] = default_values["status"]
   }
   if (req.body.link === undefined){
@@ -349,32 +351,77 @@ router.delete("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUs
       return res.status(400).json({ Error: 'No application exists with this id'})
   } 
 
-  // Get application by id
-  model.getItemByID('application', req.params.app_id)
-  .then(application => {
-    
-    // if applcation doesn't exist, reject with 404
-    if(verify_not_blank(application[0])){
-      return res.status(404).json({'Error': 'No application with this id exists'});
-    }
+  try{
+    // Get application by id
+    model.getItemByID('application', req.params.app_id)
+    .then(application => {
+      
+      // if applcation doesn't exist, reject with 404
+      if(verify_not_blank(application[0])){
+        return res.status(404).json({'Error': 'No application with this id exists'});
+      }
 
-    model.getItemByID('users', req.params.user_id).then((user) => {
-        let newUserData = user[0]
-        newUserData.applications = []
+      // Get user by id
+      model.getItemByID('users', req.params.user_id).then((user) => {
+          let newUserData = user[0]
+          newUserData.applications = []
 
-        for (let app in user[0].applications){
-          if (app === application[0].id){
-            console.log(application[0].id + " removed")
-          } else {
-            newUserData.applications.push(app)
+          // iterate through apps belonging to user
+          for (let app in user[0].applications){
+            // rebuild apps removing this app id if present
+            if (app === application[0].id){
+              console.log(application[0].id + " removed")
+            } else {
+              newUserData.applications.push(app)
+            }
           }
-        }
-        model.updateItem(newUserData, 'users').then(() => { 
-          // TODO implement all necessary checks and removals before delete
-          return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
+          // Patch user with app removed
+          model.updateItem(newUserData, 'users').then(() => { 
+            
+            // If there is at least 1 contact in app
+            if(application[0]["contacts"].length > 0){
+              
+              // queue up promises to run
+              const promises = [];
+              // Get each contact in app contacts
+              for (let contact of application[0]["contacts"]){
+                promises.push(model.getItemByID('contact', contact)
+                .then(currentContact => {
+                  // make array to edit contact app ids
+                  let newApps = [];
+                  // loop through all app ids in contact
+                  for (let newApp of currentContact[0]["contact_at_app_id"]){
+                    // remove app id from contact app ids
+                    if (newApp !== application[0].id){
+                      newApps.push(newApp);
+                    }
+                  }
+                  // set current contact app ids to edited value
+                  currentContact[0]["contact_at_app_id"] = newApps
+                  // patch contact
+                  model.updateItem(currentContact[0], 'contact');
+                })
+                )
+              }
+              // run all promises
+              Promise.all(promises)
+              .then(() => {
+                // delete application
+                return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
+              })
+            }
+            else {
+              // delete application
+              return model.deleteItem('application', req.params.app_id).then(res.status(204).end());
+            }          
+          })
         })
-      })
-  })
+    })
+  } catch(err) {
+    // Log error
+    console.error(err);
+    res.status(500).end()
+  }
 });
 
 // DELETE 405 applications route reject
