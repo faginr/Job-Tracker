@@ -315,6 +315,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
     if(limit_description(results[0]["description"])){
       return res.status(400).json({'Error': "description can only be a maximum of 5000 chars long"})
     }
+    console.log(results[0])
 
     try{
     // Update application in datastore, return updated object in response body
@@ -329,7 +330,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
         // for each contact in original object
         for (let oldContact of originalContacts){
           // if old contact not in new contacts
-          if (!(oldContact in editedData["contacts"])){
+          if (!(editedData["contacts"].includes(oldContact))){
             removeList.push(oldContact)
           }
         }
@@ -358,7 +359,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
             addList = [];
 
             for (let newContact of editedData["contacts"]){
-              if (!(newContact in originalContacts)){
+              if (!(originalContacts.includes(newContact))){
                 addList.push(newContact)
               }
             }

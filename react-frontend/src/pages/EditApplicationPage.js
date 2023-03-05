@@ -125,13 +125,32 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     const editedApplication = { 
       title, 
       description,
-      skills, 
-      contacts, 
-      posting_date, 
+      posting_date,
+      // skills,
+      // contacts, 
       status, 
       link 
      };
 
+    if(selectedSkills.length === 0 
+      && displaySkillLabel !== 'None' 
+      && visibleRemoveSkillsButton === true){
+      console.log("no change in skills")
+    } else {
+      editedApplication["skills"] = skills
+    }
+    if(selectedContacts.length === 0 
+      && displayContactLabel !== 'None' 
+      && visibleRemoveContactsButton === true){
+      console.log("no change in contacts")
+    } else {
+      editedApplication["contacts"] = contacts
+    }
+    // console.log(`${JSON.stringify(editedApplication)}`)
+    // alert(`${editedApplication}`)
+    // alert(`${displaySkillLabel}`)
+    // alert(`${selectedSkills.length}`)
+    
     // PATCH application
     const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
       method: 'PATCH',
@@ -378,7 +397,8 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             </>
           }
 
-          <b>select new Contacts to add to Applcation:</b><br /><br />
+          <b>select new Contacts to add to Applcation:</b><br />
+          <p>(unchecked items will be removed)</p><br />
           <SelectMulti
           items={buildContacts}
           selected={selectedContacts}
@@ -410,7 +430,8 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             </>
           }
 
-          <b>select new Skills to add to Applcation:</b><br /><br />
+          <b>select new Skills to add to Applcation:</b><br />
+          <p>(unchecked items will be removed)</p><br />
           <SelectMulti
           items={buildSkills}
           selected={selectedSkills}
