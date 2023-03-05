@@ -266,7 +266,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       // console.log("here")
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
-  } 
+    } 
 
   valid_keys = verify_keys(req.body)
   if (valid_keys["valid"] === false) {
@@ -280,61 +280,122 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
     // if application doesn't exist reject with 404 error
     if(verify_not_blank(application[0])){
       return res.status(404).json({'Error': 'No application with this id exists'});
-    } else {
+    } 
 
-      // collect any modified values, collect correct result values
-      const results = application
-      if (req.body.title !== undefined){
-        results[0]["title"] = req.body.title
-      }
-      if (req.body.description !== undefined){
-        results[0]["description"] = req.body.description
-      }
-      if (req.body.skills !== undefined){
-        results[0]["skills"] = req.body.skills
-      }
-      if (req.body.contacts !== undefined){
-        results[0]["contacts"] = req.body.contacts
-      }
-      if (req.body.posting_date !== undefined){
-        results[0]["posting_date"] = req.body.posting_date
-      }
-      if (req.body.status !== undefined){
-        results[0]["status"] = req.body.status
-      }
-      if (req.body.link !== undefined){
-        results[0]["link"] = req.body.link
-      }
-
-      if(limit_title(results[0]["title"])){
-        return res.status(400).json({'Error': "title can only be a maximum of 100 chars long"})
-      }
     
-      if(limit_description(results[0]["description"])){
-        return res.status(400).json({'Error': "description can only be a maximum of 5000 chars long"})
-      }
-
-      // Update application in datastore, return updated object in response body
-      return model.updateBigItem(results[0], 'application')
-      .then(res.status(200).json({
-        'id': req.params.app_id,
-        // 'user': results["user"],
-        'skills': results[0]["skills"],
-        'contacts': results[0]["contacts"],
-        'title': results[0]["title"],
-        'description': results[0]["description"],
-        'posting_date': results[0]["posting_date"],
-        'status': results[0]["status"],
-        'link': results[0]["link"],
-        'user': results[0]["user"]
-        // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
-      }))
+    // collect any modified values, collect correct result values
+    const results = application
+    originalContacts = results[0]["contacts"]
+    if (req.body.title !== undefined){
+      results[0]["title"] = req.body.title
     }
+    if (req.body.description !== undefined){
+      results[0]["description"] = req.body.description
+    }
+    if (req.body.skills !== undefined){
+      results[0]["skills"] = req.body.skills
+    }
+    if (req.body.contacts !== undefined){
+      results[0]["contacts"] = req.body.contacts
+    }
+    if (req.body.posting_date !== undefined){
+      results[0]["posting_date"] = req.body.posting_date
+    }
+    if (req.body.status !== undefined){
+      results[0]["status"] = req.body.status
+    }
+    if (req.body.link !== undefined){
+      results[0]["link"] = req.body.link
+    }
+
+    if(limit_title(results[0]["title"])){
+      return res.status(400).json({'Error': "title can only be a maximum of 100 chars long"})
+    }
+  
+    if(limit_description(results[0]["description"])){
+      return res.status(400).json({'Error': "description can only be a maximum of 5000 chars long"})
+    }
+
+    try{
+    // Update application in datastore, return updated object in response body
+    model.updateBigItem(results[0], 'application')
+      .then(editedData => {
+
+        // console.log(originalContacts)
+        // console.log(editedData)
+
+        // removal process
+        removeList = [];
+        // for each contact in original object
+        for (let oldContact of originalContacts){
+          // if old contact not in new contacts
+          if (!(oldContact in editedData["contacts"])){
+            removeList.push(oldContact)
+          }
+        }
+
+        const removePromises = [];
+        for (let removeContact of removeList){
+          removePromises.push(model.getItemByID('contact', removeContact)
+          .then(currentRemoveContact => {
+            let newReducedApps = [];
+            for(let newApp of currentRemoveContact[0]["contact_at_app_id"]){
+              // if app id is not removed contact
+              if (newApp !== req.params.app_id){
+                newReducedApps.push(newApp)
+              }
+            }
+            currentRemoveContact[0]["contact_at_app_id"] = newReducedApps
+            // console.log(currentRemoveContact);
+            model.updateItem(currentRemoveContact[0], 'contact');
+          }) 
+          )
+        }
+
+        Promise.all(removePromises)
+          .then(() => {
+            
+            addList = [];
+
+            for (let newContact of editedData["contacts"]){
+              if (!(newContact in originalContacts)){
+                addList.push(newContact)
+              }
+            }
+
+            const addPromises = [];
+            for(let addContact of addList){
+              addPromises.push(model.getItemByID('contact', addContact)
+              .then(currentAddContact => {
+                currentAddContact[0]["contact_at_app_id"].push(req.params.app_id)
+                model.updateItem(currentAddContact[0], 'contact');
+              })
+              )
+            }
+            Promise.all(addPromises)
+            .then(res.status(200).json({
+              'id': req.params.app_id,
+              // 'user': results["user"],
+              'skills': results[0]["skills"],
+              'contacts': results[0]["contacts"],
+              'title': results[0]["title"],
+              'description': results[0]["description"],
+              'posting_date': results[0]["posting_date"],
+              'status': results[0]["status"],
+              'link': results[0]["link"],
+              'user': results[0]["user"]
+              // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
+            }))
+          })
+
+      })
+  } catch(err) {
+    // Log error
+    console.error(err);
+    res.status(500).end()
+  }
   })
-  .catch(err => {
-    console.error(err)
-    // res.status(500).json({'Error': error}).end()
-  })
+  // 
 })
 
 // DELETE application by id route

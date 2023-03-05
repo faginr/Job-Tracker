@@ -59,7 +59,7 @@ export const AddApplicationPage = () => {
       link 
     };
 
-    alert(newApplication)
+    // alert(newApplication)
 
     // POST new application
     const response = await fetch(
