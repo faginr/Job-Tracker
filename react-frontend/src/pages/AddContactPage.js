@@ -19,44 +19,51 @@ export const AddContactPage = () => {
   const [selected, setSelected] = useState([]);   // added apps to the contact
   let [apps, setApps] = useState([]);
 
+  // prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+
 
   /************************************************************* 
    * Function to POST a new contact 
    ************************************************************/
   const addContact = async (e) => {
     e.preventDefault();
+    //console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    for (let element of selected) {
-      contact_at_app_id.push(element.id)
-    };  
+      for (let element of selected) {
+        contact_at_app_id.push(element.id)
+      };  
 
-    const newContact = { 
-      last_name, 
-      first_name, 
-      email, 
-      phone, 
-      notes, 
-      contact_at_app_id 
-    };
+      const newContact = { 
+        last_name, 
+        first_name, 
+        email, 
+        phone, 
+        notes, 
+        contact_at_app_id 
+      };
 
-    // POST a new contact
-    const responseContactId = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, 
-      {
-        method: 'POST',
-        body: JSON.stringify(newContact),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user}`},
-      }
-    );
-    if (responseContactId.status === 201) {
-      alert("Successfully added the contact!"); 
-    } else {
-      console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
-    };
+      // POST a new contact
+      const responseContactId = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`, 
+        {
+          method: 'POST',
+          body: JSON.stringify(newContact),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user}`},
+        }
+      );
+      if (responseContactId.status === 201) {
+        console.log("Successfully added the contact!"); 
+      } else {
+        alert(`Failed to add the contact, status code = ${responseContactId.status}`);
+      };
 
-    // go back to Contact Page
-    navigate(0);  
+      // go back to Contact Page
+      navigate(0); 
+    }; 
   };
 
 

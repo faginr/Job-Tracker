@@ -66,96 +66,103 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   let displayContactLabel = '';
   let displaySkillLabel = '';
 
+  // Prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+
 
   /***********************************************************
   * Button pressed, send application patch request 
   ***********************************************************/
   const editApplication = async (e) => {
     e.preventDefault();
+    //console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    // listen for any value changes
-    if(visibleRemoveContactsButton === true
-      && visibleRemoveSkillsButton === true
-      && selectedContacts.length === 0
-      && selectedSkills.length === 0
-      && title === typeToEdit.title
-      && description === typeToEdit.description
-      && posting_date === typeToEdit.posting_date
-      && status === typeToEdit.status
-      && link === typeToEdit.link
-      ) {
-        console.log('no changes');
-        return navigate(0);
+      // listen for any value changes
+      if(visibleRemoveContactsButton === true
+        && visibleRemoveSkillsButton === true
+        && selectedContacts.length === 0
+        && selectedSkills.length === 0
+        && title === typeToEdit.title
+        && description === typeToEdit.description
+        && posting_date === typeToEdit.posting_date
+        && status === typeToEdit.status
+        && link === typeToEdit.link
+        ) {
+          console.log('no changes');
+          return navigate(0);
+        }
+
+      // reset all contacts to blank array if user removed all via button
+      if (visibleRemoveContactsButton === false
+        && selectedContacts.length === 0
+        ) {
+          contacts = [];
+        }
+
+      if (visibleRemoveSkillsButton === false
+        && selectedSkills.length === 0
+        ) {
+          skills = [];
+        }
+
+      // push each element id selected into contacts
+      for (let element of selectedContacts) {
+        // console.log(element)
+        contacts.push(element.id)
+
       }
 
-    // reset all contacts to blank array if user removed all via button
-    if (visibleRemoveContactsButton === false
-      && selectedContacts.length === 0
-      ) {
-        contacts = [];
+      for (let element of selectedSkills) {
+        // console.log(element)
+        skills.push(element.skill_id)
       }
 
-    if (visibleRemoveSkillsButton === false
-      && selectedSkills.length === 0
-      ) {
-        skills = [];
+      // define all values for edited app
+      const editedApplication = { 
+        title, 
+        description,
+        posting_date,
+        status, 
+        link 
+      };
+
+      // Only send skills/contacts if values change
+      if(selectedSkills.length === 0 
+        && displaySkillLabel !== 'None' 
+        && visibleRemoveSkillsButton === true){
+        console.log("no change in skills")
+      } else {
+        editedApplication["skills"] = skills
+      }
+      if(selectedContacts.length === 0 
+        && displayContactLabel !== 'None' 
+        && visibleRemoveContactsButton === true){
+        console.log("no change in contacts")
+      } else {
+        editedApplication["contacts"] = contacts
+      }
+      
+      // PATCH application
+      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(editedApplication),
+        headers: {
+          'Authorization': `Bearer ${user}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      // Log status
+      if(response.status === 200){
+        console.log("Successfully edit the application!"); 
+      } else {
+        alert(`Failed to edit application, status code = ${response.status}`);
       }
 
-    // push each element id selected into contacts
-    for (let element of selectedContacts) {
-      // console.log(element)
-      contacts.push(element.id)
-
-    }
-
-    for (let element of selectedSkills) {
-      // console.log(element)
-      skills.push(element.skill_id)
-    }
-
-    // define all values for edited app
-    const editedApplication = { 
-      title, 
-      description,
-      posting_date,
-      status, 
-      link 
-     };
-
-    // Only send skills/contacts if values change
-    if(selectedSkills.length === 0 
-      && displaySkillLabel !== 'None' 
-      && visibleRemoveSkillsButton === true){
-      console.log("no change in skills")
-    } else {
-      editedApplication["skills"] = skills
-    }
-    if(selectedContacts.length === 0 
-      && displayContactLabel !== 'None' 
-      && visibleRemoveContactsButton === true){
-      console.log("no change in contacts")
-    } else {
-      editedApplication["contacts"] = contacts
-    }
-    
-    // PATCH application
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(editedApplication),
-      headers: {
-        'Authorization': `Bearer ${user}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    // Log status
-    if(response.status === 200){
-      console.log("Successfully edit the application!"); 
-    } else {
-      alert(`Failed to edit application, status code = ${response.status}`);
-    }
-
-    // Reload applications page
-    navigate(0);  
+      // Reload applications page
+      navigate(0); 
+    }; 
   };
 
   // Convert contact ids to first + last names
