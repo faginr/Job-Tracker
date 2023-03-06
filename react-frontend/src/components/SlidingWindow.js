@@ -25,7 +25,7 @@ function SlidingWindow({ Page, ClickableComponent }) {
           overlayClassName="some-custom-overlay-class"
           isOpen={state.isPaneOpen}
           title="Close"
-          subtitle="to ignore any changes"
+          // subtitle="to ignore any changes"
           onRequestClose={() => {
             // triggered on "<" on left top click or on outside click
             setState({ isPaneOpen: false });

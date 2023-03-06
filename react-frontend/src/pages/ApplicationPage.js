@@ -166,7 +166,6 @@ function ApplicationPage() {
       <h1>Application Page</h1>
 
       <div>
-        <p>Hello Username!</p>
         <p>Your applications:</p>
         <ApplicationList 
           applications={applications} 

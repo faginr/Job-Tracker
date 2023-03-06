@@ -94,7 +94,6 @@ function ContactPage() {
       <h1>Contact Page</h1>
 
       <div>
-        <p>Hello Username!</p>
         <p>Your contacts:</p>
         <ContactList 
           contacts={contacts} 
