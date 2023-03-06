@@ -334,7 +334,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             </>
           }
 
-          <b>select new Skills to add to Applcation:</b><br />
+          <b>select new Skills to add to Application:</b><br />
           <p>(unchecked items will be removed)</p><br />
           <SelectMulti
           items={buildSkills}
