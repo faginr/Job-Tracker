@@ -71,36 +71,64 @@ function ApplicationPage() {
     loadSkills(datastore_url,user,setSkills);
   }, []);
 
-  // Translate ids to names
-  for (let app of applications){
-    app.skill_names = []
-    app.contact_names = []
-    // Check if there is at least 1 skill
-    if (app.skills.length > 0){
-      // compare skills in app to all skills
-      for(let app_skill of app.skills){
-        for(let skill of skills){
-          // If application contains this skill
-          if (skill.skill_id === app_skill){
-            // push skill name into array for displaying on card
-            app.skill_names.push(skill.description);  
-          }
-        }
-      }
-    }
-    // Repeat for contacts
-    if (app.contacts.length > 0){
-      for (let app_contact of app.contacts){
-        for (let contact of contacts){
-          if (contact.id === app_contact){
-            app.contact_names.push(contact.first_name+" "+contact.last_name)
-          }
-        }
-      }
-    }
-  }
+  // let skillsArray = [];
+  // skillsArray.forEach(element => {
+  //     skillsArray.push(element["id"])
+  // });
   
+  applications.forEach(app => {
+    let skillData = skills.filter(skill => 
+      app["skills"].find(appSkillId => appSkillId === skill.skill_id))
+    // console.log(skillData)
+    let skillNames = skillData.map(function (skillSet){
+      return skillSet.description
+    });
+    app["skill_names"] = skillNames;
 
+    let contactData = contacts.filter(contact => 
+      app["contacts"].find(appContactId => appContactId === contact.id))
+    console.log(contactData)
+    let contactNames = contactData.map(function (contactSet){
+      return contactSet.first_name + " " + contactSet.last_name
+    });
+    app["contact_names"] = contactNames;
+  })
+  // Translate ids to names
+  // for (let app of applications){
+  //   app.skill_names = []
+  //   app.contact_names = []
+  //   // Check if there is at least 1 skill
+  //   if (app.skills.length > 0){
+  //     // compare skills in app to all skills
+  //     // for (let skill of skills){
+  //       // console.log(app["skills"].includes(skill["id"]))
+  //       // console.log(skills.filter(app => app["skills"].includes(skill["id"])))
+  //       // app.skill_names.push(skills.filter(app => app[skills].includes(skill["id"])))
+  //     // }
+  //     for(let app_skill of app.skills){
+      
+  //       for(let skill of skills){
+  //         // If application contains this skill
+  //         if (skill.skill_id === app_skill){
+  //           // push skill name into array for displaying on card
+  //           app.skill_names.push(skill.description);  
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // Repeat for contacts
+  //   if (app.contacts.length > 0){
+  //     for (let app_contact of app.contacts){
+  //       for (let contact of contacts){
+  //         if (contact.id === app_contact){
+  //           app.contact_names.push(contact.first_name+" "+contact.last_name)
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  
+  // console.log(applications)
   return (
     <>
       <h1>Application Page</h1>
