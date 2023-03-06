@@ -93,7 +93,7 @@ async function deleteSkillFromApp(skillID, appData) {
     appData.skills = newSkillIDs
 
     try{
-        return await model.updateItem(appData, 'application')
+        return await model.updateBigItem(appData, 'application')
     } catch(err){
         console.error(err)
         console.error(

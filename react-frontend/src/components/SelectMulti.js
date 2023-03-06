@@ -18,12 +18,14 @@ function SelectMulti({ items, selected, setSelected }) {
   };
 
   return (
-    <MultiSelect
-      options={items}
-      value={selected}
-      onChange={setSelected}
-      filterOptions={filterOptions}
-      />
+    <div className='select'>
+      <MultiSelect
+        options={items}
+        value={selected}
+        onChange={setSelected}
+        filterOptions={filterOptions}
+        />
+    </div>
   )
 };
 

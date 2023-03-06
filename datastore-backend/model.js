@@ -365,6 +365,10 @@ async function deleteMatchingItemsFromKind(kind, filter_prop, filter_val) {
  * @returns Updated Entity
  */
 async function updateItem(newData, kind) {
+    if(kind === 'application'){
+        return updateBigItem(newData, kind)
+    }
+    
     // manually create matching key 
     if(kind === 'users'){
         return updateItemManualId(newData, kind)

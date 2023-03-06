@@ -8,7 +8,7 @@ import SlidingWindow from './SlidingWindow';
 function Contact({ contact, onDelete }) {
 
   return (
-    <tr>
+    <tr >
       <td>{contact.first_name}</td>
       <td>{contact.last_name}</td>
       <td>{contact.email}</td>
@@ -20,10 +20,10 @@ function Contact({ contact, onDelete }) {
       <td>
         <SlidingWindow 
           Page={<EditContactPage typeToEdit={contact} />}
-          ClickableComponent={<MdEdit />} 
+          ClickableComponent={<MdEdit className='edit-button'/>} 
           />
       </td>
-      <td><MdDeleteForever onClick={() => onDelete(contact.id, contact.contact_at_app_id)} /></td>
+      <td><MdDeleteForever className='delete-button' onClick={() => onDelete(contact.id, contact.contact_at_app_id)} /></td>
     </tr>
   )
 };

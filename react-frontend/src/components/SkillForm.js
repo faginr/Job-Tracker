@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {useNavigate} from 'react-router-dom';
 import SelectMulti from "./SelectMulti"
 import {MdDeleteForever} from 'react-icons/md'
 import fetchRequests from "../data_model/fetchRequests";
@@ -14,6 +15,7 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
     const [applications, setApplications] = useState([])
     const {user, isAuthenticated} = useAuth0();
     const getTokenFromAuth0 = useAPI()
+    const navigate = useNavigate()
 
     function updateSkill(e, identifier) {
         setSkill({
@@ -41,20 +43,18 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
             await fetchRequests.updateSkillProficiency(user, token, requestBody, skill.skill_id)
     
             // send update on tying apps to skills
-            tieToApps()
+            tieToApps(token)
     
-            // call setSkillsModified to refresh the skills page
-            setSkillsModified(skillsModified+1)
+            // navigate back to main page
+            navigate(0)
         }
     }
 
-    async function tieToApps(){
-        const token = await getTokenFromAuth0({redirectURI: '/skills'})
-        if(isAuthenticated){
-            for(let app of selectedApps){
-                fetchRequests.tieSkillToApp(user, token, skill.skill_id, app.id)
-            }
+    async function tieToApps(token){
+        for(let app of selectedApps){
+            fetchRequests.tieSkillToApp(user, token, skill.skill_id, app.id)
         }
+    
     }
 
     async function getAllApps() {
@@ -92,14 +92,14 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
             <div>
                 <h2>
                     Tied to Applications:
-                    <ul>
-                        {skillToEdit.applications.map((app) => {
-                            return (
-                                <li>{app.title ?? "missing title"}</li>
-                                )
-                            })}
-                    </ul>
                 </h2>
+                <ul>
+                    {skillToEdit.applications.map((app) => {
+                        return (
+                            <li key={app.id}>{app.title ?? "missing title"}</li>
+                            )
+                        })}
+                </ul>
             </div>
             <div>
                 <h2>

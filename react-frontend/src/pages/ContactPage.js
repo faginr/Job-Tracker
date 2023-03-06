@@ -105,14 +105,13 @@ function ContactPage() {
       <>
         <h1>Contact Page</h1>
 
-        <div>
-          <p>Hello Username!</p>
-          <p>List of your contacts:</p>
-          <ContactList 
-            contacts={contacts} 
-            onDelete={onDelete}
-            sorting={sorting} ></ContactList>
-        </div><br />
+      <div>
+        <p>Your contacts:</p>
+        <ContactList 
+          contacts={contacts} 
+          onDelete={onDelete}
+          sorting={sorting} ></ContactList>
+      </div><br />
 
         <SlidingWindow 
           Page={<AddContactPage />}
