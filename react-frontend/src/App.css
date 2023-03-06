@@ -163,7 +163,7 @@ hr {
 
 td, th {
   padding: 8px;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   box-shadow: 3px 3px 3px grey;
 }
 
@@ -184,6 +184,8 @@ th {
 .contact-table {
   margin-left: auto;
   margin-right: auto;
+  border-radius: 5px;
+  width: 90%;
 }
 
 /************************ Contacts specific ************************/
