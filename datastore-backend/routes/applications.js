@@ -258,12 +258,11 @@ router.get("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserP
 router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUserParam, function (req, res) {
   console.log("Patch request received!");
 
-  // Test for invalid request
+  // Tests for invalid request
   if (
     verify_id(req.params.app_id) 
     || verify_not_blank(req.params.app_id)
     ){
-      // console.log("here")
       // Failure, reject
       return res.status(400).json({ Error: 'No application exists with this id'})
     } 
@@ -308,6 +307,7 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
       results[0]["link"] = req.body.link
     }
 
+    // Check input size limits
     if(limit_title(results[0]["title"])){
       return res.status(400).json({'Error': "title can only be a maximum of 100 chars long"})
     }
@@ -318,85 +318,87 @@ router.patch("/users/:user_id/applications/:app_id", verifyUser.verifyJWTWithUse
     console.log(results[0])
 
     try{
-    // Update application in datastore, return updated object in response body
-    model.updateBigItem(results[0], 'application')
-      .then(editedData => {
+      // Update application in datastore, return updated object in response body
+      model.updateBigItem(results[0], 'application')
+        .then(editedData => {
 
-        // console.log(originalContacts)
-        // console.log(editedData)
-
-        // removal process
-        removeList = [];
-        // for each contact in original object
-        for (let oldContact of originalContacts){
-          // if old contact not in new contacts
-          if (!(editedData["contacts"].includes(oldContact))){
-            removeList.push(oldContact)
+          // removal process
+          removeList = [];
+          // for each contact in original object
+          for (let oldContact of originalContacts){
+            // if old contact not in new contacts
+            if (!(editedData["contacts"].includes(oldContact))){
+              // add only contacts that were there but now removed
+              removeList.push(oldContact)
+            }
           }
-        }
 
-        const removePromises = [];
-        for (let removeContact of removeList){
-          removePromises.push(model.getItemByID('contact', removeContact)
-          .then(currentRemoveContact => {
-            let newReducedApps = [];
-            for(let newApp of currentRemoveContact[0]["contact_at_app_id"]){
-              // if app id is not removed contact
-              if (newApp !== req.params.app_id){
-                newReducedApps.push(newApp)
+          // queue up promises
+          const removePromises = [];
+          // for each contact to be removed
+          for (let removeContact of removeList){
+            // get that contact
+            removePromises.push(model.getItemByID('contact', removeContact)
+            .then(currentRemoveContact => {
+              let newReducedApps = [];
+              // rebuild app ids
+              for(let newApp of currentRemoveContact[0]["contact_at_app_id"]){
+                // if app id is not the id being removed then add
+                if (newApp !== req.params.app_id){
+                  newReducedApps.push(newApp)
+                }
               }
-            }
-            currentRemoveContact[0]["contact_at_app_id"] = newReducedApps
-            // console.log(currentRemoveContact);
-            model.updateItem(currentRemoveContact[0], 'contact');
-          }) 
-          )
-        }
+              // reassign app ids with edited app id removed
+              currentRemoveContact[0]["contact_at_app_id"] = newReducedApps
+              // update contact
+              model.updateItem(currentRemoveContact[0], 'contact');
+            }) 
+            )
+          }
 
-        Promise.all(removePromises)
-          .then(() => {
-            
-            addList = [];
-
-            for (let newContact of editedData["contacts"]){
-              if (!(originalContacts.includes(newContact))){
-                addList.push(newContact)
+          // run all remove actions
+          Promise.all(removePromises)
+            .then(() => {
+              
+              // repeat for adding new app id to each new contact 
+              addList = [];
+              for (let newContact of editedData["contacts"]){
+                if (!(originalContacts.includes(newContact))){
+                  addList.push(newContact)
+                }
               }
-            }
 
-            const addPromises = [];
-            for(let addContact of addList){
-              addPromises.push(model.getItemByID('contact', addContact)
-              .then(currentAddContact => {
-                currentAddContact[0]["contact_at_app_id"].push(req.params.app_id)
-                model.updateItem(currentAddContact[0], 'contact');
-              })
-              )
-            }
-            Promise.all(addPromises)
-            .then(res.status(200).json({
-              'id': req.params.app_id,
-              // 'user': results["user"],
-              'skills': results[0]["skills"],
-              'contacts': results[0]["contacts"],
-              'title': results[0]["title"],
-              'description': results[0]["description"],
-              'posting_date': results[0]["posting_date"],
-              'status': results[0]["status"],
-              'link': results[0]["link"],
-              'user': results[0]["user"]
-              // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
-            }))
-          })
+              const addPromises = [];
+              for(let addContact of addList){
+                addPromises.push(model.getItemByID('contact', addContact)
+                .then(currentAddContact => {
+                  currentAddContact[0]["contact_at_app_id"].push(req.params.app_id)
+                  model.updateItem(currentAddContact[0], 'contact');
+                })
+                )
+              }
+              Promise.all(addPromises)
+              .then(res.status(200).json({
+                'id': req.params.app_id,
+                'skills': results[0]["skills"],
+                'contacts': results[0]["contacts"],
+                'title': results[0]["title"],
+                'description': results[0]["description"],
+                'posting_date': results[0]["posting_date"],
+                'status': results[0]["status"],
+                'link': results[0]["link"],
+                'user': results[0]["user"]
+                // 'self': req.protocol + "://" + req.get("host") + req.baseUrl + "/" + req.params.app_id
+              }))
+            })
 
-      })
+        })
   } catch(err) {
     // Log error
     console.error(err);
     res.status(500).end()
   }
   })
-  // 
 })
 
 // DELETE application by id route

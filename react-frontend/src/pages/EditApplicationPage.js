@@ -6,12 +6,13 @@ import { datastore_url } from '../utils/Constants';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 
-export const EditApplicationPage = ({ typeToEdit }) => {
-  
-  const startingContacts = typeToEdit.contacts
-  // const startingSkills = typeToEdit.skills
 
-  // console.log(typeToEdit);
+/***********************************************************
+* Edit Application Page component
+***********************************************************/
+export const EditApplicationPage = ({ typeToEdit }) => {
+
+  // Constants
   const [title, setTitle] = useState(typeToEdit.title);
   const [description, setDescription] = useState(typeToEdit.description);
   const [posting_date, setPostingDate] = useState(typeToEdit.posting_date);
@@ -28,6 +29,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
 
   const navigate = useNavigate();
 
+  // Show remove button/undo button for contacts and skills
   const [visibleRemoveContactsButton, setvisibleRemoveContactsButton] = useState(true);
   const [visibleUndoContactsButton, setvisibleUndoContactsButton] = useState(false);
   const [visibleRemoveSkillsButton, setvisibleRemoveSkillsButton] = useState(true);
@@ -58,18 +60,20 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   }
 
   
-
+  // Show previous values in edit sliding panel
   let displayContacts = [];
   let displaySkills =[];
   let displayContactLabel = '';
   let displaySkillLabel = '';
 
 
+  /***********************************************************
+  * Button pressed, send application patch request 
+  ***********************************************************/
   const editApplication = async (e) => {
     e.preventDefault();
 
     // listen for any value changes
-
     if(visibleRemoveContactsButton === true
       && visibleRemoveSkillsButton === true
       && selectedContacts.length === 0
@@ -83,18 +87,6 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         console.log('no changes');
         return navigate(0);
       }
-
-    // if(setvisibleRemoveSkillsButton === true
-      
-    //   && title === typeToEdit.title
-    //   && description === typeToEdit.description
-    //   && posting_date === typeToEdit.posting_date
-    //   && status === typeToEdit.status
-    //   && link === typeToEdit.link
-    //   ) {
-    //     console.log('no changes');
-    //     return navigate(0);
-    //   }
 
     // reset all contacts to blank array if user removed all via button
     if (visibleRemoveContactsButton === false
@@ -126,12 +118,11 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       title, 
       description,
       posting_date,
-      // skills,
-      // contacts, 
       status, 
       link 
      };
 
+    // Only send skills/contacts if values change
     if(selectedSkills.length === 0 
       && displaySkillLabel !== 'None' 
       && visibleRemoveSkillsButton === true){
@@ -146,10 +137,6 @@ export const EditApplicationPage = ({ typeToEdit }) => {
     } else {
       editedApplication["contacts"] = contacts
     }
-    // console.log(`${JSON.stringify(editedApplication)}`)
-    // alert(`${editedApplication}`)
-    // alert(`${displaySkillLabel}`)
-    // alert(`${selectedSkills.length}`)
     
     // PATCH application
     const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
@@ -160,109 +147,20 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         'Content-Type': 'application/json',
       },
     });
+    // Log status
     if(response.status === 200){
       console.log("Successfully edit the application!"); 
     } else {
       alert(`Failed to edit application, status code = ${response.status}`);
     }
 
-    // check if contacts has changed
-  //   if (startingContacts !== contacts) {
-
-  //     // get newly posted application by id
-  //     // const newApp = await response.json();
-
-  //     // Loop through each contact of starting contacts
-  //     for(let contact of startingContacts) {
-  //       // see if contacts has startingContact still in it
-  //       if(!(contacts.includes(contact))){
-  //       // GET the contact if not
-  //       const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //         method: 'GET',
-  //         headers: {
-  //           'Accept': 'application/json',
-  //         },
-  //       });
-  //       // See response status of GET
-  //       if (contactResponse.status === 200) {
-  //         console.log(`GET ${contactResponse} success 200`);
-  //       } else {
-  //         console.log(`GET ${contactResponse} failure ${contactResponse.status}`);
-  //       }
-
-  //       const data = await contactResponse.json();
-  //       const editedContacts = [];
-  //       for (let contactId of data.contact_at_app_id){
-  //         if (contactId !== typeToEdit.id){
-  //           editedContacts.push(contactId)
-  //         }
-  //       };
-
-  //       const updatedContacts = {contact_at_app_id: editedContacts}
-        
-  //       const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //         method: 'PATCH',
-  //         body: JSON.stringify(updatedContacts),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       });
-  //       if (patchResponse.status === 200) {
-  //         console.log(`PATCH ${patchResponse.id} success 200`)
-  //       } else {
-  //         console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
-  //       }
-  //     }
-  //   }
-
-  //   for (let contact of contacts) {
-  //     if (!(startingContacts.includes(contact))) {
-  //       const contactResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //         method: 'GET',
-  //         headers: {
-  //           'Accept': 'application/json',
-  //         },
-  //       });
-  //       if (contactResponse.status === 200){
-  //         console.log(`GET ${contactResponse.id} success 200`);
-  //       } else {
-  //         console.log(`GET ${contactResponse.id} failure ${contactResponse.status}`);
-  //       }
-
-  //       const data = await contactResponse.json();
-  //       const editedContacts = [];
-  //       for (let contactId of data.contact_at_app_id){
-  //         if (contactId !== typeToEdit.id){
-  //           editedContacts.push(contactId)
-  //         }
-  //       };
-
-  //       const updatedContacts = {contact_at_app_id: editedContacts}
-        
-  //       const patchResponse = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact}`, {
-  //         method: 'PATCH',
-  //         body: JSON.stringify(updatedContacts),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       });
-  //       if (patchResponse.status === 200) {
-  //         console.log(`PATCH ${patchResponse.id} success 200`)
-  //       } else {
-  //         console.log(`PATCH ${patchResponse.id} failure ${patchResponse.status} `);
-  //       }
-
-  //     }
-  //   }
-
-  // }
-
-    navigate(0);  // goes back to Application Page
+    // Reload applications page
+    navigate(0);  
   };
 
+  // Convert contact ids to first + last names
   function contactNames() {
     for (let contact of typeToEdit.contacts){
-      // console.log(contact)
       for (let id of buildContacts){
         if (contact === id.id){
           let contactName = id.first_name + " " + id.last_name
@@ -270,7 +168,6 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         }
       }
     };
-    // console.log(displayContacts)
 
     if (displayContacts.length === 0) {
       displayContactLabel = 'None';
@@ -278,20 +175,17 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       displayContactLabel = JSON.stringify(displayContacts);
       displayContactLabel = displayContactLabel.slice(1,-1);
     }
-    // console.log(displayLabel)
   }
 
+  // Convert skill ids to descriptions
   function skillNames() {
     for (let skill of typeToEdit.skills){
-      // console.log(skill)
       for (let id of buildSkills){
-        // console.log(id)
         if (skill === id.skill_id){
           displaySkills.push(id.description);
         }
       }
     };
-    // console.log(displayContacts)
 
     if (displaySkills.length === 0) {
       displaySkillLabel = 'None';
@@ -299,17 +193,20 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       displaySkillLabel = JSON.stringify(displaySkills);
       displaySkillLabel = displaySkillLabel.slice(1,-1);
     }
-    // console.log(displayLabel)
   }
 
   contactNames();
   skillNames();
 
+  /***********************************************************
+  * Hook for loading in user specific contacts and skills
+  ***********************************************************/
   useEffect(() => {
     loadContacts(datastore_url,user,setContacts);
     loadSkills(datastore_url,user,setSkills);
   }, []);
 
+  // Build selections for dropdowns
   function addKeys(selection) {
     if (selection === "contacts")
     buildContacts = buildContacts.map(function(obj) {
