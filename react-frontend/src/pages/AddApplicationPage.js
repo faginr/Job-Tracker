@@ -30,6 +30,9 @@ export const AddApplicationPage = () => {
   // used for 'page' navigation
   const navigate = useNavigate();
 
+  // Prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+
 
   /***********************************************************
   * 'Add Application' pressed -> Post a new application
@@ -37,49 +40,53 @@ export const AddApplicationPage = () => {
   const addApplication = async (e) => {
     // prevent default behavior
     e.preventDefault();
+    //console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    // push each selected skill id into skills array
-    for (let element of selectedSkills) {
-      skills.push(element.skill_id)
+      // push each selected skill id into skills array
+      for (let element of selectedSkills) {
+        skills.push(element.skill_id)
+      }
+
+      // push each selected contact id in contacts array
+      for (let element of selectedContacts) {
+        contacts.push(element.id)
+      }
+
+      // Initialize key value pairs for new application
+      const newApplication = { 
+        title, 
+        description,
+        skills, 
+        contacts, 
+        posting_date, 
+        status, 
+        link 
+      };
+
+      // alert(newApplication)
+
+      // POST new application
+      const response = await fetch(
+        `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
+        method: 'POST',
+        body: JSON.stringify(newApplication),
+        headers: {
+          'Authorization': `Bearer ${user}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Log response status 
+      if(response.status === 201){
+        console.log("Successfully added the application 201"); 
+      } else {
+        alert(`Failed to add application, status code = ${response.status}`);
+      }
+      navigate(0);  // goes back to Application Page
     }
-
-    // push each selected contact id in contacts array
-    for (let element of selectedContacts) {
-      contacts.push(element.id)
-    }
-
-    // Initialize key value pairs for new application
-    const newApplication = { 
-      title, 
-      description,
-      skills, 
-      contacts, 
-      posting_date, 
-      status, 
-      link 
-    };
-
-    // alert(newApplication)
-
-    // POST new application
-    const response = await fetch(
-      `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
-      method: 'POST',
-      body: JSON.stringify(newApplication),
-      headers: {
-        'Authorization': `Bearer ${user}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Log response status 
-    if(response.status === 201){
-      console.log("Successfully added the application 201"); 
-    } else {
-      alert(`Failed to add application, status code = ${response.status}`);
-    }
-  navigate(0);  // goes back to Application Page
-}
+  }
 
 
 /***********************************************************

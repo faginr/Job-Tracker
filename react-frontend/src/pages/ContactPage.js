@@ -51,9 +51,9 @@ function ContactPage() {
       );
       if (response.status === 204) {
         setContacts(contacts.filter(contact => contact.id !== contact_id));
-          //alert("Successfully deleted the contact! Click Ok to update the page.");
+        console.log("Successfully deleted the contact! Click Ok to update the page.");
       } else {
-        console.log(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
+        alert(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
       }
     }
   };
@@ -72,9 +72,9 @@ function ContactPage() {
       }
     );
     if (response.status === 200) {
-      //console.log("Successfully fetched the contacts!"); 
+      console.log("Successfully fetched the contacts!"); 
     } else {
-      console.log(`Failed to fetch the contacts, status code = ${response.status}`);
+      alert(`Failed to get the contacts, status code = ${response.status}`);
     };
     const data = await response.json();
     setContacts(data);

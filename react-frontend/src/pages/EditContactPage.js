@@ -21,11 +21,13 @@ export const EditContactPage = ({ typeToEdit }) => {
   
   let contact_at_app_id = [];
   const [selected, setSelected] = useState([]);
-  console.log('selected', selected);
 
   let [apps, setApps] = useState([]);
   let contactAtNameStr = '';
   let contactAtNameArray = [];
+
+  // prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
 
   /************************************************************* 
@@ -55,65 +57,69 @@ export const EditContactPage = ({ typeToEdit }) => {
    ************************************************************/
   const editContact = async (e) => {
     e.preventDefault();
+    // console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    // if no changes, do nothing
-    if ((visibleRemoveButton === true
-        && selected.length === 0
-        && last_name === typeToEdit.last_name 
-        && first_name === typeToEdit.first_name
-        && email === typeToEdit.email
-        && phone === typeToEdit.phone
-        && notes === typeToEdit.notes)
-        || (visibleText === true
+      // if no changes, do nothing
+      if ((visibleRemoveButton === true
           && selected.length === 0
           && last_name === typeToEdit.last_name 
           && first_name === typeToEdit.first_name
           && email === typeToEdit.email
           && phone === typeToEdit.phone
-          && notes === typeToEdit.notes)) {
-      return navigate(0);
-    };
+          && notes === typeToEdit.notes)
+          || (visibleText === true
+            && selected.length === 0
+            && last_name === typeToEdit.last_name 
+            && first_name === typeToEdit.first_name
+            && email === typeToEdit.email
+            && phone === typeToEdit.phone
+            && notes === typeToEdit.notes)) {
+        return navigate(0);
+      };
 
-    // remove all applications if the button Remove clicked and no selected 
-    if (visibleRemoveButton === false && selected.length === 0) {
-      contact_at_app_id = [];
-    };
+      // remove all applications if the button Remove clicked and no selected 
+      if (visibleRemoveButton === false && selected.length === 0) {
+        contact_at_app_id = [];
+      };
 
-    if (visibleRemoveButton === true && selected.length === 0) {
-      contact_at_app_id = originalApplication;
-    };
+      if (visibleRemoveButton === true && selected.length === 0) {
+        contact_at_app_id = originalApplication;
+      };
 
-    for (let element of selected) {
-      contact_at_app_id.push(element.id)
-    };
-    
-    const editedContact = { 
-      last_name, 
-      first_name, 
-      email, 
-      phone, 
-      notes, 
-      contact_at_app_id 
-    };
+      for (let element of selected) {
+        contact_at_app_id.push(element.id)
+      };
+      
+      const editedContact = { 
+        last_name, 
+        first_name, 
+        email, 
+        phone, 
+        notes, 
+        contact_at_app_id 
+      };
 
-    // PUT the contact
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${typeToEdit.id}`, 
-      {
-        method: 'PUT',
-        body: JSON.stringify(editedContact),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user}`}
-      }
-    );
-    if (response.status === 200) {
-      alert("Successfully edited the contact!"); 
-    } else {
-      console.log(`Failed to edit contact, status code = ${response.status}`);
-    };
+      // PUT the contact
+      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${typeToEdit.id}`, 
+        {
+          method: 'PUT',
+          body: JSON.stringify(editedContact),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user}`}
+        }
+      );
+      if (response.status === 200) {
+        console.log("Successfully edited the contact!"); 
+      } else {
+        alert(`Failed to edit contact, status code = ${response.status}`);
+      };
 
-    // go back to Contact Page
-    navigate(0);  
+      // go back to Contact Page
+      navigate(0);  
+    };
   };
 
 
