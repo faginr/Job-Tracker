@@ -29,7 +29,21 @@ function Navigation () {
         {(isAuthenticated && <LogoutButton />)}
     </nav>
     :
-    <div></div>
+    <nav className="navigation-bar nav-spacer">
+        <div className="App-link" >
+          <NavLink to="#">Home</NavLink>
+        </div>
+        <div className="App-link" >
+          <NavLink to="#">Applications</NavLink>
+        </div>
+        <div className="App-link" >
+          <NavLink to="#">Contacts</NavLink>
+        </div>
+        <div className="App-link" >
+          <NavLink to="#">Skills</NavLink>
+        </div>
+    </nav>
+    
   );
 }
 

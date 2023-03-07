@@ -15,7 +15,7 @@ function HomePage() {
       </div>
 
       <img src={icon} alt="Job Search"></img>
-      <div>Source of the image:
+      <div className='credit'>Source of the image:
         <br />https://eecs.engineering.oregonstate.edu 
         <br />from the Job Tracker project description
         {!isAuthenticated?<LogInSignUp />:<div></div>}
