@@ -69,61 +69,67 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   let displayContactLabel = '';
   let displaySkillLabel = '';
 
+  // Prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+
 
   /***********************************************************
   * Button pressed, send application patch request 
   ***********************************************************/
   const editApplication = async (e) => {
     e.preventDefault();
+    //console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    // listen for any value changes
-    if(visibleRemoveContactsButton === true
-      && visibleRemoveSkillsButton === true
-      && selectedContacts.length === 0
-      && selectedSkills.length === 0
-      && title === typeToEdit.title
-      && description === typeToEdit.description
-      && posting_date === typeToEdit.posting_date
-      && status === typeToEdit.status
-      && link === typeToEdit.link
-      ) {
-        console.log('no changes');
-        return navigate(0);
+      // listen for any value changes
+      if(visibleRemoveContactsButton === true
+        && visibleRemoveSkillsButton === true
+        && selectedContacts.length === 0
+        && selectedSkills.length === 0
+        && title === typeToEdit.title
+        && description === typeToEdit.description
+        && posting_date === typeToEdit.posting_date
+        && status === typeToEdit.status
+        && link === typeToEdit.link
+        ) {
+          console.log('no changes');
+          return navigate(0);
+        }
+
+      // reset all contacts to blank array if user removed all via button
+      if (visibleRemoveContactsButton === false
+        && selectedContacts.length === 0
+        ) {
+          contacts = [];
+        }
+
+      if (visibleRemoveSkillsButton === false
+        && selectedSkills.length === 0
+        ) {
+          skills = [];
+        }
+
+      // push each element id selected into contacts
+      for (let element of selectedContacts) {
+        // console.log(element)
+        contacts.push(element.id)
+
       }
 
-    // reset all contacts to blank array if user removed all via button
-    if (visibleRemoveContactsButton === false
-      && selectedContacts.length === 0
-      ) {
-        contacts = [];
+      for (let element of selectedSkills) {
+        // console.log(element)
+        skills.push(element.skill_id)
       }
 
-    if (visibleRemoveSkillsButton === false
-      && selectedSkills.length === 0
-      ) {
-        skills = [];
-      }
-
-    // push each element id selected into contacts
-    for (let element of selectedContacts) {
-      // console.log(element)
-      contacts.push(element.id)
-
-    }
-
-    for (let element of selectedSkills) {
-      // console.log(element)
-      skills.push(element.skill_id)
-    }
-
-    // define all values for edited app
-    const editedApplication = { 
-      title, 
-      description,
-      posting_date,
-      status, 
-      link 
-     };
+      // define all values for edited app
+      const editedApplication = { 
+        title, 
+        description,
+        posting_date,
+        status, 
+        link 
+      };
 
     // Only send skills/contacts if values change
     if(selectedSkills.length === 0 
@@ -341,7 +347,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
             </>
           }
 
-          <b>select new Skills to add to Applcation:</b><br />
+          <b>select new Skills to add to Application:</b><br />
           <p>(unchecked items will be removed)</p><br />
           <SelectMulti
           items={buildSkills}

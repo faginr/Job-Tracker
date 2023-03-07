@@ -23,25 +23,31 @@ export const AddContactPage = () => {
   const [selected, setSelected] = useState([]);   // added apps to the contact
   let [apps, setApps] = useState([]);
 
+  // prevent double click submit
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+
 
   /************************************************************* 
    * Function to POST a new contact 
    ************************************************************/
   const addContact = async (e) => {
     e.preventDefault();
+    //console.log('submit button status:', submitDisabled);
+    if (!submitDisabled) {
+      setSubmitDisabled(true);
 
-    for (let element of selected) {
-      contact_at_app_id.push(element.id)
-    };  
+      for (let element of selected) {
+        contact_at_app_id.push(element.id)
+      };  
 
-    const newContact = { 
-      last_name, 
-      first_name, 
-      email, 
-      phone, 
-      notes, 
-      contact_at_app_id 
-    };
+      const newContact = { 
+        last_name, 
+        first_name, 
+        email, 
+        phone, 
+        notes, 
+        contact_at_app_id 
+      };
 
     // POST a new contact
     const token = await getTokenFromAuth0({redirectURI: '/contacts'})
@@ -64,6 +70,7 @@ export const AddContactPage = () => {
   
       // go back to Contact Page
       navigate(0);  
+      }
     }
   };
 
