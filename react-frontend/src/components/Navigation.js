@@ -10,6 +10,7 @@ function Navigation () {
   const {isAuthenticated} = useAuth0()
 
   return (
+    isAuthenticated?
     <nav className="navigation-bar">
         <div className="App-link" >
           <NavLink to="/">Home</NavLink>
@@ -27,6 +28,8 @@ function Navigation () {
         {/* Only display logout button if authenticated */}
         {(isAuthenticated && <LogoutButton />)}
     </nav>
+    :
+    <div></div>
   );
 }
 

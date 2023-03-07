@@ -10,7 +10,7 @@ const datastore_url = process.env.REACT_APP_API_SERVER_URL
 
 function CallBackPage() {
     const {isAuthenticated, user} = useAuth0()
-    const {getTokenFromAuth0} = useAPI()
+    const getTokenFromAuth0 = useAPI()
     const navigate = useNavigate()
 
     async function handleUserLogin(token) {

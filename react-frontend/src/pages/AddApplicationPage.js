@@ -4,7 +4,6 @@ import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants'
 import { useAuth0 } from '@auth0/auth0-react';
 import { useAPI } from '../utils/Auth0Functions';
-import { datastore_url } from '../utils/Constants';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 

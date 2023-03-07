@@ -18,9 +18,6 @@ function SkillPage() {
   const {user, isAuthenticated} = useAuth0()
   const getTokenFromAuth0 = useAPI()
 
-  // group skills any time page re-renders
-  const groupedSkills = splitSkillsByProf(skills)
-
   const skillsMap = {
     "A": [], "B": [], "C": [], "D": [], "E": [], "F": [], "G": [],
     "H": [], "I": [], "J": [], "K": [], "L": [], "M": [], "N": [],
@@ -97,6 +94,7 @@ function SkillPage() {
   }, [skillsModified, user])
   
   return (
+    isAuthenticated?
     <div id="skills-page">
       <h1>Your current skills:</h1>
       <label>
@@ -119,9 +117,9 @@ function SkillPage() {
           Page={<AddSkill skillAdded={skillsModified} setSkillAdded={setSkillsModified} userSkills={skills}/>}
           ClickableComponent={<ReactButton label={"Add New Skill"}/>} />
       </div>
+    </div>
     :
       <LoadingPage />
-    </div>
   );
 }
 

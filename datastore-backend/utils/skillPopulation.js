@@ -33,7 +33,7 @@ const skills = [
     "Flutter",
     "Dart",
     "Golang",
-    "C (Programming Language",
+    "C (Programming Language)",
     "C#",
     "C++",
     "Ruby on Rails",
