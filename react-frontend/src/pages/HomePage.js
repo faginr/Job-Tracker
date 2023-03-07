@@ -1,4 +1,3 @@
-import { setUser } from '../utils/User';
 import React from 'react';
 import icon from '../images/icon.png';
 import LogInSignUp from '../components/LoginSignup';
