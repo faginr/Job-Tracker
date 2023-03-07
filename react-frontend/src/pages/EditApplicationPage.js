@@ -171,6 +171,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   
       // Reload applications page
       navigate(0);  
+      }
     }
   };
 

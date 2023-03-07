@@ -91,8 +91,9 @@ export const AddApplicationPage = () => {
         alert(`Failed to add application, status code = ${response.status}`);
       }
       navigate(0);  // goes back to Application Page
+      }
     }
-}
+  }
 
 
 /***********************************************************
