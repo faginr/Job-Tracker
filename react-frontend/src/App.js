@@ -9,15 +9,15 @@ import EditApplicationPage from './pages/EditApplicationPage';
 import SkillPage from './pages/SkillPage';
 import ContactPage from './pages/ContactPage';
 import NotFound from './pages/NotFound';
+import CallBackPage from './pages/CallBackPage';
 
+import Header from './components/Header'
 import Navigation from './components/Navigation';
 
 function App() {
   return (
     <div>
-      <header className="App-header">
-        <h5>Welcome to Job Tracker!</h5>
-      </header>
+      <Header />
       
       <div className="App">
         <Navigation />
@@ -36,11 +36,10 @@ function App() {
               <Route path="/skills" element={<SkillPage />} />
               
               <Route path="/contacts" element={<ContactPage />} />
-             
+              <Route path="/callback" element={<CallBackPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          
         </main>
       </div>
 

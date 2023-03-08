@@ -1,11 +1,12 @@
 const express = require('express')
 const model = require('../model')
 const errorMessages = require('./errorMessages')
-const verifyUser = require('./middleware/verifyUser')
+const {verifyJWTWithUserParam, verifyJWTOnly} = require('./middleware/verifyUser')
 
 const router = express.Router()
 
 // body-parser already used at the top app level
+// JWT verifier already used at the top app level
 
 /**
  * Verifies the requester can recieve application/json through the 
@@ -23,28 +24,21 @@ function verifyAcceptHeader (req, res, next) {
     }
 }
 
-/**
- * Verifies that the resource on which action is requested actually exists.
- * If it does exist, the existing resource is added to the request body 
- * as existResource and passes control to next middleware. If it doesn't 
- * exist, a 404 status/error message is returned.
- * @param {express.request} req 
- * @param {express.response} res 
- * @param {express.next} next 
- */
-async function verifyResourceExists (req, res, next) {
-    const resourceId = req.params.user_id
 
-    const resource = await model.getItemByID('users', resourceId)
-
-    if (resource[0] === null || resource[0] === undefined) {
-        res.status(404).send(errorMessages[404].users)
-    } else {
-        req.body.existResource = resource[0]
-        next()
+function verifyRequestBody(req, res, next){
+    try{
+        if(req.body.username === undefined || req.body.username === null){
+            return res.status(400).send(errorMessages[400].keyError)
+        } 
+        if (req.body.username.length > 40){
+            return res.status(400).send(errorMessages[400].keyError)
+        }
+    } catch(e){
+        console.error("Trouble verifying body post on users")
+        return res.status(400).send(errorMessages[400].requiredKey)
     }
+    next()
 }
-
 
 /**
  * Verifies that the user that we're trying to create doesn't exist.
@@ -56,8 +50,14 @@ async function verifyResourceExists (req, res, next) {
  */
 async function verifyUserDoesNotExist (req, res, next) {
     const resourceId = req.body.auth.id
-
-    const resource = await model.getItemByID('users', resourceId)
+    let resource = []
+    try{
+        resource = await model.getItemByManualID('users', resourceId)
+    } catch(e){
+        console.error(e)
+        console.error("Problem looking up user!")
+        return res.status(500).end()
+    }
     if (resource[0] != null || resource[0] != undefined) {
         res.status(400).send(errorMessages[400].userExists)
     } else {
@@ -78,8 +78,9 @@ function methodNotAllowed (req, res) {
 /*------------------ USERS ROUTES --------------------------- */
 router.post('/', 
     verifyAcceptHeader,
-    verifyUser.verifyJWTOnly,       // adds username, id under req.body.auth         
+    verifyJWTOnly,                   // adds id under req.body.auth         
     verifyUserDoesNotExist,
+    verifyRequestBody,
     async (req, res) => {
         const today = new Date()
         const [month, day, year] = [today.getMonth() + 1, today.getDate(), today.getFullYear()]
@@ -88,10 +89,17 @@ router.post('/',
         req.body.auth.contacts = []
         req.body.auth.applications = []
         req.body.auth.date_created = `${month}/${day}/${year}`
+        req.body.auth.username = req.body.username
         const id = req.body.auth.id
         delete req.body.auth.id
-        const response = await model.postItemManId(req.body.auth, id, 'users')
-        res.status(201).send(response)
+        try{
+            const response = await model.postItemManualId(req.body.auth, id, 'users')
+            res.status(201).send(response)
+        } catch(e){
+            console.error(e)
+            console.error("Problem creating user!")
+            res.status(500).end()
+        }
 })
 
 router.get('/', methodNotAllowed)
@@ -106,17 +114,15 @@ router.delete('/', methodNotAllowed)
 
 router.get('/:user_id', 
     verifyAcceptHeader,
-    verifyUser.verifyJWTWithUserParam,  // adds username, id under req.body.auth   
-    verifyResourceExists,               // adds user data under req.body.existResource
+    verifyJWTWithUserParam,             // adds id under req.body.auth, user info under req.body.user   
     async(req, res) => {
-        res.status(200).send(req.body.existResource)
+        res.status(200).send(req.body.user)
 })
 
 router.delete('/:user_id', 
-    verifyResourceExists,               // adds user data under req.body.existResource
-    verifyUser.verifyJWTWithUserParam,
+    verifyJWTWithUserParam,             // adds id under req.body.auth, user info under req.body.user
     async (req, res) => {
-        const user_id = req.body.existResource.id
+        const user_id = req.body.user.id
         
         try {
             // delete applications tied to user
@@ -126,10 +132,11 @@ router.delete('/:user_id',
             const deletedContacts = await model.deleteMatchingItemsFromKind('contacts', 'user_id', user_id)
 
             // delete user
-            await model.deleteItem('users', user_id)
+            await model.deleteItemManualID('users', user_id)
             res.status(200).send({"deletedApps": deletedApps.length, "deletedContacts": deletedContacts.length})
         } catch (error) {
             console.error(error)
+            console.error("Problem deleting user!")
             res.status(500).end()
         }
 })

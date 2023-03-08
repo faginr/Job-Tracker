@@ -19,11 +19,11 @@ function fromStore (data) {
  * NOTE - use this function when wanting to supply ID for datastore manually.
  * If OK with DS assigning an ID instead, use postItem
  * @param {obj} newData 
- * @param {int} id 
+ * @param {str} id 
  * @param {str} kind 
  * @returns 
  */
-async function postItemManId(newData, id, kind) {
+async function postItemManualId(newData, id, kind) {
     // prepare the key based on kind - this will assign it to the right "table" - and manual id
     const newKey = ds.key([kind, id])
 
@@ -35,7 +35,7 @@ async function postItemManId(newData, id, kind) {
 
     await ds.save(entity)
 
-    newData.id = String(newKey.id)
+    newData.id = newKey.name
     return newData
 }
 
@@ -266,24 +266,51 @@ async function getFilteredItemsPaginated(kind, filterProp, filterVal, pageCursor
  * id parameter. If no match found, array is empty.
  * @param {str} kind 
  * @param {str} id 
- * @param {bool} manualId 
  * @returns Array with single entity
  */
 async function getItemByID(kind, id){
+    if(kind === 'users'){
+        return getItemByManualID(kind, id)
+    }
     // manually create matching key
-    let manKey = ds.key([kind, parseInt(id, 10)])
+    try{
+        let manKey = ds.key([kind, parseInt(id, 10)])
+    
+        const results = await ds.get(manKey)
+    
+        if (results[0] === null || results[0] === undefined) {
+            return results
+        }
+        
+        return results.map(fromStore)
+    } catch(e){
+        console.error(`error while getting ${kind}, with id ${id}`)
+        throw e
+    }
+}
 
+/**
+ * Used to get items that have had a manual ID assigned during
+ * datastore creation. Not for use with items that have had an
+ * id assigned by datastore.
+ * @param {str} kind - datastore kind 
+ * @param {str} id - id used for manual assignment
+ */
+async function getItemByManualID(kind, id){
+    let manKey = ds.key([kind, id])
     const results = await ds.get(manKey)
 
     if (results[0] === null || results[0] === undefined) {
         return results
     }
     
-    return results.map(fromStore)
+    return results.map(fromStore)    
 }
 
 /**
  * Deletes an item from the datastore that matches the kind and id passed as parameters.
+ * NOTE - only use this for items that have had IDs auto created from datastore. For items
+ * that have had a manual ID assigned, use deleteItemManualID
  * @param {str} kind 
  * @param {str} id 
  * @returns 
@@ -291,6 +318,22 @@ async function getItemByID(kind, id){
 async function deleteItem(kind, id) {
     // manually create matching key
     const manKey = ds.key([kind, parseInt(id, 10)])
+    const response = await ds.delete(manKey)
+
+    return response
+}
+
+/**
+ * Deletes an item from the datastore that matches the kind and id passed as parameters.
+ * NOTE - only use this for items that have had manual IDs assigned. For items that have
+ * had IDs auto-assigned by datastore, use deleteItem.
+ * @param {str} kind 
+ * @param {str} id 
+ * @returns 
+ */
+async function deleteItemManualID(kind, id) {
+    // manually create matching key
+    const manKey = ds.key([kind, id])
     const response = await ds.delete(manKey)
 
     return response
@@ -327,6 +370,9 @@ async function updateItem(newData, kind) {
     }
     
     // manually create matching key 
+    if(kind === 'users'){
+        return updateItemManualId(newData, kind)
+    }
     let manKey = null
     let existId = newData.id
     manKey = ds.key([kind, parseInt(newData.id, 10)])
@@ -341,6 +387,22 @@ async function updateItem(newData, kind) {
 
     // update the datastore item and return the key
     await ds.save(newEntity)
+    newData.id = existId
+    return newData
+}
+
+async function updateItemManualId(newData, kind){
+    let manKey;
+    let existId = newData.id
+    manKey = ds.key([kind, existId])
+
+    delete newData.id
+
+    await ds.save({
+        key: manKey,
+        data: newData
+    })
+
     newData.id = existId
     return newData
 }
@@ -412,15 +474,17 @@ async function updateBigItem(newData, kind) {
 
 module.exports = {
     postItem,
+    postItemManualId,
     postBigItem,
-    postItemManId,
     getItemByID,
+    getItemByManualID,
     getFilteredItemsPaginated,
     getFilteredItems,
     getItemsPaginate,
     getItemsNoPaginate,
     getItemsSorted,
     deleteItem,
+    deleteItemManualID,
     deleteMatchingItemsFromKind,
     updateItem,
     updateBigItem

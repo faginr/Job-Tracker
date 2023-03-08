@@ -3,10 +3,12 @@ import React from 'react';
 import ApplicationList from '../components/ApplicationList';
 import { useState, useEffect } from 'react';
 import { datastore_url } from '../utils/Constants';
-import { user } from '../utils/User';
 import AddApplicationPage from './AddApplicationPage';
 import SlidingWindow from '../components/SlidingWindow';
 import ReactButton from '../components/ReactButton';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
+import LoadingPage from './LoadingPage';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 
@@ -20,6 +22,8 @@ function ApplicationPage() {
   const [applications, setApplications] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [skills, setSkills] = useState([]);
+  const {user, isAuthenticated} = useAuth0();
+  const getTokenFromAuth0 = useAPI();
   // const navigate = useNavigate();
 
 
@@ -33,29 +37,32 @@ function ApplicationPage() {
     if(confirm){
 
       // DELETE application
-      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${id}`, { 
-        headers: {
-          'Authorization': `Bearer ${user}`
-        },
-        method: 'DELETE' 
-      });
-      if (response.status === 204) {
-          setApplications(applications.filter(application => application.id !== id));
-          console.log("Successfully deleted the application!");
-      } else {
-          console.error(`Failed to delete application with id = ${id}, status code = ${response.status}`)
+      const token = await getTokenFromAuth0({redirectURI: '/applications'})
+      if(isAuthenticated){
+        const userID = user.sub.split('|')[1]
+        const response = await fetch(`${datastore_url}/users/${userID}/applications/${id}`, { 
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          method: 'DELETE' 
+        });
+        if (response.status === 204) {
+            setApplications(applications.filter(application => application.id !== id));
+            console.log("Successfully deleted the application!");
+        } else {
+            console.error(`Failed to delete application with id = ${id}, status code = ${response.status}`)
+        }
       }
     }
-
   };
 
  /************************************************************* 
    * Get applications and set
    ************************************************************/
-  const loadApplications = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
+  const loadApplications = async (userID, token) => {
+    const response = await fetch(`${datastore_url}/users/${userID}/applications`, {
       headers: {
-        'Authorization': `Bearer ${user}`
+        'Authorization': `Bearer ${token}`
       }
     });
     const data = await response.json();
@@ -66,10 +73,19 @@ function ApplicationPage() {
   * Hook for loading in user specific contacts and skills
   ***********************************************************/
   useEffect(() => {
-    loadApplications();
-    loadContacts(datastore_url,user,setContacts);
-    loadSkills(datastore_url,user,setSkills);
-  }, []);
+    getTokenFromAuth0({redirectURI: '/applications'}).then((token)=>{
+      // NOTE - there's a delay between signing in with Auth0, being redirected back, and user being defined
+      // so we need to check if authenticated before trying to split user for ID and sending fetch requests
+      // or else fetch requests will look for undefined userID and respond with 404. Performing the action
+      // every time user changes allows this hook to run again once user is defined
+      if(isAuthenticated){
+        const userID = user.sub.split('|')[1]
+        loadApplications(userID, token);
+        loadContacts(datastore_url,user,token,setContacts);
+        loadSkills(datastore_url,user,token,setSkills);
+      }
+    })
+  }, [user]);
 
   
   // Translate ids to names
@@ -94,8 +110,9 @@ function ApplicationPage() {
   
   
   return (
-    <>
-      <h1>Application Page</h1>
+    isAuthenticated ? 
+      <>
+        <h1>Application Page</h1>
 
       <div>
         <p>Your applications:</p>
@@ -112,6 +129,8 @@ function ApplicationPage() {
           />
       </div>
     </>
+    :
+      <LoadingPage />
   );
 }
 
