@@ -105,26 +105,28 @@ export const EditContactPage = ({ typeToEdit }) => {
         contact_at_app_id 
       };
 
-    // PUT the contact
-    const token = await getTokenFromAuth0({redirectURI: '/contacts'})
-    const userID = user.sub.split('|')[1]
-    const response = await fetch(`${datastore_url}/users/${userID}/contacts/${typeToEdit.id}`, 
-      {
-        method: 'PUT',
-        body: JSON.stringify(editedContact),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`}
+      // PUT the contact
+      const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+      if(isAuthenticated){
+        const userID = user.sub.split('|')[1]
+        const response = await fetch(`${datastore_url}/users/${userID}/contacts/${typeToEdit.id}`, 
+          {
+            method: 'PUT',
+            body: JSON.stringify(editedContact),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`}
+          }
+        );
+        if (response.status === 200) {
+          console.log("Successfully edited the contact!"); 
+        } else {
+          alert(`Failed to edit contact, status code = ${response.status}`);
+        };
+      
+        // go back to Contact Page
+        navigate(0);  
       }
-    );
-    if (response.status === 200) {
-      console.log("Successfully edited the contact!"); 
-    } else {
-      alert(`Failed to edit contact, status code = ${response.status}`);
-    };
-
-      // go back to Contact Page
-      navigate(0);  
     };
   };
 
