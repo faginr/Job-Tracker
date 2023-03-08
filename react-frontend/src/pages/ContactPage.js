@@ -82,9 +82,9 @@ function ContactPage() {
         }
       );
       if (response.status === 200) {
-        //console.log("Successfully fetched the contacts!"); 
+        console.log("Successfully fetched the contacts!"); 
       } else {
-        console.log(`Failed to fetch the contacts, status code = ${response.status}`);
+        alert(`Failed to fetch the contacts, status code = ${response.status}`);
       };
       const data = await response.json();
       setContacts(data);

@@ -118,9 +118,9 @@ export const EditContactPage = ({ typeToEdit }) => {
       }
     );
     if (response.status === 200) {
-      alert("Successfully edited the contact!"); 
+      console.log("Successfully edited the contact!"); 
     } else {
-      console.log(`Failed to edit contact, status code = ${response.status}`);
+      alert(`Failed to edit contact, status code = ${response.status}`);
     };
 
       // go back to Contact Page

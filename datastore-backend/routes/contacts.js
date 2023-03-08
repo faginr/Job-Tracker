@@ -11,16 +11,6 @@ const constants = require('./constants');
 // the name of the kind to be stored
 const CONTACT = constants.CONTACT;
 
-
-/************************************************************* 
- * Function to get a user id from the url
- ************************************************************/
-function getUserId(req) {
-  const tempArray = req.baseUrl.split("/");
-  return tempArray[2];
-};
-
-
 /*--------------- Begin Middleware Functions --------------- */
 
 /************************************************************* 
@@ -62,7 +52,9 @@ function checkRequestBody (req, res, next) {
     "email": '', 
     "phone": '', 
     "notes": '', 
-    "contact_at_app_id": ''
+    "contact_at_app_id": '',
+    "auth": '',
+    "user": ''
   };
 
   // required keys
@@ -77,6 +69,7 @@ function checkRequestBody (req, res, next) {
   Object.keys(req.body).forEach(key => {
     if (!(key in allKeys)) {
       keyError = true;
+      console.log(key)
     }    
   });
 
@@ -108,7 +101,9 @@ function checkRequestBodyPatch (req, res, next) {
     "email": '', 
     "phone": '', 
     "notes": '', 
-    "contact_at_app_id": ''
+    "contact_at_app_id": '',
+    "auth": '',
+    "user": ''
   };
 
   let keyError = false;
@@ -159,12 +154,16 @@ async function checkIdExists (req, res, next) {
 /************************************************************* 
  * POST a new contact
  ************************************************************/
-router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
+router.post('/users/:user_id/contacts', 
+  verifyUser.verifyJWTWithUserParam, 
+  checkContentTypeHeader, 
+  checkRequestBody, 
+  function (req, res) {
   //console.log("Post request received!");
 
   async function postUserContact() {
     try {
-      const userId = getUserId(req);
+      const userId = req.params.user_id;
       const key = await modelContact.postContact(
         req.body.last_name, 
         req.body.first_name, 
@@ -206,13 +205,15 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
 /************************************************************* 
  * GET all contacts
  ************************************************************/
-router.get('/', checkAcceptHeader, function (req, res) {
+router.get('/users/:user_id/contacts', 
+  verifyUser.verifyJWTWithUserParam,  
+  checkAcceptHeader, 
+  function (req, res) {
   //console.log("Get all request received!");
 
   async function getUserContacts() {
     try {
-      const userId = getUserId(req);
-      let contacts = await modelContact.getContacts(userId);
+      let contacts = await modelContact.getContacts(req.params.user_id);
       const applications = await model.getItemsNoPaginate('application');
       // Iterate over contacts and applications, if a contact is related to an application, 
       // add the name and link of this application to this contact 
@@ -246,12 +247,16 @@ router.get('/', checkAcceptHeader, function (req, res) {
 /************************************************************* 
  * GET a contact
  ************************************************************/
-router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res) {
+router.get('/users/:user_id/contacts/:contact_id', 
+  verifyUser.verifyJWTWithUserParam, 
+  checkAcceptHeader, 
+  checkIdExists, 
+  function (req, res) {
   //console.log("Get request received!");
+
   async function getUserContact() {
     try {
-      const userId = getUserId(req);
-      let contact = await modelContact.getContact(req.params.contact_id, userId)
+      let contact = await modelContact.getContact(req.params.contact_id, req.params.user_id)
       if (contact === false) {
         // user does not own the contact
         res.status(403).send(errorMessages[403]);
@@ -271,12 +276,16 @@ router.get('/:contact_id', checkAcceptHeader, checkIdExists, function (req, res)
 /************************************************************* 
  * PUT: replace all values for this contact_id and updates applications if needed
  ************************************************************/
-router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExists, function (req, res) {
+router.put('/users/:user_id/contacts/:contact_id', 
+  verifyUser.verifyJWTWithUserParam, 
+  checkContentTypeHeader, 
+  checkRequestBody, 
+  checkIdExists, 
+  function (req, res) {
   //console.log("Put request received!");
 
   async function putUserContact() {
     try {
-      const userId = getUserId(req);
       const originalApps = await modelContact.putContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -285,7 +294,7 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        userId
+        req.params.user_id
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -338,12 +347,16 @@ router.put('/:contact_id', checkContentTypeHeader, checkRequestBody, checkIdExis
 /************************************************************* 
  * PATCH: update only received values and updates applications if needed
  ************************************************************/
-router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, checkIdExists, function (req, res) {
+router.patch('/users/:user_id/contacts/:contact_id', 
+  verifyUser.verifyJWTWithUserParam, 
+  checkContentTypeHeader, 
+  checkRequestBodyPatch, 
+  checkIdExists, 
+  function (req, res) {
   //console.log("Patch request received!");
 
   async function patchUserContact() {
     try {
-      const userId = getUserId(req);
       const originalApps = await modelContact.patchContact(
         req.params.contact_id, 
         req.body.last_name, 
@@ -352,7 +365,7 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        userId
+        req.params.user_id
         );
       const newApps =req.body.contact_at_app_id;
       if (originalApps === false) {
@@ -409,12 +422,15 @@ router.patch('/:contact_id', checkContentTypeHeader, checkRequestBodyPatch, chec
 /************************************************************* 
  * DELETE a contact
  ************************************************************/
-router.delete('/:contact_id', checkIdExists, function (req, res) {
+router.delete('/users/:user_id/contacts/:contact_id', 
+  verifyUser.verifyJWTWithUserParam, 
+  checkIdExists, 
+  function (req, res) {
   //console.log("Delete request received!");
 
   async function deleteUserContact() {
     try {
-      const userId = getUserId(req);
+      const userId = req.params.user_id;
       const contactId = req.params.contact_id;
       //if delete success, return the list of application to be updated
       const appsId = await modelContact.deleteContact(contactId, userId);
@@ -463,25 +479,25 @@ router.delete('/:contact_id', checkIdExists, function (req, res) {
 /* -------------- End Controller Functions -------------- */
 /* -------------- Begin Not Allowed Routes -------------- */
 
-router.put('/', function (req, res) {
+router.put('/users/:user_id/contacts', function (req, res) {
   res.set('Accept', 'GET, POST');
   res.status(405).send(errorMessages[405].all);
 });
 
 
-router.patch('/', function (req, res) {
+router.patch('/users/:user_id/contacts', function (req, res) {
   res.set('Accept', 'GET, POST');
   res.status(405).send(errorMessages[405].all);
 });
 
 
-router.delete('/', function (req, res) {
+router.delete('/users/:user_id/contacts', function (req, res) {
   res.set('Accept', 'GET, POST');
   res.status(405).send(errorMessages[405].all);
 });
 
 
-router.post('/:contact_id', function (req, res) {
+router.post('/users/:user_id/contacts/:contact_id', function (req, res) {
   res.set('Accept', 'GET, PUT, PATCH, DELETE');
   res.status(405).send(errorMessages[405].postWithId);
 });
