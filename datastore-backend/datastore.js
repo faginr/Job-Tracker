@@ -1,6 +1,7 @@
 const {Datastore} = require('@google-cloud/datastore');
 
-const projectId ='job-tracker-db-378415';
+// const projectId ='job-tracker-db-378415';
+const projectId ='capstone-project-374922';
 
 // module.exports.Datastore = Datastore;
 module.exports.datastore = new Datastore({projectId: projectId});

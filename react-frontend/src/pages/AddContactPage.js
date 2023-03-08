@@ -49,27 +49,27 @@ export const AddContactPage = () => {
         contact_at_app_id 
       };
 
-    // POST a new contact
-    const token = await getTokenFromAuth0({redirectURI: '/contacts'})
-    if(isAuthenticated){
-      const userID = user.sub.split('|')[1]
-      const responseContactId = await fetch(`${datastore_url}/users/${userID}/contacts`, 
-        {
-          method: 'POST',
-          body: JSON.stringify(newContact),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`},
-        }
-      );
-      if (responseContactId.status === 201) {
-        alert("Successfully added the contact!"); 
-      } else {
-        console.log(`Failed to add the contact, status code = ${responseContactId.status}`);
-      };
-  
-      // go back to Contact Page
-      navigate(0);  
+      // POST a new contact
+      const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+      if(isAuthenticated){
+        const userID = user.sub.split('|')[1]
+        const responseContactId = await fetch(`${datastore_url}/users/${userID}/contacts`, 
+          {
+            method: 'POST',
+            body: JSON.stringify(newContact),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`},
+          }
+        );
+        if (responseContactId.status === 201) {
+          console.log("Successfully added the contact!"); 
+        } else {
+          alert(`Failed to add the contact, status code = ${responseContactId.status}`);
+        };
+      
+        // go back to Contact Page
+        navigate(0);  
       }
     }
   };
