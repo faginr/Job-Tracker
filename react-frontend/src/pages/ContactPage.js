@@ -51,7 +51,7 @@ function ContactPage() {
       );
       if (response.status === 204) {
         setContacts(contacts.filter(contact => contact.id !== contact_id));
-        console.log("Successfully deleted the contact! Click Ok to update the page.");
+        console.log("Successfully deleted the contact!");
       } else {
         alert(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
       }

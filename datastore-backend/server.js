@@ -10,7 +10,7 @@ const FRONTEND_URL = constants.frontend_url;
 
 app.use(
   cors({
-    //origin: `${FRONTEND_URL}`   // to be used when deployed on Google Cloud
+    // origin: `${FRONTEND_URL}`   // to be used when deployed on Google Cloud
     origin: "*"               // to be used when deployed locally
   })
 );
