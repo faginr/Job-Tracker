@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { datastore_url } from '../utils/Constants';
 import SelectMulti from '../components/SelectMulti';
 import ContactUserInputs from '../components/ContactUserInputs';
-import { user } from '../utils/User';
 import ContactGetApps from '../components/ContactGetApps';
+import {useAuth0} from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
 
 export const EditContactPage = ({ typeToEdit }) => {
   
@@ -18,6 +19,9 @@ export const EditContactPage = ({ typeToEdit }) => {
   const [email, setEmail] = useState(typeToEdit.email);
   const [phone, setPhone] = useState(typeToEdit.phone);
   const [notes, setNotes] = useState(typeToEdit.notes);
+
+  const {user, isAuthenticated} = useAuth0();
+  const getTokenFromAuth0 = useAPI();
   
   let contact_at_app_id = [];
   const [selected, setSelected] = useState([]);
@@ -101,21 +105,23 @@ export const EditContactPage = ({ typeToEdit }) => {
         contact_at_app_id 
       };
 
-      // PUT the contact
-      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${typeToEdit.id}`, 
-        {
-          method: 'PUT',
-          body: JSON.stringify(editedContact),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user}`}
-        }
-      );
-      if (response.status === 200) {
-        console.log("Successfully edited the contact!"); 
-      } else {
-        alert(`Failed to edit contact, status code = ${response.status}`);
-      };
+    // PUT the contact
+    const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+    const userID = user.sub.split('|')[1]
+    const response = await fetch(`${datastore_url}/users/${userID}/contacts/${typeToEdit.id}`, 
+      {
+        method: 'PUT',
+        body: JSON.stringify(editedContact),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`}
+      }
+    );
+    if (response.status === 200) {
+      alert("Successfully edited the contact!"); 
+    } else {
+      console.log(`Failed to edit contact, status code = ${response.status}`);
+    };
 
       // go back to Contact Page
       navigate(0);  
@@ -151,7 +157,9 @@ export const EditContactPage = ({ typeToEdit }) => {
    * Hook to call the function above 
    ************************************************************/
   useEffect(() => {
-    ContactGetApps(datastore_url, user, setApps);
+    getTokenFromAuth0({redirectURI: '/contacts'}).then(
+      (token) => ContactGetApps(datastore_url, user, token, setApps)
+    )
     if (originalApplication.length === 0 ) {
       setVisibleRemoveButton(false);
       setVisibleUndoButton(false);

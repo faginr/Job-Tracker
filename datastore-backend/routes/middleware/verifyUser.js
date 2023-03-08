@@ -1,82 +1,12 @@
-const messages = require("../errorMessages")
-const model = require("../../model")
+const messages = require("../errorMessages");
+const model = require("../../model");
+const {auth} = require("express-oauth2-jwt-bearer");
 
 /**
  * A collection of functions that aid in the verification
  * of a user through JWT.
  */
 
-/**
- * Translates the JWT fields to datastore fields.
- * @param {Object} decodedJWT 
- * @returns 
- */
-function extractUserInfo (decodedJWT) {
-    const blankUserInfo = {
-        "username": null,
-        "id": null
-    }
-    if (decodedJWT !== undefined && decodedJWT !== null){
-        const userInfo = {
-            "username": decodedJWT.username,
-            "id": parseInt(decodedJWT.sub, 10)
-        }
-        return userInfo
-    }
-
-    return blankUserInfo
-}
-
-function fakeDecode(token, req) {
-    // token is a JSON object as string like "Bearer <Token>"
-    // so slice token to only get <Token> part
-
-    // try{
-    //     JSON.parse(token);
-    if (token !== undefined && token !== null){
-        req.body['auth'] = JSON.parse(token.slice(7))
-    }
-    // }
-    // catch (err) {
-    //     if (err instanceof SyntaxError){
-    //         console.error('Invalid JSON:', err.message);
-    //     } else {
-    //         throw err;
-    //     }
-    // }
-    // req.body['auth'] = JSON.parse(token.slice(7))
-    // if (req.body.auth.username === 'bad'){
-    //     throw TypeError
-    // }
-    
-
-}
-
-/**
- * Verifies that the JWT is valid. If valid, adds user info obtained
- * from the JWT to the body of the request under req.body.auth (username, id)
- * and returns True, otherwise returns False.
- * @param {express.request} req 
- * @returns {boolean} True if valid, otherwise false
- */
-function jwtValid (req) {
-    let token = req.get('authorization')
-    
-    try {
-        // put decode capability here, currently stubbing out
-        // decode places info under req.body.auth
-        fakeDecode(token, req)
-
-        // if decode is successful, extract the user info
-        // and replace req.body.auth with it
-        req.body.auth = extractUserInfo(req.body.auth)
-        return true
-    }
-    catch (err) {
-        console.error(err)
-        return false
-    }
-}
 
 /**
  * Returns true if the user_id parameter matches the 
@@ -86,20 +16,22 @@ function jwtValid (req) {
  */
 function userMatchesJWT(req) {
     try {
-        return(parseInt(req.params.user_id, 10) === req.body.auth.id)
+        return(req.params.user_id === req.body.auth.id)
     } catch(err) {
         console.error(err)
         return false
     }
 }
 
-
+/**
+ * Returns true if the user exists in datastore, otherwise returns false
+ * @param {*} req 
+ * @returns 
+ */
 async function userExists(req) {
     let user;
     try {
-        // console.log(req.params.user_id)
-        user = await model.getItemByID('users', req.params.user_id)
-        // console.log(`user ${user}`)
+        user = await model.getItemByManualID('users', req.params.user_id)
         req.body['user'] = user[0]
     } catch(err) {
         console.error(err)
@@ -124,35 +56,50 @@ async function userExists(req) {
  * @param {express.next} next 
  * @returns 
  */
-async function verifyJWTWithUserParam (req, res, next) {
-    if (!(jwtValid(req))){
-        return res.status(401).send(messages[401])
-    }
+async function verifyJWTWithUserParam(req, res, next) {
 
+    // call verifyJWT and pass in empty "next" function so that control doesn't move
+    // from this function
+    await verifyJWTOnly(req, res, ()=>{})
+    if(res.statusCode === 401){
+        return
+    }
+    
+    // verify user param and JWT match
     if (!(userMatchesJWT(req))) {
         return res.status(403).send({"Error": "User ID in JWT does not match URL"})
     }
 
+    // verify user exists in the database
     if (!(await userExists(req))) {
         return res.status(404).send(messages[404].users)
     }
-
+    
     next()
 }
 
-
 /**
- * Use this middleware when on route like /users with no /user_id.
- * Does not verify JWT matches user parameter. Only verifies JWT
- * is valid. If valid, adds user info from JWT {username, id} under
- * req.body.auth. Otherwise sends a 401 message.
- * @param {express.request} req 
- * @param {express.response} res 
- * @param {express.next} next 
- * @returns 
+ * This middleware verifies that a JWT is valid and adds the ID of
+ * the requester to req.body.auth
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
  */
-function verifyJWTOnly(req, res, next) {
-    if (!(jwtValid(req))){
+async function verifyJWTOnly(req, res, next) {
+
+    // auth is a middleware FUNCTION developed by OAuth, so need to 
+    // CALL the middleware while providing req, res, and callback function 
+    try{
+        await auth({
+            audience: 'Datastore',
+            issuerBaseURL: 'https://capstone-react-auth.us.auth0.com/',
+            tokenSigningAlg: 'RS256'
+        })(req, res, function() {
+            req.body.auth = {"id": req.auth.payload.sub.split('|')[1]}
+        })
+    } catch(e){
+        console.error("Error decoding the JWT!")
+        console.error(e)
         return res.status(401).send(messages[401])
     }
     next()

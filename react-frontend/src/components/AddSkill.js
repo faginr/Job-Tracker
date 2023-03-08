@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {MdOutlineCheckCircleOutline} from "react-icons/md"
-import { user } from "../utils/User";
 import fetchRequests from "../data_model/fetchRequests";
+import {useAuth0} from '@auth0/auth0-react';
+import {useAPI} from '../utils/Auth0Functions';
 
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
@@ -11,6 +12,8 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
     const [query, setQuery] = useState("")
+    const {user, isAuthenticated} = useAuth0();
+    const getTokenFromAuth0 = useAPI();
 
     const filteredSkills = allSkillList.filter((skill) => {
         return (skill.description.toLowerCase().includes(query.toLowerCase()))
@@ -46,18 +49,23 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
             return alert('Sorry, it looks like you haven\'t provided a description... Please try again')
         }
 
-        // send the skill to the backend for creation
-        let createdSkill = await fetchRequests.createSkill(user, {'description': newSkill.description})
-
-        // tie the skill to the user
-        await fetchRequests.tieSkillToUser(user, user, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
         
-        // perform cleanup after skill created
-        setNewSkillFormClass("hidden")
-        loadAllSkills().then((data) => highlightUsersSkills(data))
-        setQuery("")
-        setNewSkill({'description': undefined, 'proficiency': undefined})
-        setSkillAdded(skillAdded+1)
+        if(isAuthenticated){
+            // send the skill to the backend for creation
+            let createdSkill = await fetchRequests.createSkill(token, {'description': newSkill.description})
+    
+            // tie the skill to the user
+            await fetchRequests.tieSkillToUser(user, token, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+            
+            // perform cleanup after skill created
+            setNewSkillFormClass("hidden")
+            loadAllSkills().then((data) => highlightUsersSkills(data))
+            setQuery("")
+            setNewSkill({'description': undefined, 'proficiency': undefined})
+            setSkillAdded(skillAdded+1)
+        }
+
     }
 
     function cancelCreate(e) {
@@ -72,11 +80,14 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
      * @param {*} skill 
      */
     async function tieSkillToUser(skill){
-        await fetchRequests.tieSkillToUser(user, user, {'proficiency': undefined}, skill.id)
-
-        // perform cleanup after skill tied
-        setSkillAdded(skillAdded+1)
-        skill.userOwns = true
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated){
+            await fetchRequests.tieSkillToUser(user, token, {'proficiency': undefined}, skill.id)
+    
+            // perform cleanup after skill tied
+            setSkillAdded(skillAdded+1)
+            skill.userOwns = true
+        }
     }
 
     function handleQuery(e){
@@ -122,12 +133,16 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
     }
 
     async function loadAllSkills() {
-        const data = await fetchRequests.getAllSkills(user)
+        let data = [];
+        const token = await getTokenFromAuth0({redirectURI: '/skills'})
+        if(isAuthenticated){
+            data = await fetchRequests.getAllSkills(token)
+        }
         setAllSkills(data)
         return data
     }
 
-    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [])
+    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [user])
 
     return(
         <div className="add-skill">

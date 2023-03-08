@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
 import { datastore_url } from '../utils/Constants';
+import { useAPI } from '../utils/Auth0Functions';
+import { useAuth0 } from '@auth0/auth0-react';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 
@@ -18,6 +19,8 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   const [posting_date, setPostingDate] = useState(typeToEdit.posting_date);
   const [status, setStatus] = useState(typeToEdit.status);
   const [link, setLink] = useState(typeToEdit.link);
+  const {user, isAuthenticated} = useAuth0();
+  const getTokenFromAuth0 = useAPI();
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -128,28 +131,34 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         link 
       };
 
-      // Only send skills/contacts if values change
-      if(selectedSkills.length === 0 
-        && displaySkillLabel !== 'None' 
-        && visibleRemoveSkillsButton === true){
-        console.log("no change in skills")
-      } else {
-        editedApplication["skills"] = skills
-      }
-      if(selectedContacts.length === 0 
-        && displayContactLabel !== 'None' 
-        && visibleRemoveContactsButton === true){
-        console.log("no change in contacts")
-      } else {
-        editedApplication["contacts"] = contacts
-      }
-      
-      // PATCH application
-      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/applications/${typeToEdit.id}`, {
+    // Only send skills/contacts if values change
+    if(selectedSkills.length === 0 
+      && displaySkillLabel !== 'None' 
+      && visibleRemoveSkillsButton === true){
+      console.log("no change in skills")
+    } else {
+      editedApplication["skills"] = skills
+    }
+    if(selectedContacts.length === 0 
+      && displayContactLabel !== 'None' 
+      && visibleRemoveContactsButton === true){
+      console.log("no change in contacts")
+    } else {
+      editedApplication["contacts"] = contacts
+    }
+    
+    
+    // PATCH application
+    // only send request if authenticated, otherwise error will be thrown while trying to parse
+    // out the user ID because user will be undefined
+    const token = await getTokenFromAuth0({redirectURI: '/applications'})
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
+      const response = await fetch(`${datastore_url}/users/${userID}/applications/${typeToEdit.id}`, {
         method: 'PATCH',
         body: JSON.stringify(editedApplication),
         headers: {
-          'Authorization': `Bearer ${user}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -159,10 +168,11 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       } else {
         alert(`Failed to edit application, status code = ${response.status}`);
       }
-
+  
       // Reload applications page
-      navigate(0); 
-    }; 
+      navigate(0);  
+      }
+    }
   };
 
   // Convert contact ids to first + last names
@@ -209,9 +219,13 @@ export const EditApplicationPage = ({ typeToEdit }) => {
   * Hook for loading in user specific contacts and skills
   ***********************************************************/
   useEffect(() => {
-    loadContacts(datastore_url,user,setContacts);
-    loadSkills(datastore_url,user,setSkills);
-  }, []);
+    getTokenFromAuth0({redirectURI: '/applications'}).then((token)=>{
+      if(isAuthenticated){
+        loadContacts(datastore_url,user,token,setContacts);
+        loadSkills(datastore_url,user,token,setSkills);
+      }
+    })
+  }, [user]);
 
   // Build selections for dropdowns
   function addKeys(selection) {

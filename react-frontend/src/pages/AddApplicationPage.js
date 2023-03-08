@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { user } from '../utils/User';
 import SelectMulti from '../components/SelectMulti';
-import { datastore_url } from '../utils/Constants';
+import { datastore_url } from '../utils/Constants'
+import { useAuth0 } from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
 import loadContacts from '../components/AppLoadContacts';
 import loadSkills from '../components/AppLoadSkills';
 
@@ -18,6 +19,8 @@ export const AddApplicationPage = () => {
   const [posting_date, setPostingDate] = useState('');
   const [status, setStatus] = useState('');
   const [link, setLink] = useState('');
+  const getTokenFromAuth0 = useAPI();
+  const {user, isAuthenticated} = useAuth0();
 
   let contacts = []
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -67,17 +70,20 @@ export const AddApplicationPage = () => {
 
       // alert(newApplication)
 
-      // POST new application
+    // POST new application
+    const token = await getTokenFromAuth0({redirectURI: '/applications'})
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
       const response = await fetch(
-        `${datastore_url}/users/${JSON.parse(user).sub}/applications`, {
+        `${datastore_url}/users/${userID}/applications`, {
         method: 'POST',
         body: JSON.stringify(newApplication),
         headers: {
-          'Authorization': `Bearer ${user}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-
+  
       // Log response status 
       if(response.status === 201){
         console.log("Successfully added the application 201"); 
@@ -85,6 +91,7 @@ export const AddApplicationPage = () => {
         alert(`Failed to add application, status code = ${response.status}`);
       }
       navigate(0);  // goes back to Application Page
+      }
     }
   }
 
@@ -93,9 +100,17 @@ export const AddApplicationPage = () => {
 * Hook for loading in user specific contacts and skills
 ***********************************************************/
 useEffect(() => {
-  loadContacts(datastore_url,user,setContacts);
-  loadSkills(datastore_url,user,setSkills);
-}, []);
+  getTokenFromAuth0({redirectURI: '/applications'}).then((token)=>{
+      // NOTE - there's a delay between signing in with Auth0, being redirected back, and user being defined
+      // so we need to check if authenticated before trying to split user for ID and sending fetch requests
+      // or else fetch requests will look for undefined userID and respond with 404. Performing the action
+      // every time user changes allows this hook to run again once user is defined
+    if(isAuthenticated){
+      loadContacts(datastore_url,user,token,setContacts);
+      loadSkills(datastore_url,user,token,setSkills);
+    }
+  })
+}, [user]);
 
 
   /************************************************************* 

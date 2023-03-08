@@ -3,13 +3,18 @@ import { datastore_url } from '../utils/Constants';
 import React, { useState, useEffect } from 'react';
 import AddContactPage from './AddContactPage';
 import SlidingWindow from '../components/SlidingWindow';
-import { user } from '../utils/User';
 import ReactButton from '../components/ReactButton';
+import {useAuth0} from '@auth0/auth0-react';
+import { useAPI } from '../utils/Auth0Functions';
+import LoadingPage from './LoadingPage';
 
 function ContactPage() {
   
   const [contacts, setContacts] = useState([]);
   const [order, setOrder] = useState("Ascending");
+  const getTokenFromAuth0 = useAPI();
+  const {user, isAuthenticated} = useAuth0()
+  
   
   /************************************************************* 
    * Function to allow a user to sort the contact table 
@@ -42,11 +47,13 @@ function ContactPage() {
     const confirmed = window.confirm("Are you sure you want to delete the contact?");
     if (confirmed) {
       // DELETE the contact
-      const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts/${contact_id}`, 
+      const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+      const userID = user.sub.split('|')[1]
+      const response = await fetch(`${datastore_url}/users/${userID}/contacts/${contact_id}`, 
         { 
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${user}`}
+            'Authorization': `Bearer ${token}`}
         }
       );
       if (response.status === 204) {
@@ -63,21 +70,25 @@ function ContactPage() {
    * Function to get contacts 
    ************************************************************/
   const getContacts = async () => {
-    const response = await fetch(`${datastore_url}/users/${JSON.parse(user).sub}/contacts`,
-      { 
-        method: "GET",
-        headers: {
-          'Accept': 'application/json', 
-          'Authorization': `Bearer ${user}`}
-      }
-    );
-    if (response.status === 200) {
-      console.log("Successfully fetched the contacts!"); 
-    } else {
-      alert(`Failed to get the contacts, status code = ${response.status}`);
-    };
-    const data = await response.json();
-    setContacts(data);
+    const token = await getTokenFromAuth0({redirectURI: '/contacts'})
+    if(isAuthenticated){
+      const userID = user.sub.split('|')[1]
+      const response = await fetch(`${datastore_url}/users/${userID}/contacts`,
+        { 
+          method: "GET",
+          headers: {
+            'Accept': 'application/json', 
+            'Authorization': `Bearer ${token}`}
+        }
+      );
+      if (response.status === 200) {
+        //console.log("Successfully fetched the contacts!"); 
+      } else {
+        console.log(`Failed to fetch the contacts, status code = ${response.status}`);
+      };
+      const data = await response.json();
+      setContacts(data);
+    }
   };
 
 
@@ -86,12 +97,13 @@ function ContactPage() {
    ************************************************************/
   useEffect(() => {
     getContacts();
-  }, []);
+  }, [user]);
 
 
   return (
-    <>
-      <h1>Contact Page</h1>
+    isAuthenticated ? 
+      <>
+        <h1>Contact Page</h1>
 
       <div>
         <p>Your contacts:</p>
@@ -101,12 +113,14 @@ function ContactPage() {
           sorting={sorting} ></ContactList>
       </div><br />
 
-      <SlidingWindow 
-        Page={<AddContactPage />}
-        ClickableComponent={<ReactButton label="Add Contact"/>}
-        />
+        <SlidingWindow 
+          Page={<AddContactPage />}
+          ClickableComponent={<ReactButton label="Add Contact"/>}
+          />
 
-    </>
+      </>
+    :
+    <LoadingPage />
   );
 }
 

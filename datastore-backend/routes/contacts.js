@@ -178,7 +178,7 @@ router.post('/', checkContentTypeHeader, checkRequestBody, function (req, res) {
       const appsId = req.body.contact_at_app_id;
 
       // UPDATE the user by adding the contact id
-      let userData = await model.getItemByID('users', userId);
+      let userData = await model.getItemByManualID('users', userId);
       let newUserData = userData[0]
       newUserData.contacts.push(contactId);
       model.updateItem(newUserData, 'users');

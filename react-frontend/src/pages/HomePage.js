@@ -1,39 +1,27 @@
-import { setUser } from '../utils/User';
 import React from 'react';
 import icon from '../images/icon.png';
+import LogInSignUp from '../components/LoginSignup';
+import {useAuth0} from '@auth0/auth0-react'
 
 function HomePage() {
-  function updateUser(e, desiredUser) {
-    e.preventDefault()
-
-    if (desiredUser === "user1") {
-      setUser('{"username": "tester1", "sub": "1234567890"}')
-    } else if (desiredUser === "user2"){
-      setUser('{"username": "tester2", "sub": "2345678901"}')
-    } else {
-      setUser('{"username": "noexist", "sub": "1111111111"}')
-    }
-  }
+  const {isAuthenticated} = useAuth0()
 
   return (
-    <>
+    <div>
       <h1>Home Page</h1>
 
       <div>
-        <p>Select a button below to act as a certain user:</p>
-        <button onClick={(e)=> updateUser(e, 'user1')}>User 1</button>
-        <button onClick={(e)=> updateUser(e, 'user2')}>User 2</button>
-        <button onClick={(e)=> updateUser(e, '')}>Non-Existent</button>
         <p>Welcome to Job Tracker, this web app allows students to track their internship/job hunting efforts!</p>
       </div>
 
-      <img src={icon} alt="Job Search"></img><br />
-      <>Source of the image:
+      <img src={icon} alt="Job Search"></img>
+      <div className='credit'>Source of the image:
         <br />https://eecs.engineering.oregonstate.edu 
         <br />from the Job Tracker project description
-      </>
+        {!isAuthenticated?<LogInSignUp />:<div></div>}
+      </div>
       <br /><br />
-    </>
+    </div>
   );  
 }
 

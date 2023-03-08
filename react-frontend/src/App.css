@@ -60,6 +60,9 @@
   max-width: 20%;
 }
 
+.nav-spacer {
+  visibility: hidden;
+}
 
 button {
   padding: 5px;
@@ -524,4 +527,11 @@ th {
     max-width: 100%;
   }
 
+  .nav-spacer {
+    display: none
+  }
+
+  .credit {
+    margin: 0 0 4rem 0;
+  }
 }
