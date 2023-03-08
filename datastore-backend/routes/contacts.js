@@ -11,6 +11,7 @@ const constants = require('./constants');
 // the name of the kind to be stored
 const CONTACT = constants.CONTACT;
 
+
 /*--------------- Begin Middleware Functions --------------- */
 
 /************************************************************* 
@@ -69,7 +70,6 @@ function checkRequestBody (req, res, next) {
   Object.keys(req.body).forEach(key => {
     if (!(key in allKeys)) {
       keyError = true;
-      console.log(key)
     }    
   });
 
@@ -147,6 +147,7 @@ async function checkIdExists (req, res, next) {
   };
 };
 
+
 /*--------------- End Middleware Functions ----------------- */
 /* ------------- Begin Controller Functions ---------------- */
 
@@ -159,11 +160,10 @@ router.post('/users/:user_id/contacts',
   checkContentTypeHeader, 
   checkRequestBody, 
   function (req, res) {
-  //console.log("Post request received!");
 
+  //console.log("Post request received!");
   async function postUserContact() {
     try {
-      const userId = req.params.user_id;
       const key = await modelContact.postContact(
         req.body.last_name, 
         req.body.first_name, 
@@ -171,13 +171,13 @@ router.post('/users/:user_id/contacts',
         req.body.phone, 
         req.body.notes, 
         req.body.contact_at_app_id,
-        userId
+        req.params.user_id
         );
       const contactId = key.id;
       const appsId = req.body.contact_at_app_id;
 
       // UPDATE the user by adding the contact id
-      let userData = await model.getItemByManualID('users', userId);
+      let userData = await model.getItemByManualID('users', req.params.user_id);
       let newUserData = userData[0]
       newUserData.contacts.push(contactId);
       model.updateItem(newUserData, 'users');
@@ -209,8 +209,8 @@ router.get('/users/:user_id/contacts',
   verifyUser.verifyJWTWithUserParam,  
   checkAcceptHeader, 
   function (req, res) {
-  //console.log("Get all request received!");
 
+  //console.log("Get all request received!");
   async function getUserContacts() {
     try {
       let contacts = await modelContact.getContacts(req.params.user_id);
@@ -252,8 +252,8 @@ router.get('/users/:user_id/contacts/:contact_id',
   checkAcceptHeader, 
   checkIdExists, 
   function (req, res) {
-  //console.log("Get request received!");
 
+  //console.log("Get request received!");
   async function getUserContact() {
     try {
       let contact = await modelContact.getContact(req.params.contact_id, req.params.user_id)
@@ -282,8 +282,8 @@ router.put('/users/:user_id/contacts/:contact_id',
   checkRequestBody, 
   checkIdExists, 
   function (req, res) {
-  //console.log("Put request received!");
 
+  //console.log("Put request received!");
   async function putUserContact() {
     try {
       const originalApps = await modelContact.putContact(
@@ -353,8 +353,8 @@ router.patch('/users/:user_id/contacts/:contact_id',
   checkRequestBodyPatch, 
   checkIdExists, 
   function (req, res) {
-  //console.log("Patch request received!");
 
+  //console.log("Patch request received!");
   async function patchUserContact() {
     try {
       const originalApps = await modelContact.patchContact(
@@ -426,14 +426,13 @@ router.delete('/users/:user_id/contacts/:contact_id',
   verifyUser.verifyJWTWithUserParam, 
   checkIdExists, 
   function (req, res) {
-  //console.log("Delete request received!");
 
+  //console.log("Delete request received!");
   async function deleteUserContact() {
     try {
-      const userId = req.params.user_id;
       const contactId = req.params.contact_id;
       //if delete success, return the list of application to be updated
-      const appsId = await modelContact.deleteContact(contactId, userId);
+      const appsId = await modelContact.deleteContact(contactId, req.params.user_id);
       if (appsId === false) {
         // if user does not own the contact
         res.status(403).send(errorMessages[403]);
@@ -455,7 +454,7 @@ router.delete('/users/:user_id/contacts/:contact_id',
         };
 
         // UPDATE the user by removing the contact id
-        let userData = await model.getItemByID('users', userId);
+        let userData = await model.getItemByID('users', req.params.user_id);
         let newUserContacts = [];
         for (let contact of userData[0].contacts) {
           if (contactId !== contact) {
