@@ -4,7 +4,8 @@ const errorMessages = {
     jsonError: {"Error": "Problem with JSON format in body."}, 
     keyError: {"Error": "The user sends invalid object keys."},
     userExists: {"Error": "User already exists."},
-    requiredKey: {"Error": "Required keys must have value."}
+    requiredKey: {"Error": "Required keys must have value."},
+    inputLenght: {"Error": "The user input is too long."}
     },
   401: {"401": "JWT is Invalid!"},
   403: {"403": "User does not own resource"},
