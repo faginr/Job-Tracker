@@ -14,6 +14,7 @@ function SkillPage() {
   const [proficiency, setProficiency] = useState(0)
   const [skillsModified, setSkillsModified] = useState(0)
   const {user, isAuthenticated} = useAuth0()
+  const [loading, setLoading] = useState(true);
   const getTokenFromAuth0 = useAPI()
 
   const skillsMap = {
@@ -82,6 +83,7 @@ function SkillPage() {
       data = await fetchRequests.getUserSkills(user, token);
     }
     setSkills(data);
+    setLoading(false);
   }
 
   groupSkills()
@@ -92,7 +94,7 @@ function SkillPage() {
   }, [skillsModified, user])
   
   return (
-    isAuthenticated?
+    (isAuthenticated && loading === false) ? 
     <div id="skills-page">
       <h1>Your current skills:</h1>
       <label>

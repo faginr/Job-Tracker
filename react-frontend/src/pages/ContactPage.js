@@ -14,6 +14,7 @@ function ContactPage() {
   const [order, setOrder] = useState("Ascending");
   const getTokenFromAuth0 = useAPI();
   const {user, isAuthenticated} = useAuth0()
+  const [loading, setLoading] = useState(true);
   
   
   /************************************************************* 
@@ -88,6 +89,7 @@ function ContactPage() {
       };
       const data = await response.json();
       setContacts(data);
+      setLoading(false);
     }
   };
 
@@ -101,7 +103,7 @@ function ContactPage() {
 
 
   return (
-    isAuthenticated ? 
+    (isAuthenticated && loading === false) ?
       <>
         <h1>Contact Page</h1>
 
