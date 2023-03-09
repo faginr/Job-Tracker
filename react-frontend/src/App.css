@@ -493,6 +493,10 @@ th {
   margin-top: 2px;
 }
 
+.credit {
+  font-size: 12px;
+}
+
 @media (max-width: 800px) {
   .App-main{
     /* display: flex;
