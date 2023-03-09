@@ -42,10 +42,9 @@ function checkAcceptHeader (req, res, next) {
 
 /************************************************************* 
  * Check if the user sends the body with valid object keys, 
- * if not, send an error message (used by POST and PUT).
+ * if not, send an error message.
  ************************************************************/
 function checkRequestBody (req, res, next) {
-
   // available keys
   const allKeys = {
     "last_name": '', 
@@ -66,61 +65,40 @@ function checkRequestBody (req, res, next) {
 
   let keyError = false;
 
-  // check if received keys are valid
-  Object.keys(req.body).forEach(key => {
-    if (!(key in allKeys)) {
-      keyError = true;
-    }    
+  // check if received keys are valid (check key names and its value lenght)
+  Object.entries(req.body).forEach(key => {
+    if (key[0] === "last_name" || key[0] === "first_name" || key[0] === "email" || key[0] === "phone") {
+      if (key[1].length > 30) {
+        keyError = errorMessages[400].inputLenght;
+      }
+    };
+    if (key[0] === "notes") {
+      if (key[1].length > 500) {
+        keyError = errorMessages[400].inputLenght;
+      }
+    };
+    if (!(key[0] in allKeys)) {
+      keyError = errorMessages[400].keyError;
+    };
   });
+  
+  if (req.method !== 'PATCH') {
+    // check if the body contains the required keys
+    requiredKeys.forEach(key => {
+      if (!(key in req.body)) {
+        keyError = errorMessages[400].keyError;
+      }
+    });
+  };
 
-  // check if the body contains the required keys
-  requiredKeys.forEach(key => {
-    if (!(key in req.body)) {
-      keyError = true;
-    }
-  });
+  if (req.method === 'PATCH') {
+    // required keys cannot be empty strings, if so, send an error message
+    if (req.body.last_name === '' || req.body.first_name === '') {
+      keyError = errorMessages[400].requiredKey;
+    };
+  };
 
   if (keyError) {
-    res.status(400).send(errorMessages[400].keyError)
-  } else {
-    next()
-  }
-};
-
-
-/************************************************************* 
- * Check if the user sends the body with valid object keys, 
- * if not, send an error message (used by POST and PUT).
- ************************************************************/
-function checkRequestBodyPatch (req, res, next) {
-
-  // available keys
-  const allKeys = {
-    "last_name": '', 
-    "first_name": '', 
-    "email": '', 
-    "phone": '', 
-    "notes": '', 
-    "contact_at_app_id": '',
-    "auth": '',
-    "user": ''
-  };
-
-  let keyError = false;
-
-  // check if received keys are valid
-  Object.keys(req.body).forEach(key => {
-    if (!(key in allKeys)) {
-      keyError = errorMessages[400].keyError;
-    }    
-  });
-
-  // required keys cannot be empty strings, if so, send an error message
-  if (req.body.last_name === '' || req.body.first_name === '') {
-    keyError = errorMessages[400].requiredKey;
-  };
-
-  if (keyError !== false) {
     res.status(400).send(keyError)
   } else {
     next()
@@ -350,7 +328,7 @@ router.put('/users/:user_id/contacts/:contact_id',
 router.patch('/users/:user_id/contacts/:contact_id', 
   verifyUser.verifyJWTWithUserParam, 
   checkContentTypeHeader, 
-  checkRequestBodyPatch, 
+  checkRequestBody, 
   checkIdExists, 
   function (req, res) {
 

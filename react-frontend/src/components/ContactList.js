@@ -4,7 +4,6 @@ import Contact from './Contact';
 function ContactList({ contacts, onDelete, sorting }) {
   
   return (
-    <div>
     <table id="contacts" className='contact-table'>
       <thead>
         <tr>
@@ -25,7 +24,6 @@ function ContactList({ contacts, onDelete, sorting }) {
           key={i} />)}
       </tbody>
     </table>
-    </div>
   );
 }
 
