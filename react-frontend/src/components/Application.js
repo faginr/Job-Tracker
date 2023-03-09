@@ -4,7 +4,6 @@ import EditApplicationPage from '../pages/EditApplicationPage'
 import SlidingWindow from './SlidingWindow';
 
 function Application({ application, onDelete }) {
-  // console.log(application)
   return (
     <div className='card'>
       <h3>{application.title}</h3>
