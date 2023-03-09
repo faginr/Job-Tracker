@@ -99,7 +99,8 @@ async function postBigItem(newData, kind) {
     }
     const dataLink = {
         name: 'link',
-        value: newData.link
+        value: newData.link,
+        excludeFromIndexes: true
     }
     const dataUser = {
         name: 'user',
@@ -445,7 +446,8 @@ async function updateBigItem(newData, kind) {
     }
     const dataLink = {
         name: 'link',
-        value: newData.link
+        value: newData.link,
+        excludeFromIndexes: true
     }
     const dataUser = {
         name: 'user',

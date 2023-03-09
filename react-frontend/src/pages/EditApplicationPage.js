@@ -253,7 +253,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       <h1>Edit Application</h1>
 
       <div className="container">
-      <label className="">Title:</label>
+      <label className="">Title (max chars: 100):</label>
       <input
         className="edit-app"
         required
@@ -261,7 +261,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
         placeholder="Enter Title (required)"
         value={title}
         onChange={e => setTitle(e.target.value)} />
-      <label className="">Description:</label>
+      <label className="">Description (max chars: 5000):</label>
       <textarea
       className='edit-description'
         required
@@ -285,7 +285,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
           <option>Applied</option>
           <option>Not Applied</option>
       </select>
-      <label className="">Link:</label>
+      <label className="">Link (max chars: 2048):</label>
       <input
       className="edit-app"
         type="url"

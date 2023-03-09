@@ -116,7 +116,7 @@ function ApplicationPage() {
       return applications.filter(apps => apps["status"] === "Applied")
     }
     if (filteredSelect === 2){
-      applications.filter(apps => apps["status"] === "Not Applied")
+      return applications.filter(apps => apps["status"] === "Not Applied")
     }
     return applications
   }

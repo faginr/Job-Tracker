@@ -144,7 +144,7 @@ useEffect(() => {
     <div className="container">
       <form onSubmit={addApplication}>
         <h1>Add Application</h1>
-        <label>Title:</label>
+        <label>Title (max chars: 100):</label>
         <br />
         <input
         className='add-app'
@@ -154,7 +154,7 @@ useEffect(() => {
           value={title}
           onChange={e => setTitle(e.target.value)} />
           <br />
-        <label>Description:</label>
+        <label>Description (max chars: 5000):</label>
         <br />
         <textarea
           required
@@ -201,7 +201,7 @@ useEffect(() => {
             <option>Not Applied</option>
         </select>
         <br />
-        <label>External Link:</label>
+        <label>External Link (max chars: 2048):</label>
         <br />
         <input
         className='add-app'
