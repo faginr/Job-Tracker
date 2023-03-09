@@ -24,7 +24,7 @@ export default function UserSkillBubble({skill, className}) {
                 break;
             default:
                 completed = 0
-                background = "red"
+                background = "grey"
                 break;
         }
         

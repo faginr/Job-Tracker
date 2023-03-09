@@ -19,7 +19,7 @@ function ContactUserInputs({
       <input className='one-two'
         required
         type="text"
-        maxLength="20"
+        maxLength="30"
         placeholder="required field"
         value={first_name}
         onChange={e => setFirstName(e.target.value)} /><br />
@@ -28,7 +28,7 @@ function ContactUserInputs({
       <input className='two-two'
         required
         type="text"
-        maxLength="20"
+        maxLength="30"
         placeholder="required field"
         value={last_name}
         onChange={e => setLastName(e.target.value)} /><br />
@@ -44,7 +44,7 @@ function ContactUserInputs({
       <label className='four'>Phone:</label>
       <input className='four-two'
         type="text"
-        maxLength="20"
+        maxLength="30"
         placeholder="optional field"
         value={phone}
         onChange={e => setPhone(e.target.value)} /><br />

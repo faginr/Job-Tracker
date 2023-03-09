@@ -45,7 +45,7 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
         e.preventDefault()
 
         // handles case where description is blank
-        if(newSkill.description == undefined || newSkill.description === "") {
+        if(newSkill.description === undefined || newSkill.description === "") {
             return alert('Sorry, it looks like you haven\'t provided a description... Please try again')
         }
 
