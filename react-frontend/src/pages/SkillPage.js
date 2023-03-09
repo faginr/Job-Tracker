@@ -8,8 +8,6 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useAPI } from '../utils/Auth0Functions';
 import fetchRequests from '../data_model/fetchRequests';
 
-const apiURL = process.env.REACT_APP_API_SERVER_URL
-
 function SkillPage() {
   // const [groupedSkills, setGroupedSkills] = useState({})
   const [skills, setSkills] = useState([])
