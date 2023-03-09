@@ -65,7 +65,7 @@ function checkRequestBody (req, res, next) {
 
   let keyError = false;
 
-  // check if received keys are valid (check key names and its value lenght)
+  // check if received keys are valid (check key names and their value lenght)
   Object.entries(req.body).forEach(key => {
     if (key[0] === "last_name" || key[0] === "first_name" || key[0] === "email" || key[0] === "phone") {
       if (key[1].length > 30) {
