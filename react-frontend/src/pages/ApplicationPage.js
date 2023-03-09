@@ -23,6 +23,8 @@ function ApplicationPage() {
   const [contacts, setContacts] = useState([]);
   const [skills, setSkills] = useState([]);
   const {user, isAuthenticated} = useAuth0();
+  const [filteredSelect, setFilterSelect] = useState(0);
+  // const [filteredApps, setFilterApps] = useState([]);
   const getTokenFromAuth0 = useAPI();
   // const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ function ApplicationPage() {
   /************************************************************* 
    * Function to DELETE an application
    ************************************************************/
-  const onDelete = async (id, contacts, skills) => {
+  const onDelete = async (id) => {
     
     // Confirm Deletion
     const confirm = window.confirm("Are you sure you want to delete the application?");
@@ -107,17 +109,37 @@ function ApplicationPage() {
     });
     app["contact_names"] = contactNames;
   })
-  
+
+
+  function setFilterApps() {
+    if (filteredSelect === 1){
+      return applications.filter(apps => apps["status"] === "Applied")
+    }
+    if (filteredSelect === 2){
+      applications.filter(apps => apps["status"] === "Not Applied")
+    }
+    return applications
+  }
+
+  const filteredApps = setFilterApps();
   
   return (
     isAuthenticated ? 
       <>
         <h1>Application Page</h1>
+        <label>
+        Filter By Status: 
+        <select onChange={(e)=>setFilterSelect(parseInt(e.target.value))}>
+          <option value={0}>--No Filter--</option>
+          <option value={1}>Applied</option>
+          <option value={2}>Not Applied</option>
+        </select>
+      </label>
 
       <div>
         <p>Your applications:</p>
         <ApplicationList 
-          applications={applications} 
+          applications={filteredApps} 
           onDelete={onDelete}
         ></ApplicationList>
       </div>
