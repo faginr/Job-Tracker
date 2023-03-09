@@ -7,6 +7,7 @@ import LoadingPage from './LoadingPage';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useAPI } from '../utils/Auth0Functions';
 import fetchRequests from '../data_model/fetchRequests';
+import MostUsedSkills from '../components/MostUsedSkills';
 
 const apiURL = process.env.REACT_APP_API_SERVER_URL
 
@@ -97,6 +98,8 @@ function SkillPage() {
     isAuthenticated?
     <div id="skills-page">
       <h1>Your current skills:</h1>
+      <MostUsedSkills userSkills={skills} />
+      <h2>All:</h2>
       <label>
         Filter By Proficiency: 
         <select onChange={(e)=>setProficiency(parseInt(e.target.value))}>

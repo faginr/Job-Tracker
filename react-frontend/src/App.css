@@ -107,6 +107,12 @@ hr {
   margin-bottom: 6rem;
 }
 
+.most-ref-skills{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 
 .skills {
   text-align: start;
