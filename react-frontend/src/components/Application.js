@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdDeleteForever, MdEdit, MdLabel } from 'react-icons/md';
+import { MdDeleteForever, MdEdit } from 'react-icons/md';
 import EditApplicationPage from '../pages/EditApplicationPage'
 import SlidingWindow from './SlidingWindow';
 

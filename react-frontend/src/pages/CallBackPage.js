@@ -5,9 +5,6 @@ import { useAPI } from "../utils/Auth0Functions";
 import fetchRequests from "../data_model/fetchRequests";
 
 
-const datastore_url = process.env.REACT_APP_API_SERVER_URL
-
-
 function CallBackPage() {
     const {isAuthenticated, user} = useAuth0()
     const getTokenFromAuth0 = useAPI()
