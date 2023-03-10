@@ -59,7 +59,7 @@ function ContactPage() {
       );
       if (response.status === 204) {
         setContacts(contacts.filter(contact => contact.id !== contact_id));
-        console.log("Successfully deleted the contact!");
+        // console.log("Successfully deleted the contact!");
       } else {
         alert(`Failed to delete contact with id = ${contact_id}, status code = ${response.status}`)
       }
@@ -83,7 +83,7 @@ function ContactPage() {
         }
       );
       if (response.status === 200) {
-        console.log("Successfully fetched the contacts!"); 
+        // console.log("Successfully fetched the contacts!"); 
       } else {
         alert(`Failed to fetch the contacts, status code = ${response.status}`);
       };

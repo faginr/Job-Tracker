@@ -18,6 +18,7 @@ function HomePage() {
       <div className='credit'>Source of the image:
         <br />https://eecs.engineering.oregonstate.edu 
         <br />from the Job Tracker project description
+        <br /><br />
         {!isAuthenticated?<LogInSignUp />:<div></div>}
       </div>
       <br /><br />

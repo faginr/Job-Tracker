@@ -63,7 +63,7 @@ export const AddContactPage = () => {
           }
         );
         if (responseContactId.status === 201) {
-          console.log("Successfully added the contact!"); 
+          // console.log("Successfully added the contact!"); 
         } else {
           alert(`Failed to add the contact, status code = ${responseContactId.status}`);
         };
