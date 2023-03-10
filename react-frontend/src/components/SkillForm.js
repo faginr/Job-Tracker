@@ -6,7 +6,7 @@ import fetchRequests from "../data_model/fetchRequests";
 import {useAuth0} from '@auth0/auth0-react';
 import { useAPI } from "../utils/Auth0Functions";
 
-function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
+function SkillForm({skillToEdit, userSkills, setUserSkills}) {
     const [skill, setSkill] = useState(skillToEdit)
     // used by selectMulti to keep track of what's selected, pushes app objects to
     // the array
@@ -30,8 +30,9 @@ function SkillForm({skillToEdit, skillsModified, setSkillsModified}) {
         if(isAuthenticated){
             await fetchRequests.deleteSkillFromUser(user, token, skill.skill_id)
             
-            // call setSkillsModified to refresh the skills page
-            setSkillsModified(skillsModified+1)
+            // set user skills to remove item
+            let newUserSkills = userSkills.filter(userSkill=> userSkill.skill_id !== skill.skill_id) 
+            setUserSkills(newUserSkills)
         }
     }
 

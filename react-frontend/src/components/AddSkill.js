@@ -7,7 +7,7 @@ import {useAPI} from '../utils/Auth0Functions';
 // Component that lists all skills in the database, allows
 // filtering of those skills with search, and when a skill
 // is clicked adds that skill to the user.
-function AddSkill({skillAdded, setSkillAdded, userSkills}) {
+function AddSkill({userSkills, setUserSkills}) {
     const [allSkillList, setAllSkills] = useState([])
     const [newSkill, setNewSkill] = useState({"description": undefined, "proficiency": null})
     const [newSkillFormClass, setNewSkillFormClass] = useState("hidden")
@@ -36,6 +36,24 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
         )
     }
 
+    // Creates a new userSkills array in sorted order with skillToAdd included
+    function createNewUserSkills(skillToAdd){
+        let newUserSkills = []
+        let newSkillPushed = false
+        for(let skill of userSkills){
+            if(skill.description.toUpperCase() < skillToAdd.description.toUpperCase()){
+                newUserSkills.push(skill)
+            } else {
+                if (!newSkillPushed){
+                    newUserSkills.push(skillToAdd)
+                    newSkillPushed = true
+                }
+                newUserSkills.push(skill)
+            }
+        }
+        return newUserSkills
+    }
+
     /**
      * Creates a new skill in datastore and ties new skill to the user
      * with the defined proficiency
@@ -58,14 +76,16 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
             // tie the skill to the user
             await fetchRequests.tieSkillToUser(user, token, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
             
-            // perform cleanup after skill created
-            setNewSkillFormClass("hidden")
-            loadAllSkills().then((data) => highlightUsersSkills(data))
-            setQuery("")
-            setNewSkill({'description': undefined, 'proficiency': undefined})
-            setSkillAdded(skillAdded+1)
+            // push new skill into userSkills array, this will cause a re-render
+            let skillToAdd = {
+                'skill_id': createdSkill.id,
+                'applications': [],
+                'description': newSkill.description,
+                'proficiency': parseInt(newSkill.proficiency)
+            }
+            let newUserSkills = createNewUserSkills(skillToAdd)
+            setUserSkills(newUserSkills)
         }
-
     }
 
     function cancelCreate(e) {
@@ -84,9 +104,15 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
         if(isAuthenticated){
             await fetchRequests.tieSkillToUser(user, token, {'proficiency': undefined}, skill.id)
     
-            // perform cleanup after skill tied
-            setSkillAdded(skillAdded+1)
-            skill.userOwns = true
+            // push new skill into userSkills array, this will cause a re-render
+            let skillToAdd = {
+                'description': skill.description,
+                'skill_id': skill.id,
+                'applications': [],
+                'proficiency': undefined,
+            }
+            let newUserSkills = createNewUserSkills(skillToAdd)
+            setUserSkills(newUserSkills)
         }
     }
 
@@ -142,7 +168,7 @@ function AddSkill({skillAdded, setSkillAdded, userSkills}) {
         return data
     }
 
-    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [user])
+    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [user, userSkills])
 
     return(
         <div className="add-skill">
