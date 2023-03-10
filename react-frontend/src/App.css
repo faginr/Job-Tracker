@@ -68,6 +68,15 @@ button {
   padding: 5px;
 }
 
+.login-signup{
+  margin-bottom: 6rem;
+  margin-top: 1rem;
+}
+
+.login-signup button{
+  margin: 5px;
+}
+
 hr {
   width: 40%;
 }
