@@ -11,7 +11,7 @@ export default function MostUsedSkills({userSkills}){
         let [arrLength, minAppCount] = findArrLength()
         let highestRefSkills = []
 
-        if(arrLength === 0){
+        if(arrLength === 1){
             // max and min are the same, so return a subset of userSkills
             if(userSkills.length < 5){
                 return userSkills
@@ -20,7 +20,9 @@ export default function MostUsedSkills({userSkills}){
             }
         }
 
-        let sortedArray = Array.apply(null, Array(arrLength+1)).map(() => {
+        // create blank array with arrays as initial values so that we can
+        // shove each skill in the index that matches their application length
+        let sortedArray = Array.apply(null, Array(arrLength)).map(() => {
             return []
         })
 
@@ -57,7 +59,7 @@ export default function MostUsedSkills({userSkills}){
         if(max < min){
             return [0, 0]
         }
-        return [(max-min), min]
+        return [(max-min+1), min]
     }
 
     const highestRefSkills = sortByAppCount()
