@@ -175,6 +175,14 @@ function AddSkill({userSkills, setUserSkills}) {
             }
             highlightedSkills.push(allSkill)
         }
+
+        // at end of user skills, if any skills left in all skills push them in
+        while(allSkillIndex < allSkillList.length){
+            let allSkill = allSkillList[allSkillIndex]
+            allSkill.userOwns = false
+            highlightedSkills.push(allSkill)
+            allSkillIndex++
+        }
         return highlightedSkills
     }
 
