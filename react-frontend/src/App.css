@@ -513,6 +513,13 @@ th {
   font-size: 12px;
 }
 
+#loadingPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
+
 @media (max-width: 800px) {
   .App-main{
     /* display: flex;
@@ -553,5 +560,10 @@ th {
 
   .credit {
     margin: 0 0 4rem 0;
+  }
+
+  #loadingPage {
+    padding-right: 2rem;
+    
   }
 }

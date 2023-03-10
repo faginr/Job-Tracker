@@ -24,7 +24,7 @@ function ApplicationPage() {
   const [skills, setSkills] = useState([]);
   const {user, isAuthenticated} = useAuth0();
   const [filteredSelect, setFilterSelect] = useState(0);
-  // const [filteredApps, setFilterApps] = useState([]);
+  const [loading, setLoading] = useState(true);
   const getTokenFromAuth0 = useAPI();
   // const navigate = useNavigate();
 
@@ -58,6 +58,8 @@ function ApplicationPage() {
     }
   };
 
+  // const loading = applications["loading"]?false:true; 
+
  /************************************************************* 
    * Get applications and set
    ************************************************************/
@@ -69,6 +71,7 @@ function ApplicationPage() {
     });
     const data = await response.json();
     setApplications(data);
+    setLoading(false);
   };
 
   /***********************************************************
@@ -122,9 +125,9 @@ function ApplicationPage() {
   }
 
   const filteredApps = setFilterApps();
-  
+  // const loading = false
   return (
-    isAuthenticated ? 
+    (isAuthenticated && loading === false) ? 
       <>
         <h1>Application Page</h1>
         <label>

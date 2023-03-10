@@ -12,6 +12,7 @@ import MostUsedSkills from '../components/MostUsedSkills';
 function SkillPage() {
   const [skills, setSkills] = useState([])
   const {user, isAuthenticated} = useAuth0()
+  const [loading, setLoading] = useState(true);
   const getTokenFromAuth0 = useAPI()
 
 
@@ -22,6 +23,7 @@ function SkillPage() {
       data = await fetchRequests.getUserSkills(user, token);
     }
     setSkills(data);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -29,7 +31,7 @@ function SkillPage() {
   }, [user])
   
   return (
-    isAuthenticated?
+    (isAuthenticated && loading === false) ? 
     <div id="skills-page">
       <h1>Your current skills:</h1>
       <MostUsedSkills userSkills={skills} />
