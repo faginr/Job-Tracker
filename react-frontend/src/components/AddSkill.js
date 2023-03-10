@@ -15,10 +15,6 @@ function AddSkill({userSkills, setUserSkills}) {
     const {user, isAuthenticated} = useAuth0();
     const getTokenFromAuth0 = useAPI();
 
-    const filteredSkills = allSkillList.filter((skill) => {
-        return (skill.description.toLowerCase().includes(query.toLowerCase()))
-    })
-
     function allowSearchAndCreateNew() {
         return(
             <div>
@@ -51,6 +47,11 @@ function AddSkill({userSkills, setUserSkills}) {
                 newUserSkills.push(skill)
             }
         }
+        // special case at end of loop, if skillToAdd is greater than all existing userSkills
+        // then need to push it at the end.
+        if (!newSkillPushed){
+            newUserSkills.push(skillToAdd)
+        }
         return newUserSkills
     }
 
@@ -73,18 +74,29 @@ function AddSkill({userSkills, setUserSkills}) {
             // send the skill to the backend for creation
             let createdSkill = await fetchRequests.createSkill(token, {'description': newSkill.description})
     
+            // determine proficiency entered
+            let prof = newSkill.proficiency
+            if(prof === ''){
+                prof = undefined
+            } else{
+                prof = parseInt(prof)
+            }
+
             // tie the skill to the user
-            await fetchRequests.tieSkillToUser(user, token, {'proficiency': parseInt(newSkill.proficiency)}, createdSkill.id)
+            await fetchRequests.tieSkillToUser(user, token, {'proficiency': prof}, createdSkill.id)
             
             // push new skill into userSkills array, this will cause a re-render
             let skillToAdd = {
                 'skill_id': createdSkill.id,
                 'applications': [],
                 'description': newSkill.description,
-                'proficiency': parseInt(newSkill.proficiency)
+                'proficiency': prof,
             }
             let newUserSkills = createNewUserSkills(skillToAdd)
             setUserSkills(newUserSkills)
+            setNewSkillFormClass("hidden")
+            setQuery("")
+            setNewSkill({'description': '', 'proficiency': ''})
         }
     }
 
@@ -139,23 +151,31 @@ function AddSkill({userSkills, setUserSkills}) {
         }
     }
 
-    function highlightUsersSkills(allSkillList) {
+    function highlightUsersSkills() {
         let allSkillIndex = 0
         let userSkillIndex = 0
+        let highlightedSkills = []
         while (allSkillIndex < allSkillList.length && userSkillIndex < userSkills.length){
-            let allSkillDesc = allSkillList[allSkillIndex].description.toLowerCase()
-            let userSkillDesc = userSkills[userSkillIndex].description.toLowerCase()
+            let allSkill = allSkillList[allSkillIndex]
+            let userSkill = userSkills[userSkillIndex]
+            allSkill.userOwns = false
             
-            if(allSkillDesc > userSkillDesc){
+            if(allSkill.description.toLowerCase() > userSkill.description.toLowerCase()){
+                // hold allSkill ref in place while moving user skill forward 
                 userSkillIndex++
                 continue;
-            } else if(allSkillDesc === userSkillDesc){
-                allSkillList[allSkillIndex].userOwns = true
+            } else if(allSkill.description.toLowerCase() === userSkill.description.toLowerCase()){
+                // mark allSkill as being owned by user, move both pointers forward
+                allSkill.userOwns = true
                 userSkillIndex++
-            } 
-            allSkillIndex++
+                allSkillIndex++
+            } else {
+                // hold userSkill in place while moving allSkill pointer forward
+                allSkillIndex++
+            }
+            highlightedSkills.push(allSkill)
         }
-        setAllSkills(allSkillList)
+        return highlightedSkills
     }
 
     async function loadAllSkills() {
@@ -165,11 +185,16 @@ function AddSkill({userSkills, setUserSkills}) {
             data = await fetchRequests.getAllSkills(token)
         }
         setAllSkills(data)
-        return data
     }
 
-    useEffect(()=>{loadAllSkills().then((data) => highlightUsersSkills(data))}, [user, userSkills])
-
+    useEffect(()=>{
+        loadAllSkills()
+    }, [user, userSkills])
+    
+    const highlightedSkills = highlightUsersSkills()
+    const filteredSkills = highlightedSkills.filter((skill) => {
+        return (skill.description.toLowerCase().includes(query.toLowerCase()))
+    })
     return(
         <div className="add-skill">
             
@@ -177,7 +202,7 @@ function AddSkill({userSkills, setUserSkills}) {
                 Add Skill to Your Profile
             </h2>
             
-            {allSkillList.length<3?createNew():allowSearchAndCreateNew()}
+            {highlightedSkills.length<3?createNew():allowSearchAndCreateNew()}
 
             <div className={newSkillFormClass}>
                 <form>
