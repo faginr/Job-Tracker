@@ -282,6 +282,7 @@ export const EditApplicationPage = ({ typeToEdit }) => {
       <select 
       className="edit-app"
       onChange={e => setStatus(e.target.value)}>
+          <option disabled selected value>--Select Status--</option>
           <option>Applied</option>
           <option>Not Applied</option>
       </select>
