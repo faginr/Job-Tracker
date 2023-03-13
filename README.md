@@ -83,11 +83,9 @@ react - 18.2.0
 ```
 ## How to test
 
-The datastore-backend portion of the application can be tested using the postman collection and environment included in the repository (Learn more about [Postman](https://www.postman.com/)).
+The datastore-backend portion of the application can be tested using postman. (Learn more about [Postman](https://www.postman.com/)).
 
-A guide for importing postman collections and environments can be found here: [Importing in Postman](https://docs.saucelabs.com/api-testing/import-postman-collection/)
-
-Please note that these tests are in development and should be run only after gaining familiarity with the backend routes. It is recommended to run collections with a delay of 1000ms to avoid latency issues when testing.
+Please note that testing requires user authentication through bearer tokens and should only be attempted after gaining familiarity with the project codebase. It is recommended to run postman collections with a delay of 1000ms to avoid latency issues when testing.
 
 ## How you can help
 
